@@ -14,3 +14,6 @@ FlipFlip-linux-ia32/
 *.ipr
 *.iws
 .idea/
+
+##Ignore data.json files
+data.json*
