@@ -7,10 +7,7 @@ import fileURL from "file-url";
 import wretch from "wretch";
 import uuidv4 from "uuid/v4";
 
-import {
-  getCachePath,
-  randomizeList,
-} from "../../data/utils";
+import {getCachePath, randomizeList} from "../../data/utils";
 import {filterPathsToJustPlayable, getFileName, getSourceType, isVideo, processAllURLs} from "./Scrapers";
 import {IF, SOF, ST} from '../../data/const';
 import Config from "../../data/Config";
@@ -328,7 +325,8 @@ export default class SourceScraper extends React.Component {
     restart: false,
     preload: false,
     videoVolume: this.props.scene.videoVolume,
-    captcha: null as string,
+    captcha: null as any,
+    load: false,
   };
 
   _isMounted = false;
@@ -381,7 +379,7 @@ export default class SourceScraper extends React.Component {
             open={true}
             onClose={this.onCloseDialog.bind(this)}>
             <DialogContent style={{height: 600}}>
-              <iframe src={this.state.captcha} height={"100%"}/>
+              <iframe sandbox="allow-forms" src={this.state.captcha.captcha} height={"100%"} onLoad={this.onIFrameLoad.bind(this)}/>
             </DialogContent>
           </Dialog>
         )}
@@ -389,8 +387,16 @@ export default class SourceScraper extends React.Component {
     );
   }
 
+  onIFrameLoad() {
+    if (!this.state.load) {
+      this.setState({load: true});
+    } else {
+      this.onCloseDialog();
+    }
+  }
+
   onCloseDialog() {
-    this.setState({captcha: null});
+    this.setState({captcha: null, load: false});
   }
 
   componentDidMount(restart = false) {
@@ -478,7 +484,7 @@ export default class SourceScraper extends React.Component {
         if (object?.type == "RPC" || (object?.helper != null && object.helpers.uuid != uuid)) return;
 
         if (object?.captcha != null && this.state.captcha == null) {
-          this.setState({captcha: object.captcha});
+          this.setState({captcha: {captcha: object.captcha, source: object?.source, helpers: object?.helpers}});
         }
 
         if (object?.error != null) {
@@ -599,6 +605,9 @@ export default class SourceScraper extends React.Component {
     };
 
     let promiseLoop = () => {
+      if (this.state.captcha != null && this._promiseQueue.length == 0) {
+        setTimeout(promiseLoop, 2000);
+      }
       // Process until queue is empty or player has been stopped
       if (!this._isMounted || this._promiseQueue.length == 0)  {
         if (workerListener != null) {
@@ -617,7 +626,7 @@ export default class SourceScraper extends React.Component {
         if (object?.type == "RPC" || (object?.helper != null && object.helpers.uuid != uuid)) return;
 
         if (object?.captcha != null && this.state.captcha == null) {
-          this.setState({captcha: object.captcha});
+          this.setState({captcha: {captcha: object.captcha, source: object?.source, helpers: object?.helpers}});
         }
 
         if (object?.error != null) {

@@ -326,7 +326,7 @@ export default class ImagePlayer extends React.Component {
       return;
     }
 
-    let source;
+    let source: string;
     let collection: string[];
     let url: string;
     let urlIndex: number;
@@ -644,7 +644,7 @@ export default class ImagePlayer extends React.Component {
       video.preload = "auto";
 
       clearTimeout(this._imgLoadTimeouts[i]);
-      this._imgLoadTimeouts[i] = setTimeout(() => errorCallback, 15000);
+      this._imgLoadTimeouts[i] = setTimeout(errorCallback, 15000);
 
       video.load();
     } else {
@@ -754,7 +754,7 @@ export default class ImagePlayer extends React.Component {
 
         img.src = url;
         clearTimeout(this._imgLoadTimeouts[i]);
-        this._imgLoadTimeouts[i] = setTimeout(() => errorCallback, 5000);
+        this._imgLoadTimeouts[i] = setTimeout(errorCallback, 5000);
       };
 
       // Get gifinfo if we need for imageFilter or playing full gif
@@ -779,7 +779,7 @@ export default class ImagePlayer extends React.Component {
       } else {
         img.src = url;
         clearTimeout(this._imgLoadTimeouts[i]);
-        this._imgLoadTimeouts[i] = setTimeout(() => errorCallback, 5000);
+        this._imgLoadTimeouts[i] = setTimeout(errorCallback, 5000);
       }
     }
   }
@@ -794,83 +794,89 @@ export default class ImagePlayer extends React.Component {
 
     let nextHistoryPaths = this.state.historyPaths;
     let nextImg: HTMLImageElement | HTMLVideoElement;
-    if (this.props.scene.nextSceneAllImages && this.props.scene.nextSceneID != 0 && this.props.playNextScene) {
-      let remainingLibrary;
-      if (this.props.scene.weightFunction == WF.sources) {
-        remainingLibrary = [].concat.apply([], Array.from(this.props.allURLs.values())).filter((u: string) => !this._playedURLs.includes(u));
-      } else {
-        remainingLibrary = Array.from(this.props.allURLs.keys()).filter((u: string) => !this._playedURLs.includes(u));
-      }
-      if (remainingLibrary.length === 0) {
-        this._playedURLs = new Array<string>();
-        this.props.playNextScene();
-        return;
-      }
-    }
-
-    if (this.props.scene.orderFunction == OF.strict) {
-      this.state.readyToDisplay.sort((a, b) => {
-        // JavaScript doesn't calculate negative modulos correctly, use this
-        const mod = (x: number, n: number) => (x % n + n) % n;
-        const aStrict = mod((parseInt(a.getAttribute("index")) - this._count), parseInt(a.getAttribute("length")));
-        const bStrict = mod((parseInt(b.getAttribute("index")) - this._count), parseInt(b.getAttribute("length")));
-        if (aStrict > bStrict) {
-          return 1;
-        } else if (aStrict < bStrict) {
-          return -1;
+    if (this.props.historyOffset == 0) {
+      if (this.props.scene.nextSceneAllImages && this.props.scene.nextSceneID != 0 && this.props.playNextScene) {
+        let remainingLibrary;
+        if (this.props.scene.weightFunction == WF.sources) {
+          remainingLibrary = [].concat.apply([], Array.from(this.props.allURLs.values())).filter((u: string) => !this._playedURLs.includes(u));
         } else {
-          if (a.hasAttribute("sindex") && b.hasAttribute("sindex")) {
-            const aSource = parseInt(a.getAttribute("sindex"));
-            const bSource = parseInt(b.getAttribute("sindex"));
-            if (aSource > bSource) {
-              return 1;
-            } else if (aSource < bSource) {
-              return -1;
+          remainingLibrary = Array.from(this.props.allURLs.keys()).filter((u: string) => !this._playedURLs.includes(u));
+        }
+        if (remainingLibrary.length === 0) {
+          this._playedURLs = new Array<string>();
+          this.props.playNextScene();
+          return;
+        }
+      }
+
+      if (this.props.scene.orderFunction == OF.strict) {
+        this.state.readyToDisplay.sort((a, b) => {
+          // JavaScript doesn't calculate negative modulos correctly, use this
+          const mod = (x: number, n: number) => (x % n + n) % n;
+          const aStrict = mod((parseInt(a.getAttribute("index")) - this._count), parseInt(a.getAttribute("length")));
+          const bStrict = mod((parseInt(b.getAttribute("index")) - this._count), parseInt(b.getAttribute("length")));
+          if (aStrict > bStrict) {
+            return 1;
+          } else if (aStrict < bStrict) {
+            return -1;
+          } else {
+            if (a.hasAttribute("sindex") && b.hasAttribute("sindex")) {
+              const aSource = parseInt(a.getAttribute("sindex"));
+              const bSource = parseInt(b.getAttribute("sindex"));
+              if (aSource > bSource) {
+                return 1;
+              } else if (aSource < bSource) {
+                return -1;
+              } else {
+                return 0;
+              }
             } else {
               return 0;
             }
-          } else {
-            return 0;
+          }
+        });
+      }
+
+      // Prevent playing same image again, if possible
+      do {
+        if (this.state.readyToDisplay.length) {
+          // If there is an image ready, display the next image
+          nextImg = this.state.readyToDisplay.shift();
+        } else if (this.state.historyPaths.length && this.props.config.defaultScene.orderFunction == OF.random && !this.props.scene.forceAll) {
+          // If no image is ready, we have a history to choose from, ordering is random, and NOT forcing all
+          // Choose a random image from history to display
+          nextImg = getRandomListItem(this.state.historyPaths);
+        } else if (this.state.historyPaths.length) {
+          // If no image is ready, we have a history to choose from, and ordering is not random
+          // Show the next image from history
+          nextImg = this.state.historyPaths[this._nextAdvIndex++ % this.state.historyPaths.length];
+        }
+      } while (this.state.historyPaths.length > 0 && nextImg?.src == this.state.historyPaths[this.state.historyPaths.length - 1].src &&
+      (this.state.readyToDisplay.length > 0 || this.state.historyPaths.filter((s) => s.src != this.state.historyPaths[this.state.historyPaths.length - 1]?.src).length > 0))
+
+      if (nextImg) {
+        if (this.props.scene.continueVideo && nextImg instanceof HTMLVideoElement) {
+          const videoFind = Array.from(this.state.historyPaths).reverse().find((i) => i.src == nextImg.src &&
+            i.getAttribute("start") == nextImg.getAttribute("start") &&
+            i.getAttribute("end") == nextImg.getAttribute("end"));
+          if (videoFind) {
+            nextImg = videoFind;
           }
         }
-      });
-    }
-
-    // Prevent playing same image again, if possible
-    do {
-      if (this.state.readyToDisplay.length) {
-        // If there is an image ready, display the next image
-        nextImg = this.state.readyToDisplay.shift();
-      } else if (this.state.historyPaths.length && this.props.config.defaultScene.orderFunction == OF.random && !this.props.scene.forceAll) {
-        // If no image is ready, we have a history to choose from, ordering is random, and NOT forcing all
-        // Choose a random image from history to display
-        nextImg = getRandomListItem(this.state.historyPaths);
-      } else if (this.state.historyPaths.length) {
-        // If no image is ready, we have a history to choose from, and ordering is not random
-        // Show the next image from history
-        nextImg = this.state.historyPaths[this._nextAdvIndex++ % this.state.historyPaths.length];
+        nextHistoryPaths = nextHistoryPaths.concat([nextImg]);
       }
-    } while (this.state.historyPaths.length > 0 && nextImg?.src == this.state.historyPaths[this.state.historyPaths.length - 1].src &&
-    (this.state.readyToDisplay.length > 0 || this.state.historyPaths.filter((s) => s.src != this.state.historyPaths[this.state.historyPaths.length - 1]?.src).length > 0))
 
-    if (nextImg) {
-      if (this.props.scene.continueVideo && nextImg instanceof HTMLVideoElement) {
-        const videoFind = Array.from(this.state.historyPaths).reverse().find((i) => i.src == nextImg.src &&
-          i.getAttribute("start") == nextImg.getAttribute("start") &&
-          i.getAttribute("end") == nextImg.getAttribute("end"));
-        if (videoFind) {
-          nextImg = videoFind;
-        }
+      while (nextHistoryPaths.length > this.props.maxInMemory) {
+        nextHistoryPaths.shift();
       }
-      nextHistoryPaths = nextHistoryPaths.concat([nextImg]);
-    }
 
-    while (nextHistoryPaths.length > this.props.maxInMemory) {
-      nextHistoryPaths.shift();
-    }
-
-    if (this.props.scene.nextSceneAllImages && this.props.scene.nextSceneID != 0 && this.props.playNextScene && nextImg && nextImg.src) {
-      this._playedURLs.push(nextImg.src);
+      if (this.props.scene.nextSceneAllImages && this.props.scene.nextSceneID != 0 && this.props.playNextScene && nextImg && nextImg.src) {
+        this._playedURLs.push(nextImg.src);
+      }
+    } else {
+      const newOffset = this.props.historyOffset + 1;
+      nextImg = this.state.historyPaths[(this.state.historyPaths.length - 1) + newOffset];
+      this.props.setHistoryOffset(newOffset);
     }
 
     if (!schedule) {
