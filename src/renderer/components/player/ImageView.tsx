@@ -87,7 +87,11 @@ export default class ImageView extends React.Component {
             track.label = "English";
             track.srclang = "en";
             track.src = URL.createObjectURL(blob);
-            img.append(track);
+            if (img.textTracks.length == 0) {
+              img.append(track);
+            } else {
+              img.textTracks[0] = track;
+            }
             track.mode = "showing";
             img.textTracks[0].mode = "showing";
           });
@@ -97,7 +101,7 @@ export default class ImageView extends React.Component {
     }
 
     const videoLoop = (v: any) => {
-      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || v.paused) return;
+      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || v.paused || this._timeouts == null) return;
       if (v.ended) {
         v.onended(null);
         return;
@@ -119,7 +123,7 @@ export default class ImageView extends React.Component {
     };
 
     const drawLoop = (v: any, c: CanvasRenderingContext2D, w: number, h: number) => {
-      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || v.ended || v.paused) return;
+      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || v.ended || v.paused || this._timeouts == null) return;
       c.drawImage(v, 0, 0, w, h);
       this._timeouts.push(setTimeout(drawLoop, 20, v, c, w, h));
     };

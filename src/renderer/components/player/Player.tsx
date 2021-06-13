@@ -58,6 +58,7 @@ export default class Player extends React.Component {
     playTrack?(url: string): void,
     changeAudioRoute?(aID: number): void,
     toggleTag?(sourceID: number, tag: Tag): void,
+    inheritTags?(sourceID: number): void,
     getCurrentTimestamp?(): number,
     onCaptionError?(e: string): void,
     onLoaded?(): void,
@@ -113,10 +114,6 @@ export default class Player extends React.Component {
         right: 0,
         bottom: 0,
         left: 0,
-        width: '104%',
-        height: '104%',
-        marginLeft: '-2%',
-        marginTop: '-2%',
         overflow: 'hidden',
       }
     } else {
@@ -384,6 +381,7 @@ export default class Player extends React.Component {
             goToTagSource={this.props.goToTagSource}
             goToClipSource={this.props.goToClipSource}
             toggleTag={this.props.toggleTag}
+            inheritTags={this.props.inheritTags}
           />
         )}
 
