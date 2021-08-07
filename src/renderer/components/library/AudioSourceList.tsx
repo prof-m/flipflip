@@ -78,6 +78,7 @@ class AudioSourceList extends React.Component {
   };
 
   onSortEnd = ({oldIndex, newIndex}: {oldIndex: number, newIndex: number}) => {
+    // TODO Also update selected
     if (this.props.playlist) {
       this.props.onUpdatePlaylists((pl) => {
         const playlist = pl.find((p) => p.name == this.props.playlist);
