@@ -2,15 +2,37 @@ import * as React from "react";
 import clsx from "clsx";
 
 import {
-  Button, Collapse, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, Divider, Fab, FormControl,
-  FormControlLabel, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Select, Slider, Switch, TextField, Theme,
-  Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Button,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  Divider,
+  Fab,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
-import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
-import ListIcon from '@material-ui/icons/List';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ListIcon from '@mui/icons-material/List';
 
 import {BT, IT, SDT, TF} from "../../data/const";
 import {SceneSettings} from "../../data/Config";
@@ -96,6 +118,7 @@ class SceneOptionCard extends React.Component {
     tutorial: string,
     onUpdateScene(scene: Scene | SceneSettings, fn: (scene: Scene | SceneSettings) => void): void,
     isTagging?: boolean,
+    onGenerate?(scene: Scene | SceneGrid, children?: boolean): void,
   };
 
   readonly state = {
@@ -127,15 +150,16 @@ class SceneOptionCard extends React.Component {
         <Grid item xs={12} className={clsx(this.props.tutorial == SDT.timing && classes.highlight)}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} style={{paddingTop: 10}}>
-              <FormControl className={classes.fullWidth}>
+              <FormControl variant="standard" className={classes.fullWidth}>
                 <InputLabel>Timing</InputLabel>
                 <Select
+                  variant="standard"
                   value={this.props.scene.timingFunction}
                   onChange={this.onInput.bind(this, 'timingFunction')}>
                   {[TF.constant, TF.random, TF.sin, TF.bpm].map((tf) => {
                     if (tf == TF.bpm) {
                       return <MenuItem key={tf} value={tf}>
-                        {en.get(tf)} {!hasBPM && <Tooltip title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
+                        {en.get(tf)} {!hasBPM && <Tooltip disableInteractive title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
                       </MenuItem>
                     } else {
                       return <MenuItem key={tf} value={tf}>{en.get(tf)}</MenuItem>
@@ -146,7 +170,7 @@ class SceneOptionCard extends React.Component {
             </Grid>
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 8}>
               <Collapse in={this.props.scene.timingFunction == TF.sin} className={classes.fullWidth}>
-                <Typography id="scene-sin-rate-slider" variant="caption" component="div" color="textSecondary">
+                <Typography variant="caption" component="div" color="textSecondary">
                   Wave Rate
                 </Typography>
                 <Grid container alignItems="center">
@@ -161,6 +185,7 @@ class SceneOptionCard extends React.Component {
                   </Grid>
                   <Grid item xs={3} className={classes.percentInput}>
                     <TextField
+                      variant="standard"
                       value={timingSinRate}
                       onChange={this.onIntInput.bind(this, 'timingSinRate')}
                       onBlur={this.blurIntKey.bind(this, 'timingSinRate')}
@@ -171,12 +196,12 @@ class SceneOptionCard extends React.Component {
                         max: 100,
                         type: 'number',
                         'aria-labelledby': 'scene-sin-rate-slider',
-                      }}/>
+                      }} />
                   </Grid>
                 </Grid>
               </Collapse>
               <Collapse in={this.props.scene.timingFunction == TF.bpm} className={classes.fullWidth}>
-                <Typography id="scene-bpm-multi-slider" variant="caption" component="div" color="textSecondary">
+                <Typography variant="caption" component="div" color="textSecondary">
                   BPM Multiplier {this.props.scene.timingBPMMulti / 10}x
                 </Typography>
                 <Slider
@@ -255,7 +280,7 @@ class SceneOptionCard extends React.Component {
         <Grid item xs={12} className={clsx(this.props.tutorial == SDT.backForth && classes.highlight)}>
           <Grid container alignItems="center">
             <Grid item xs={12}>
-              <Tooltip title="Go back and forth between the last two images">
+              <Tooltip disableInteractive title="Go back and forth between the last two images">
                 <FormControlLabel
                   control={
                     <Switch checked={this.props.scene.backForth}
@@ -268,15 +293,16 @@ class SceneOptionCard extends React.Component {
           <Collapse in={this.props.scene.backForth}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} style={{paddingTop: 10}}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Back/Forth Timing</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.backForthTF}
                     onChange={this.onInput.bind(this, 'backForthTF')}>
                     {[TF.constant, TF.random, TF.sin, TF.bpm].map((tf) => {
                       if (tf == TF.bpm) {
                         return <MenuItem key={tf} value={tf}>
-                          {en.get(tf)} {!hasBPM && <Tooltip title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
+                          {en.get(tf)} {!hasBPM && <Tooltip disableInteractive title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
                         </MenuItem>
                       } else {
                         return <MenuItem key={tf} value={tf}>{en.get(tf)}</MenuItem>
@@ -287,7 +313,7 @@ class SceneOptionCard extends React.Component {
               </Grid>
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 8}>
                 <Collapse in={this.props.scene.backForthTF == TF.sin} className={classes.fullWidth}>
-                  <Typography id="bf-sin-rate-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     Wave Rate
                   </Typography>
                   <Grid container alignItems="center">
@@ -302,6 +328,7 @@ class SceneOptionCard extends React.Component {
                     </Grid>
                     <Grid item xs={3} className={classes.percentInput}>
                       <TextField
+                        variant="standard"
                         value={backForthSinRate}
                         onChange={this.onIntInput.bind(this, 'backForthSinRate')}
                         onBlur={this.blurIntKey.bind(this, 'backForthSinRate')}
@@ -312,12 +339,12 @@ class SceneOptionCard extends React.Component {
                           max: 100,
                           type: 'number',
                           'aria-labelledby': 'bf-sin-rate-slider',
-                        }}/>
+                        }} />
                     </Grid>
                   </Grid>
                 </Collapse>
                 <Collapse in={this.props.scene.backForthTF == TF.bpm} className={classes.fullWidth}>
-                  <Typography id="bf-bpm-multi-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     BPM Multiplier {this.props.scene.backForthBPMMulti / 10}x
                   </Typography>
                   <Slider
@@ -397,9 +424,10 @@ class SceneOptionCard extends React.Component {
         <Grid item xs={12} className={clsx(this.props.tutorial == SDT.imageSizing && classes.highlight)}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={this.props.sidebar ? 8 : 12} sm={this.props.sidebar ? 8 : 6}>
-              <FormControl className={classes.fullWidth}>
+              <FormControl variant="standard" className={classes.fullWidth}>
                 <InputLabel>Image Sizing</InputLabel>
                 <Select
+                  variant="standard"
                   value={this.props.scene.imageType}
                   onChange={this.onInput.bind(this, 'imageType')}>
                   {Object.values(IT).map((it) =>
@@ -410,9 +438,10 @@ class SceneOptionCard extends React.Component {
             </Grid>
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}/>
             <Grid item xs={this.props.sidebar ? 8 : 12} sm={this.props.sidebar ? 8 : 4}>
-              <FormControl className={classes.fullWidth}>
+              <FormControl variant="standard" className={classes.fullWidth}>
                 <InputLabel>Background</InputLabel>
                 <Select
+                  variant="standard"
                   value={this.props.scene.backgroundType}
                   onChange={this.onInput.bind(this, 'backgroundType')}>
                   {Object.values(BT).map((bt) =>
@@ -423,7 +452,7 @@ class SceneOptionCard extends React.Component {
             </Grid>
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 8}>
               <Collapse in={this.props.scene.backgroundType == BT.blur} className={classes.fullWidth}>
-                <Typography id="scene-bg-color-slider" variant="caption" component="div" color="textSecondary">
+                <Typography variant="caption" component="div" color="textSecondary">
                   Blur: {this.props.scene.backgroundBlur}px
                 </Typography>
                 <Slider
@@ -488,10 +517,10 @@ class SceneOptionCard extends React.Component {
                       />
                     </DialogContent>
                     <DialogActions>
-                      <Button onClick={this.onSelectNone.bind(this)} color="default">
+                      <Button onClick={this.onSelectNone.bind(this)}>
                         Select None
                       </Button>
-                      <Button onClick={this.onSelectAll.bind(this)} color="default">
+                      <Button onClick={this.onSelectAll.bind(this)}>
                         Select All
                       </Button>
                     </DialogActions>
@@ -507,11 +536,12 @@ class SceneOptionCard extends React.Component {
                 </Grid>
                 {this.props.scene.nextSceneID == -1 &&
                 <Grid item className={classes.selectOffset}>
-                  <Tooltip
+                  <Tooltip disableInteractive
                     title={this.props.scene.nextSceneRandoms.length == 0 ? "Select Scenes (EMPTY)" : "Select Scenes"}>
                     <IconButton
                       className={clsx(this.props.scene.nextSceneRandoms.length == 0 && classes.error)}
-                      onClick={this.onRandomSceneDialog.bind(this)}>
+                      onClick={this.onRandomSceneDialog.bind(this)}
+                      size="large">
                       <ListIcon/>
                     </IconButton>
                   </Tooltip>
@@ -527,7 +557,7 @@ class SceneOptionCard extends React.Component {
                       onChange={this.onIntInput.bind(this, 'nextSceneTime')}
                       onBlur={this.blurIntKey.bind(this, 'nextSceneTime')}
                       InputProps={{
-                        endAdornment: <InputAdornment position="end">sec</InputAdornment>,
+                        endAdornment: <InputAdornment position="end">ms</InputAdornment>,
                       }}
                       inputProps={{
                         min: 0,
@@ -571,90 +601,89 @@ class SceneOptionCard extends React.Component {
                 )}
               </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <Divider/>
+          </React.Fragment>
+        )}
+        <Grid item xs={12}>
+          <Divider/>
+        </Grid>
+        <Grid item xs={12} className={clsx(this.props.tutorial == SDT.overlays && classes.highlight)}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs>
+              <FormControlLabel
+                control={
+                  <Switch checked={this.props.scene.overlayEnabled}
+                          onChange={this.onBoolInput.bind(this, 'overlayEnabled')}/>
+                }
+                label="Overlays"/>
             </Grid>
-            <Grid item xs={12} className={clsx(this.props.tutorial == SDT.overlays && classes.highlight)}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs>
-                  <FormControlLabel
-                    control={
-                      <Switch checked={this.props.scene.overlayEnabled}
-                              onChange={this.onBoolInput.bind(this, 'overlayEnabled')}/>
-                    }
-                    label="Overlays"/>
-                </Grid>
-                <Grid item>
-                  <Collapse in={this.props.scene.overlayEnabled}>
-                    <Fab
-                      className={classes.addButton}
-                      onClick={this.onAddOverlay.bind(this)}
-                      size="small">
-                      <AddIcon/>
-                    </Fab>
-                  </Collapse>
-                </Grid>
-              </Grid>
+            <Grid item>
+              <Collapse in={this.props.scene.overlayEnabled}>
+                <Fab
+                  className={classes.addButton}
+                  onClick={this.onAddOverlay.bind(this)}
+                  size="small">
+                  <AddIcon/>
+                </Fab>
+              </Collapse>
             </Grid>
-            {this.props.scene.overlays.map((o) => {
-                const overlayOpacity = typeof o.opacity === 'number' ? o.opacity : 0;
-                const oScene = this.props.allScenes.find((s) => s.id == o.sceneID);
-                const regenerate = oScene && oScene.generatorWeights && oScene.regenerate;
-                const invalid = regenerate && !areWeightsValid(oScene);
-                return (
-                  <React.Fragment key={o.id}>
-                    <Grid item xs={12} className={clsx(!this.props.scene.overlayEnabled && classes.noPadding)}>
-                      <Collapse in={this.props.scene.overlayEnabled} className={classes.fullWidth}>
-                        <Grid container spacing={2} alignItems="center">
-                          <Grid item xs={12} sm={this.props.sidebar ? 12 : 5}>
-                            <Typography className={classes.selectText} variant="caption">Overlay{regenerate ? invalid ? " ✗" : " ⟳" : ""}</Typography>
-                            <SceneSelect
-                              allScenes={this.props.allScenes}
-                              allSceneGrids={this.props.allSceneGrids}
-                              value={o.sceneID}
-                              getSceneName={this.getSceneName.bind(this)}
-                              onChange={this.changeOverlayIntKey.bind(this, o.id, 'sceneID')}
-                            />
+          </Grid>
+        </Grid>
+        {this.props.scene.overlays.map((o) => {
+            const overlayOpacity = typeof o.opacity === 'number' ? o.opacity : 0;
+            const oScene = this.props.allScenes.find((s) => s.id == o.sceneID);
+            const regenerate = oScene && oScene.generatorWeights && oScene.regenerate;
+            const invalid = regenerate && !areWeightsValid(oScene);
+            return (
+              <React.Fragment key={o.id}>
+                <Grid item xs={12} className={clsx(!this.props.scene.overlayEnabled && classes.noPadding)}>
+                  <Collapse in={this.props.scene.overlayEnabled} className={classes.fullWidth}>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} sm={this.props.sidebar ? 12 : 5}>
+                        <Typography className={classes.selectText} variant="caption">Overlay{regenerate ? invalid ? " ✗" : " ⟳" : ""}</Typography>
+                        <SceneSelect
+                          allScenes={this.props.allScenes}
+                          allSceneGrids={this.props.allSceneGrids}
+                          value={o.sceneID}
+                          getSceneName={this.getSceneName.bind(this)}
+                          onChange={this.changeOverlayIntKey.bind(this, o.id, 'sceneID')}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={this.props.sidebar ? 12 : 7}>
+                        <Typography variant="caption" component="div"
+                                    color="textSecondary">
+                          Overlay Opacity: {o.opacity}%
+                        </Typography>
+                        <Grid container spacing={1} alignItems="center">
+                          <Grid item xs>
+                            <Slider
+                              min={0}
+                              max={100}
+                              defaultValue={overlayOpacity}
+                              onChangeCommitted={this.onOverlaySliderChange.bind(this, o.id, 'opacity')}
+                              valueLabelDisplay={'auto'}
+                              valueLabelFormat={(v) => v + "%"}
+                              aria-labelledby="overlay-opacity-slider"/>
                           </Grid>
-                          <Grid item xs={12} sm={this.props.sidebar ? 12 : 7}>
-                            <Typography id="overlay-opacity-slider" variant="caption" component="div"
-                                        color="textSecondary">
-                              Overlay Opacity: {o.opacity}%
-                            </Typography>
-                            <Grid container spacing={1} alignItems="center">
-                              <Grid item xs>
-                                <Slider
-                                  min={0}
-                                  max={100}
-                                  defaultValue={overlayOpacity}
-                                  onChangeCommitted={this.onOverlaySliderChange.bind(this, o.id, 'opacity')}
-                                  valueLabelDisplay={'auto'}
-                                  valueLabelFormat={(v) => v + "%"}
-                                  aria-labelledby="overlay-opacity-slider"/>
-                              </Grid>
-                              <Grid item>
-                                <Tooltip title="Remove Overlay">
-                                  <IconButton
-                                    onClick={this.onRemoveOverlay.bind(this, o.id)}>
-                                    <DeleteIcon color="error"/>
-                                  </IconButton>
-                                </Tooltip>
-                              </Grid>
-                            </Grid>
+                          <Grid item>
+                            <Tooltip disableInteractive title="Remove Overlay">
+                              <IconButton onClick={this.onRemoveOverlay.bind(this, o.id)} size="large">
+                                <DeleteIcon color="error"/>
+                              </IconButton>
+                            </Tooltip>
                           </Grid>
                         </Grid>
-                      </Collapse>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={12} className={clsx(!this.props.scene.overlayEnabled && classes.noPadding)}>
-                      <Collapse in={this.props.scene.overlayEnabled} className={classes.fullWidth}>
-                        <Divider/>
-                      </Collapse>
-                    </Grid>
-                  </React.Fragment>
-                )
-              }
-            )}
-          </React.Fragment>
+                  </Collapse>
+                </Grid>
+                <Grid item xs={12} className={clsx(!this.props.scene.overlayEnabled && classes.noPadding)}>
+                  <Collapse in={this.props.scene.overlayEnabled} className={classes.fullWidth}>
+                    <Divider/>
+                  </Collapse>
+                </Grid>
+              </React.Fragment>
+            );
+          }
         )}
       </Grid>
     );
@@ -697,7 +726,17 @@ class SceneOptionCard extends React.Component {
   }
 
   changeOverlayIntKey(id: number, key: string, intString: string) {
-    this.changeOverlayKey(id, key, intString === '' ? '' : Number(intString));
+    const value = intString === '' ? '' : Number(intString);
+    if (this.props.sidebar && this.props.onGenerate) {
+      if (intString.startsWith('999')) {
+        intString = intString.replace('999', '');
+        const gValue = intString === '' ? '' : Number(intString);
+        this.props.onGenerate(this.props.allSceneGrids.find((s) => s.id == gValue));
+      } else {
+        this.props.onGenerate(this.props.allScenes.find((s) => s.id == value));
+      }
+    }
+    this.changeOverlayKey(id, key, value);
   }
 
   blurIntKey(key: string, e: MouseEvent) {

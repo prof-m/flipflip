@@ -4,39 +4,53 @@ import {existsSync} from "fs";
 import {remote} from "electron";
 
 import {
-  Checkbox, Chip, createStyles, Fab, IconButton, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Radio,
-  TextField, Theme, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Checkbox,
+  Chip,
+  Fab,
+  IconButton,
+  ListItem,
+  ListItemAvatar,
+  ListItemSecondaryAction,
+  ListItemText,
+  Radio,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import BuildIcon from '@material-ui/icons/Build';
-import DeleteIcon from '@material-ui/icons/Delete';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import BuildIcon from '@mui/icons-material/Build';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import {urlToPath} from "../../data/utils";
 import Tag from "../../data/Tag";
 import SourceIcon from "./SourceIcon";
 import CaptionScript from "../../data/CaptionScript";
-import {grey} from "@material-ui/core/colors";
+import {grey} from "@mui/material/colors";
 import {SP} from "../../data/const";
-import EditIcon from "@material-ui/icons/Edit";
+import EditIcon from "@mui/icons-material/Edit";
 
 const styles = (theme: Theme) => createStyles({
   root: {
     display: 'flex',
   },
   oddChild: {
-    backgroundColor: theme.palette.type == 'light' ? (theme.palette.primary as any)["100"] : grey[900],
+    backgroundColor: theme.palette.mode == 'light' ? (theme.palette.primary as any)["100"] : grey[900],
     '&:hover': {
-      backgroundColor: theme.palette.type == 'light' ? (theme.palette.primary as any)["200"] : '#080808',
+      backgroundColor: theme.palette.mode == 'light' ? (theme.palette.primary as any)["200"] : '#080808',
     },
   },
   evenChild: {
-    backgroundColor: theme.palette.type == 'light' ? (theme.palette.primary as any)["50"] : theme.palette.background.default,
+    backgroundColor: theme.palette.mode == 'light' ? (theme.palette.primary as any)["50"] : theme.palette.background.default,
     '&:hover': {
-      backgroundColor: theme.palette.type == 'light' ? (theme.palette.primary as any)["200"] : '#080808',
+      backgroundColor: theme.palette.mode == 'light' ? (theme.palette.primary as any)["200"] : '#080808',
     },
   },
   lastSelected: {
-    backgroundColor: theme.palette.type == 'light' ? (theme.palette.primary as any)["200"] : '#0F0F0F',
+    backgroundColor: theme.palette.mode == 'light' ? (theme.palette.primary as any)["200"] : '#0F0F0F',
   },
   avatar: {
     backgroundColor: theme.palette.primary.main,
@@ -61,7 +75,7 @@ const styles = (theme: Theme) => createStyles({
     marginLeft: theme.spacing(1),
   },
   fullTag: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none',
     },
   },
@@ -69,7 +83,7 @@ const styles = (theme: Theme) => createStyles({
     [theme.breakpoints.up('md')]: {
       display: 'none',
     },
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
   },
@@ -111,7 +125,7 @@ class ScriptSourceListItem extends React.Component {
 
   render() {
     const classes = this.props.classes;
-    return(
+    return (
       <div style={this.props.style}
            className={clsx(this.props.index % 2 == 0 ? classes.evenChild : classes.oddChild, this.props.lastSelected && classes.lastSelected)}>
         <ListItem>
@@ -124,7 +138,7 @@ class ScriptSourceListItem extends React.Component {
                       checked={this.props.checked}/>
           )}
           <ListItemAvatar>
-            <Tooltip title={
+            <Tooltip disableInteractive title={
               <div>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Click: Library Tagging
                 <br/>
@@ -146,13 +160,14 @@ class ScriptSourceListItem extends React.Component {
             {this.props.isEditing == this.props.source.id && (
               <form onSubmit={this.onEndEdit.bind(this)} className={classes.urlField}>
                 <TextField
+                  variant="standard"
                   autoFocus
                   fullWidth
                   value={this.state.urlInput}
                   margin="none"
                   className={classes.urlField}
                   onBlur={this.onEndEdit.bind(this)}
-                  onChange={this.onEditSource.bind(this)}/>
+                  onChange={this.onEditSource.bind(this)} />
               </form>
             )}
             {this.props.isEditing != this.props.source.id && (

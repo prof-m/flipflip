@@ -1,9 +1,10 @@
 import * as React from "react";
 import { SketchPicker } from 'react-color';
 
-import {
-  createStyles, Fab, Grid, Menu, TextField, Theme, Tooltip, withStyles
-} from "@material-ui/core";
+import { Fab, Grid, Menu, TextField, Theme, Tooltip } from "@mui/material";
+
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
 const styles = (theme: Theme) => createStyles({
   colorGrid: {
@@ -50,10 +51,10 @@ class ColorPicker extends React.Component {
   render() {
     const classes = this.props.classes;
 
-    return(
+    return (
       <Grid container alignItems="center">
         <Grid item className={classes.colorGrid}>
-          <Tooltip title="Pick Color">
+          <Tooltip disableInteractive title="Pick Color">
             <Fab
               className={classes.colorButton}
               style={{backgroundColor: !!this.state.pickerColor ? !!this.state.pickerColor.hex ? this.state.pickerColor.hex : this.state.pickerColor : this.props.currentColor}}
@@ -63,10 +64,11 @@ class ColorPicker extends React.Component {
             </Fab>
           </Tooltip>
           <TextField
+            variant="standard"
             className={classes.colorField}
             label="Color"
             value={!!this.state.pickerColor ? !!this.state.pickerColor.hex ? this.state.pickerColor.hex : this.state.pickerColor : this.props.currentColor}
-            onChange={this.props.onChangeColor.bind(this)}/>
+            onChange={this.props.onChangeColor.bind(this)} />
           <Menu
             id="color-picker"
             elevation={1}
@@ -78,7 +80,6 @@ class ColorPicker extends React.Component {
               vertical: 'top',
               horizontal: 'left',
             }}
-            getContentAnchorEl={null}
             anchorEl={this.state.pickerAnchorEl}
             keepMounted
             open={!!this.state.pickerColor}

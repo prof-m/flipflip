@@ -3,29 +3,55 @@ import clsx from "clsx";
 import * as fs from "fs";
 
 import {
-  AppBar, Box, Button, Collapse, Container, createStyles, Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, Divider, Drawer, IconButton, ListItem, ListItemIcon, ListItemText, Slide, Snackbar, SnackbarContent,
-  Tab, Tabs, Theme, Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Alert,
+  AppBar,
+  Box,
+  Button,
+  Collapse,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  IconButton,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Slide,
+  Snackbar,
+  Tab,
+  Tabs,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import BuildIcon from '@material-ui/icons/Build';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import ErrorIcon from '@material-ui/icons/Error';
-import LiveHelpIcon from '@material-ui/icons/LiveHelp';
-import MenuIcon from'@material-ui/icons/Menu';
-import PhotoFilterIcon from '@material-ui/icons/PhotoFilter';
-import RestoreIcon from '@material-ui/icons/Restore';
-import SettingsIcon from '@material-ui/icons/Settings';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import BuildIcon from '@mui/icons-material/Build';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import MenuIcon from'@mui/icons-material/Menu';
+import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
+import RestoreIcon from '@mui/icons-material/Restore';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import {MO} from "../../data/const";
 import Config, { CacheSettings, DisplaySettings, GeneralSettings, RemoteSettings, SceneSettings } from "../../data/Config";
+import LibrarySource from "../../data/LibrarySource";
 import Scene from "../../data/Scene";
+import SceneGrid from "../../data/SceneGrid";
+import Tag from "../../data/Tag";
 import GeneralConfig from "./GeneralConfig";
 import SceneOptions from "../sceneDetail/SceneOptions";
 import SceneEffects from "../sceneDetail/SceneEffects";
 import {portablePath} from "../../data/utils";
-import SceneGrid from "../../data/SceneGrid";
 
 const drawerWidth = 240;
 
@@ -81,7 +107,7 @@ const styles = (theme: Theme) => createStyles({
   drawerButton: {
     backgroundColor: theme.palette.primary.main,
     minHeight: theme.spacing(6),
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       paddingLeft: 0,
       paddingRight: 0,
     },
@@ -152,12 +178,18 @@ const styles = (theme: Theme) => createStyles({
   },
 });
 
+function TransitionUp(props: any) {
+  return <Slide {...props} direction="up" />;
+}
+
 class ConfigForm extends React.Component {
   readonly props: {
     classes: any,
     config: Config,
+    library: Array<LibrarySource>,
     scenes: Array<Scene>,
     sceneGrids: Array<SceneGrid>,
+    tags: Array<Tag>,
     theme: Theme,
     goBack(): void,
     onBackup(): void,
@@ -176,6 +208,7 @@ class ConfigForm extends React.Component {
     drawerOpen: false,
     openMenu: null as string,
     openTab: 2,
+    errorSnackOpen: false,
     errorSnack: null as string,
   };
 
@@ -183,17 +216,18 @@ class ConfigForm extends React.Component {
     const classes = this.props.classes;
     const open = this.state.drawerOpen;
 
-    return(
+    return (
       <div className={classes.root}>
 
-        <AppBar position="absolute" className={classes.appBar}>
+        <AppBar enableColorOnDark position="absolute" className={classes.appBar}>
           <Toolbar>
-            <Tooltip title="Back" placement="right-end">
+            <Tooltip disableInteractive title="Back" placement="right-end">
               <IconButton
                 edge="start"
                 color="inherit"
                 aria-label="Back"
-                onClick={this.goBack.bind(this)}>
+                onClick={this.goBack.bind(this)}
+                size="large">
                 <ArrowBackIcon />
               </IconButton>
             </Tooltip>
@@ -205,12 +239,13 @@ class ConfigForm extends React.Component {
             </Typography>
             <div className={classes.fill}/>
 
-            <Tooltip title="Confirm Settings">
+            <Tooltip disableInteractive title="Confirm Settings">
               <IconButton
                 edge="start"
                 color="inherit"
                 aria-label="Confirm"
-                onClick={this.onConfirmConfig.bind(this)}>
+                onClick={this.onConfirmConfig.bind(this)}
+                size="large">
                 <CheckCircleIcon fontSize="large"/>
               </IconButton>
             </Tooltip>
@@ -229,7 +264,7 @@ class ConfigForm extends React.Component {
           </div>
 
           <ListItem className={classes.drawerButton}>
-            <IconButton onClick={this.onToggleDrawer.bind(this)}>
+            <IconButton onClick={this.onToggleDrawer.bind(this)} size="large">
               <MenuIcon className={classes.drawerIcon}/>
             </IconButton>
           </ListItem>
@@ -260,7 +295,7 @@ class ConfigForm extends React.Component {
           <div className={classes.fill}/>
 
           <div>
-            <Tooltip title={this.state.drawerOpen ? "" : "Reset Tutorials"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Reset Tutorials"}>
               <ListItem
                 disabled={
                   this.props.config.tutorials.scenePicker == null &&
@@ -282,7 +317,7 @@ class ConfigForm extends React.Component {
                 <ListItemText primary="Reset Tutorials" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Restore Defaults"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Restore Defaults"}>
               <ListItem button onClick={this.onRestoreDefaults.bind(this)}
                         className={classes.deleteItem}>
                 <ListItemIcon>
@@ -320,12 +355,7 @@ class ConfigForm extends React.Component {
           <Container maxWidth={false} className={classes.container}>
 
             {this.state.openTab === 0 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.state.openTab !== 0}
-                id="vertical-tabpanel-0"
-                aria-labelledby="vertical-tab-0">
+              <Typography component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -341,12 +371,7 @@ class ConfigForm extends React.Component {
             )}
 
             {this.state.openTab === 1 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.state.openTab !== 1}
-                id="vertical-tabpanel-1"
-                aria-labelledby="vertical-tab-1">
+              <Typography component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -362,16 +387,14 @@ class ConfigForm extends React.Component {
             {this.state.openTab === 2 && (
               <Typography
                 className={clsx(this.state.openTab === 2 && classes.sourcesSection)}
-                component="div"
-                role="tabpanel"
-                hidden={this.state.openTab !== 2}
-                id="vertical-tabpanel-2"
-                aria-labelledby="vertical-tab-2">
+                component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
                     <GeneralConfig
                       config={this.state.config}
+                      library={this.props.library}
+                      tags={this.props.tags}
                       theme={this.props.theme}
                       onBackup={this.props.onBackup.bind(this)}
                       onChangeThemeColor={this.props.onChangeThemeColor.bind(this)}
@@ -417,18 +440,14 @@ class ConfigForm extends React.Component {
         </Dialog>
 
         <Snackbar
-          open={!!this.state.errorSnack}
+          open={this.state.errorSnackOpen}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           autoHideDuration={20000}
           onClose={this.onCloseErrorSnack.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                  <ErrorIcon color="error" className={classes.snackbarIcon}/>
-                  Error: {this.state.errorSnack}
-              </span>
-            }
-          />
+          TransitionComponent={TransitionUp}>
+          <Alert onClose={this.onCloseErrorSnack.bind(this)} severity="error">
+            Error: {this.state.errorSnack}
+          </Alert>
         </Snackbar>
       </div>
     );
@@ -458,7 +477,8 @@ class ConfigForm extends React.Component {
       this.props.onUpdateConfig(this.state.config);
       return true;
     } else {
-      this.setState({errorSnack: errorMessage});
+      console.error(errorMessage);
+      this.setState({errorSnackOpen: true, errorSnack: errorMessage});
       return false;
     }
   }
@@ -540,7 +560,7 @@ class ConfigForm extends React.Component {
   }
 
   onCloseErrorSnack() {
-    this.setState({errorSnack: null});
+    this.setState({errorSnackOpen: false});
   }
 }
 

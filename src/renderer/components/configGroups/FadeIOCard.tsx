@@ -2,11 +2,27 @@ import * as React from "react";
 import clsx from "clsx";
 
 import {
-  Collapse, createStyles, Divider, FormControl, FormControlLabel, Grid, InputAdornment, InputLabel,
-  MenuItem, Select, Slider, Switch, TextField, Theme, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Collapse,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 import {EA, TF} from "../../data/const";
 import {SceneSettings} from "../../data/Config";
@@ -66,7 +82,7 @@ class FadeIOCard extends React.Component {
 
     const playlists = (this.props.scene.audioPlaylists as {audios: Audio[], shuffle: boolean, repeat: string}[]);
     const hasBPM = !!playlists && playlists.length && playlists[0].audios.length && playlists[0].audios[0].bpm;
-    return(
+    return (
       <Grid container spacing={this.props.scene.fadeInOut ? 2 : 0} alignItems="center" className={clsx(this.props.tutorial != null && classes.disable)}>
         <Grid item xs={12}>
           <FormControlLabel
@@ -85,15 +101,16 @@ class FadeIOCard extends React.Component {
           <Collapse in={this.props.scene.fadeInOut} className={classes.fullWidth}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} style={{paddingTop: 10}}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Timing</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.fadeIOTF}
                     onChange={this.onInput.bind(this, 'fadeIOTF')}>
                     {Object.values(TF).map((tf) => {
                       if (tf == TF.bpm) {
                         return <MenuItem key={tf} value={tf}>
-                          {en.get(tf)} {!hasBPM && <Tooltip title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
+                          {en.get(tf)} {!hasBPM && <Tooltip disableInteractive title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
                         </MenuItem>
                       } else {
                         return <MenuItem key={tf} value={tf}>{en.get(tf)}</MenuItem>
@@ -104,7 +121,7 @@ class FadeIOCard extends React.Component {
               </Grid>
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 8}>
                 <Collapse in={this.props.scene.fadeIOTF == TF.sin} className={classes.fullWidth}>
-                  <Typography id="fadeio-sin-rate-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     Wave Rate
                   </Typography>
                   <Grid container alignItems="center">
@@ -119,6 +136,7 @@ class FadeIOCard extends React.Component {
                     </Grid>
                     <Grid item xs={3} className={classes.percentInput}>
                       <TextField
+                        variant="standard"
                         value={fadeSinRate}
                         onChange={this.onIntInput.bind(this, 'fadeIOSinRate')}
                         onBlur={this.blurIntKey.bind(this, 'fadeIOSinRate')}
@@ -129,12 +147,12 @@ class FadeIOCard extends React.Component {
                           max: 100,
                           type: 'number',
                           'aria-labelledby': 'fadeio-sin-rate-slider',
-                        }}/>
+                        }} />
                     </Grid>
                   </Grid>
                 </Collapse>
                 <Collapse in={this.props.scene.fadeIOTF == TF.bpm} className={classes.fullWidth}>
-                  <Typography id="fadeio-bpm-multi-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     BPM Multiplier {this.props.scene.fadeIOBPMMulti / 10}x
                   </Typography>
                   <Slider
@@ -218,9 +236,10 @@ class FadeIOCard extends React.Component {
               <Collapse in={this.props.scene.fadeInOut} className={classes.fullWidth}>
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <FormControl className={classes.fullWidth}>
+                    <FormControl variant="standard" className={classes.fullWidth}>
                       <InputLabel>Start Easing</InputLabel>
                       <Select
+                        variant="standard"
                         value={this.props.scene.fadeIOStartEase}
                         onChange={this.onInput.bind(this, 'fadeIOStartEase')}>
                         {Object.values(EA).map((rf) =>
@@ -231,7 +250,7 @@ class FadeIOCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.fadeIOStartEase == EA.polyIn || this.props.scene.fadeIOStartEase == EA.polyOut || this.props.scene.fadeIOStartEase == EA.polyInOut} className={classes.fullWidth}>
-                      <Typography id="start-exp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Exponent: {this.props.scene.fadeIOStartExp / 2}
                       </Typography>
                       <Slider
@@ -244,7 +263,7 @@ class FadeIOCard extends React.Component {
                         aria-labelledby="start-exp-slider"/>
                     </Collapse>
                     <Collapse in={this.props.scene.fadeIOStartEase == EA.backIn || this.props.scene.fadeIOStartEase == EA.backOut || this.props.scene.fadeIOStartEase == EA.backInOut} className={classes.fullWidth}>
-                      <Typography id="start-ov-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Overshoot: {this.props.scene.fadeIOStartOv / 2}
                       </Typography>
                       <Slider
@@ -259,7 +278,7 @@ class FadeIOCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.fadeIOStartEase == EA.elasticIn || this.props.scene.fadeIOStartEase == EA.elasticOut || this.props.scene.fadeIOStartEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="start-amp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Amplitude: {this.props.scene.fadeIOStartAmp / 20}
                       </Typography>
                       <Slider
@@ -274,7 +293,7 @@ class FadeIOCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.fadeIOStartEase == EA.elasticIn || this.props.scene.fadeIOStartEase == EA.elasticOut || this.props.scene.fadeIOStartEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="start-per-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Period: {this.props.scene.fadeIOStartPer / 20}
                       </Typography>
                       <Slider
@@ -288,9 +307,10 @@ class FadeIOCard extends React.Component {
                     </Collapse>
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <FormControl className={classes.fullWidth}>
+                    <FormControl variant="standard" className={classes.fullWidth}>
                       <InputLabel>End Easing</InputLabel>
                       <Select
+                        variant="standard"
                         value={this.props.scene.fadeIOEndEase}
                         onChange={this.onInput.bind(this, 'fadeIOEndEase')}>
                         {Object.values(EA).map((rf) =>
@@ -301,7 +321,7 @@ class FadeIOCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.fadeIOEndEase == EA.polyIn || this.props.scene.fadeIOEndEase == EA.polyOut || this.props.scene.fadeIOEndEase == EA.polyInOut} className={classes.fullWidth}>
-                      <Typography id="end-exp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Exponent: {this.props.scene.fadeIOEndExp / 2}
                       </Typography>
                       <Slider
@@ -314,7 +334,7 @@ class FadeIOCard extends React.Component {
                         aria-labelledby="end-exp-slider"/>
                     </Collapse>
                     <Collapse in={this.props.scene.fadeIOEndEase == EA.backIn || this.props.scene.fadeIOEndEase == EA.backOut || this.props.scene.fadeIOEndEase == EA.backInOut} className={classes.fullWidth}>
-                      <Typography id="end-ov-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Overshoot: {this.props.scene.fadeIOEndOv / 2}
                       </Typography>
                       <Slider
@@ -329,7 +349,7 @@ class FadeIOCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.fadeIOEndEase == EA.elasticIn || this.props.scene.fadeIOEndEase == EA.elasticOut || this.props.scene.fadeIOEndEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="end-amp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Amplitude: {this.props.scene.fadeIOEndAmp / 20}
                       </Typography>
                       <Slider
@@ -344,7 +364,7 @@ class FadeIOCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.fadeIOEndEase == EA.elasticIn || this.props.scene.fadeIOEndEase == EA.elasticOut || this.props.scene.fadeIOEndEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="end-per-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Period: {this.props.scene.fadeIOEndPer / 20}
                       </Typography>
                       <Slider

@@ -236,9 +236,9 @@ export const loadTumblr = (allURLs: Map<string, Array<string>>, config: Config, 
             convertedCount++;
             if (convertedCount == images.length) {
               helpers.next = helpers.next + 1;
-              helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedSource, true).length;
+              helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedSource, false).length;
               pm({
-                data: filterPathsToJustPlayable(filter, convertedSource, true),
+                data: filterPathsToJustPlayable(filter, convertedSource, false),
                 allURLs: allURLs,
                 weight: weight,
                 helpers: helpers,
@@ -251,10 +251,10 @@ export const loadTumblr = (allURLs: Map<string, Array<string>>, config: Config, 
               convertedCount++;
               if (convertedCount == images.length) {
                 helpers.next = helpers.next + 1;
-                helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedSource, true).length;
+                helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedSource, false).length;
                 pm({
                   error: error.message,
-                  data: filterPathsToJustPlayable(filter, convertedSource, true),
+                  data: filterPathsToJustPlayable(filter, convertedSource, false),
                   allURLs: allURLs,
                   weight: weight,
                   helpers: helpers,
@@ -313,9 +313,9 @@ export const loadReddit = (allURLs: Map<string, Array<string>>, config: Config, 
               convertedCount++;
               if (convertedCount == submissionListing.length) {
                 helpers.next = submissionListing[submissionListing.length - 1].name;
-                helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, true).length;
+                helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, false).length;
                 pm({
-                  data: filterPathsToJustPlayable(filter, convertedListing, true),
+                  data: filterPathsToJustPlayable(filter, convertedListing, false),
                   allURLs: allURLs,
                   weight: weight,
                   helpers: helpers,
@@ -328,10 +328,10 @@ export const loadReddit = (allURLs: Map<string, Array<string>>, config: Config, 
                 convertedCount++;
                 if (convertedCount == submissionListing.length) {
                   helpers.next = submissionListing[submissionListing.length - 1].name;
-                  helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, true).length;
+                  helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, false).length;
                   pm({
                     error: error.message,
-                    data: filterPathsToJustPlayable(filter, convertedListing, true),
+                    data: filterPathsToJustPlayable(filter, convertedListing, false),
                     allURLs: allURLs,
                     weight: weight,
                     helpers: helpers,
@@ -403,9 +403,9 @@ export const loadReddit = (allURLs: Map<string, Array<string>>, config: Config, 
                 convertedCount++;
                 if (convertedCount == submissionListing.length) {
                   helpers.next = submissionListing[submissionListing.length - 1].name;
-                  helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, true).length;
+                  helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, false).length;
                   pm({
-                    data: filterPathsToJustPlayable(filter, convertedListing, true),
+                    data: filterPathsToJustPlayable(filter, convertedListing, false),
                     allURLs: allURLs,
                     weight: weight,
                     helpers: helpers,
@@ -418,10 +418,10 @@ export const loadReddit = (allURLs: Map<string, Array<string>>, config: Config, 
                   convertedCount++;
                   if (convertedCount == submissionListing.length) {
                     helpers.next = submissionListing[submissionListing.length - 1].name;
-                    helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, true).length;
+                    helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, false).length;
                     pm({
                       error: error.message,
-                      data: filterPathsToJustPlayable(filter, convertedListing, true),
+                      data: filterPathsToJustPlayable(filter, convertedListing, false),
                       allURLs: allURLs,
                       weight: weight,
                       helpers: helpers,
@@ -462,9 +462,9 @@ export const loadReddit = (allURLs: Map<string, Array<string>>, config: Config, 
                 convertedCount++;
                 if (convertedCount == submissionListing.length) {
                   helpers.next = submissionListing[submissionListing.length - 1].name;
-                  helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, true).length;
+                  helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, false).length;
                   pm({
-                    data: filterPathsToJustPlayable(filter, convertedListing, true),
+                    data: filterPathsToJustPlayable(filter, convertedListing, false),
                     allURLs: allURLs,
                     weight: weight,
                     helpers: helpers,
@@ -477,10 +477,10 @@ export const loadReddit = (allURLs: Map<string, Array<string>>, config: Config, 
                   convertedCount++;
                   if (convertedCount == submissionListing.length) {
                     helpers.next = submissionListing[submissionListing.length - 1].name;
-                    helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, true).length;
+                    helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, convertedListing, false).length;
                     pm({
                       error: error.message,
-                      data: filterPathsToJustPlayable(filter, convertedListing, true),
+                      data: filterPathsToJustPlayable(filter, convertedListing, false),
                       allURLs: allURLs,
                       weight: weight,
                       helpers: helpers,
@@ -523,6 +523,114 @@ export const loadReddit = (allURLs: Map<string, Array<string>>, config: Config, 
       timeout: timeout,
     }, resolve);
   }
+}
+
+export const loadRedGifs = (allURLs: Map<string, Array<string>>, config: Config, source: LibrarySource, filter: string, weight: string, helpers: {next: any, count: number, retries: number, uuid: string}, resolve?: Function) => {
+  const timeout = 10000;
+  const url = source.url;
+  let apiURL = "https://api.redgifs.com/v2/";
+  let orderRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*order=([^&]*)/.exec(url);
+  let order = null;
+  if (!!orderRegex) {
+    order = orderRegex[1];
+  }
+  let typeRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*type=(\w)/.exec(url);
+  let type = null;
+  if (!!typeRegex) {
+    type = typeRegex[1];
+  }
+  let tagsRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*tags=([^&]*)/.exec(url);
+  let tags = null;
+  if (!!tagsRegex) {
+    tags = tagsRegex[1];
+  }
+  let ratioRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*ratio=(\w)/.exec(url);
+  let ratio = null;
+  if (!!ratioRegex) {
+    ratio = ratioRegex[1];
+  }
+  let verifiedRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*verified=(\w)/.exec(url);
+  let verified = null;
+  if (!!verifiedRegex) {
+    verified = verifiedRegex[1];
+  }
+  let longRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*long=(\w)/.exec(url);
+  let long = null;
+  if (!!longRegex) {
+    long = longRegex[1];
+  }
+  let soundRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*sound=(\w)/.exec(url);
+  let sound = null;
+  if (!!soundRegex) {
+    sound = soundRegex[1];
+  }
+
+  if (url.includes("/users/")) {
+    apiURL += "users/" + getFileGroup(url) + "/search?";
+    if (!order) {
+      order="recent"
+    }
+  } else if (url.includes("/browse?")) {
+    apiURL += "gifs/search?search_text=" + tags + "&count=80&";
+    if (!order) {
+      order="trending"
+    }
+  }
+  let page = helpers.next + 1;
+  if (!!type) {
+    apiURL += "type=" + type + "&";
+  }
+  if (!!ratio) {
+    apiURL += "ratio=" + ratio + "&";
+  }
+  if (!!verified) {
+    apiURL += "verified=" + verified + "&";
+  }
+  if (!!long) {
+    apiURL += "long=" + long + "&";
+  }
+  if (!!sound) {
+    apiURL += "sound=" + sound + "&";
+  }
+  apiURL += "order=" + order + "&page=" + page + "";
+
+  wretch(apiURL)
+    .get()
+    .setTimeout(15000)
+    .onAbort((e) => pm({
+      error: e.message,
+      helpers: helpers,
+      source: source,
+      timeout: timeout,
+    }, resolve))
+    .json((json) => {
+      const images = json.gifs.map((g: any) => {
+        if (g.urls.hd) {
+          return g.urls.hd;
+        } else if (g.urls.sd) {
+          return g.urls.sd;
+        }
+        return null;
+      }).filter((url: string) => !!url);
+      helpers.next = json.page == json.pages ? null : (helpers.next + 1);
+      helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, images, false).length;
+      pm({
+        data: filterPathsToJustPlayable(filter, images, false),
+        allURLs: allURLs,
+        weight: weight,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve);
+    })
+    .catch((err: any) => {
+      pm({
+        error: err.message,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve);
+    });
 }
 
 export const loadImageFap = (allURLs: Map<string, Array<string>>, config: Config, source: LibrarySource, filter: string, weight: string, helpers: {next: any, count: number, retries: number, uuid: string}, resolve?: Function) => {
@@ -1449,8 +1557,10 @@ export const loadDanbooru = (allURLs: Map<string, Array<string>>, config: Config
   const hostRegex = /^(https?:\/\/[^\/]*)\//g;
   const thisHost = hostRegex.exec(url)[1];
   let suffix = "";
-  if (url.includes("/pool/")) {
-    suffix = "/pool/show.json?page=" + (helpers.next + 1) + "&id=" + url.substring(url.lastIndexOf("/") + 1);
+  if (url.includes("/pools/")) {
+    suffix = "/pools/" + url.substring(url.lastIndexOf("/") + 1) + ".json";
+  } else if (url.includes("favorite_groups")) {
+    suffix = "/favorite_groups/" + url.substring(url.lastIndexOf("/") + 1) + ".json";
   } else {
     suffix = "/post/index.json?limit=20&page=" + (helpers.next + 1);
     const tagRegex = /[?&]tags=(.*)&?/g;
@@ -1513,36 +1623,113 @@ export const loadDanbooru = (allURLs: Map<string, Array<string>>, config: Config
           source: source,
           timeout: timeout,
         }, resolve);
+        return;
       }
 
-      let list;
-      if (json.posts) {
-        list = json.posts;
-      } else {
-        list = json;
-      }
-
-      const images = Array<string>();
-      for (let p of list) {
-        if (p.file_url) {
-          let fileURL = p.file_url;
-          if (!p.file_url.startsWith("http")) {
-            fileURL = "https://" + p.file_url;
-          }
-          images.push(fileURL);
+      if (json.post_ids) {
+        if (json.post_ids.length == 0) {
+          helpers.next = null;
+          pm({
+            data: [],
+            allURLs: allURLs,
+            weight: weight,
+            helpers: helpers,
+            source: source,
+            timeout: timeout,
+          }, resolve);
+          return;
         }
-      }
 
-      helpers.next = url.includes("/pool/") ? null : helpers.next + 1;
-      helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, images, true).length;
-      pm({
-        data: filterPathsToJustPlayable(filter, images, true),
-        allURLs: allURLs,
-        weight: weight,
-        helpers: helpers,
-        source: source,
-        timeout: timeout,
-      }, resolve);
+        const images = Array<string>();
+        const postIDs = json.post_ids;
+        const limit = 10;
+        let current = helpers.next;
+        const getPost = () => {
+          wretch(thisHost + "/posts/" + postIDs[current++] + ".json")
+            .get()
+            .setTimeout(5000)
+            .badRequest((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve))
+            .notFound((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve))
+            .timeout((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve))
+            .internalError((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve))
+            .onAbort((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve))
+            .json((json: any) => {
+              images.push(json.file_url);
+              if (images.length == limit || postIDs.length == current) {
+                if (postIDs.length == current) {
+                  helpers.next = null;
+                } else {
+                  helpers.next = current;
+                }
+                helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, images, true).length;
+                pm({
+                  data: filterPathsToJustPlayable(filter, images, true),
+                  allURLs: allURLs,
+                  weight: weight,
+                  helpers: helpers,
+                  source: source,
+                  timeout: timeout,
+                }, resolve);
+              } else {
+                setTimeout(getPost, 200);
+              }
+            })
+            .catch((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve));
+        }
+        setTimeout(getPost, 200);
+      } else {
+        const images = Array<string>();
+        for (let p of json) {
+          if (p.file_url) {
+            let fileURL = p.file_url;
+            if (!p.file_url.startsWith("http")) {
+              fileURL = "https://" + p.file_url;
+            }
+            images.push(fileURL);
+          }
+        }
+
+        helpers.next = helpers.next + 1;
+        helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, images, true).length;
+        pm({
+          data: filterPathsToJustPlayable(filter, images, true),
+          allURLs: allURLs,
+          weight: weight,
+          helpers: helpers,
+          source: source,
+          timeout: timeout,
+        }, resolve);
+      }
     })
     .catch((e) => pm({
       error: e.message,
@@ -1823,6 +2010,283 @@ export const loadEHentai = (allURLs: Map<string, Array<string>>, config: Config,
     });
 }
 
+export const loadLuscious = (allURLs: Map<string, Array<string>>, config: Config, source: LibrarySource, filter: string, weight: string, helpers: {next: any, count: number, retries: number, uuid: string}, resolve?: Function) => {
+  const timeout = 5000;
+  const url = source.url;
+  if (url.includes("albums")) {
+    const name = getFileGroup(url);
+    const id = name.substring(name.indexOf("_") + 1, name.length);
+    wretch("https://members.luscious.net/graphql/nobatch/?operationName=AlbumListOwnPictures")
+      .json({
+        "operationName": "AlbumListOwnPictures",
+        "query": "query AlbumListOwnPictures($input: PictureListInput!) {\n" +
+          "picture {\n" +
+          "list(input: $input) {\n" +
+          "info {...FacetCollectionInfo}\n" +
+          "items {...PictureStandardWithoutAlbum}\n" +
+          "}\n" +
+          "}\n" +
+          "}\n" +
+          "fragment FacetCollectionInfo on FacetCollectionInfo {\n" +
+          "page\n" +
+          "has_next_page\n" +
+          "has_previous_page\n" +
+          "total_items\n" +
+          "total_pages\n" +
+          "items_per_page\n" +
+          "}\n" +
+          "fragment PictureStandardWithoutAlbum on Picture {\n" +
+          "url_to_original\n" +
+          "url_to_video\n" +
+          "url\n" +
+          "}",
+        "variables": {
+          "input": {
+            "filters": [
+              {
+                "name": "album_id",
+                "value": id,
+              }
+            ],
+            "display": "position",
+            "page": helpers.next + 1,
+          }
+        }
+      })
+      .post()
+      .setTimeout(5000)
+      .onAbort((e) => pm({
+        error: e.message,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve))
+      .notFound((e) => pm({
+        error: e.message,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve))
+      .json((json) => {
+        const hasNextPage = json.data.picture.list.info.has_next_page;
+        const items = json.data.picture.list.items;
+        const totalItems = json.data.picture.list.info.total_items;
+        if (items.length > 0) {
+          const images = [];
+          for (let item of items) {
+            images.push(item.url_to_original);
+          }
+          helpers.next = hasNextPage ? helpers.next + 1 : null;
+          helpers.count = totalItems;
+          // If cdnio image server goes down, use this: filterPathsToJustPlayable(filter, images, true).map((s) => s.replace('cdnio.', 'w1680.')),
+          pm({
+            data: filterPathsToJustPlayable(filter, images, true),
+            allURLs: allURLs,
+            weight: weight,
+            helpers: helpers,
+            source: source,
+            timeout: timeout,
+          }, resolve);
+        } else {
+          helpers.next = null;
+          pm({
+            data: [],
+            allURLs: allURLs,
+            weight: weight,
+            helpers: helpers,
+            source: source,
+            timeout: timeout,
+          }, resolve);
+        }
+      })
+      .catch((e) => pm({
+        error: e.message,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve));
+  } else {
+    const id = getFileGroup(url);
+    if (helpers.next == 0) {
+      helpers.next = [0, 0, 0];
+    }
+    wretch("https://members.luscious.net/graphql/nobatch/?operationName=AlbumList")
+      .json({
+        "operationName": "AlbumList",
+        "query": "query AlbumList($input: AlbumListInput!) {\n" +
+          "album {\n" +
+            "list(input: $input) {\n" +
+              "info {...FacetCollectionInfo}\n" +
+              "items {...AlbumMinimal}\n" +
+            "}\n" +
+          "}\n" +
+        "}\n" +
+        "fragment FacetCollectionInfo on FacetCollectionInfo {\n" +
+          "page\n" +
+          "has_next_page\n" +
+          "has_previous_page\n" +
+          "total_items\n" +
+          "total_pages\n" +
+          "url_complete\n" +
+        "}\n" +
+        "fragment AlbumMinimal on Album {\n" +
+          "id\n" +
+        "}",
+        "variables": {
+          "input": {
+            "display": "date_newest",
+            "filters": [
+              {
+                "name": "created_by_id",
+                "value": id
+              }
+            ],
+            "page": helpers.next[0] + 1,
+          }
+        }
+      })
+      .post()
+      .setTimeout(5000)
+      .onAbort((e) => pm({
+        error: e.message,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve))
+      .notFound((e) => pm({
+        error: e.message,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve))
+      .json((json) => {
+        const userHasNextPage = json.data.album.list.info.has_next_page;
+        const albums = json.data.album.list.items;
+        if (albums.length > 0) {
+          const album = albums[helpers.next[1]];
+          wretch("https://members.luscious.net/graphql/nobatch/?operationName=AlbumListOwnPictures")
+            .json({
+              "operationName": "AlbumListOwnPictures",
+              "query": "query AlbumListOwnPictures($input: PictureListInput!) {\n" +
+                "picture {\n" +
+                "list(input: $input) {\n" +
+                "info {...FacetCollectionInfo}\n" +
+                "items {...PictureStandardWithoutAlbum}\n" +
+                "}\n" +
+                "}\n" +
+                "}\n" +
+                "fragment FacetCollectionInfo on FacetCollectionInfo {\n" +
+                "page\n" +
+                "has_next_page\n" +
+                "has_previous_page\n" +
+                "total_items\n" +
+                "total_pages\n" +
+                "items_per_page\n" +
+                "}\n" +
+                "fragment PictureStandardWithoutAlbum on Picture {\n" +
+                "url_to_original\n" +
+                "url_to_video\n" +
+                "url\n" +
+                "}",
+              "variables": {
+                "input": {
+                  "filters": [
+                    {
+                      "name": "album_id",
+                      "value": album.id,
+                    }
+                  ],
+                  "display": "rating_all_time",
+                  "page": helpers.next[2] + 1,
+                }
+              }
+            })
+            .post()
+            .setTimeout(5000)
+            .onAbort((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve))
+            .notFound((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve))
+            .json((json) => {
+              const hasNextPage = json.data.picture.list.info.has_next_page;
+              if (hasNextPage) {
+                helpers.next[2] = helpers.next[2] + 1;
+              } else {
+                if (helpers.next[1] < albums.length - 1) {
+                  helpers.next[1] = helpers.next[1] + 1;
+                  helpers.next[2] = 0;
+                } else {
+                  if (userHasNextPage) {
+                    helpers.next[0] = helpers.next[0] + 1;
+                    helpers.next[1] = 0;
+                    helpers.next[2] = 0;
+                  } else {
+                    helpers.next = null;
+                  }
+                }
+              }
+              const items = json.data.picture.list.items;
+              if (items.length > 0) {
+                const images = [];
+                for (let item of items) {
+                  images.push(item.url_to_original);
+                }
+                helpers.count = helpers.count + filterPathsToJustPlayable(IF.any, images, true).length;
+                pm({
+                  data: filterPathsToJustPlayable(filter, images, true),
+                  allURLs: allURLs,
+                  weight: weight,
+                  helpers: helpers,
+                  source: source,
+                  timeout: timeout,
+                }, resolve);
+              } else {
+                pm({
+                  data: [],
+                  allURLs: allURLs,
+                  weight: weight,
+                  helpers: helpers,
+                  source: source,
+                  timeout: timeout,
+                }, resolve);
+              }
+            })
+            .catch((e) => pm({
+              error: e.message,
+              helpers: helpers,
+              source: source,
+              timeout: timeout,
+            }, resolve));
+        } else {
+          helpers.next = null;
+          pm({
+            warning: json,
+            data: [],
+            allURLs: allURLs,
+            weight: weight,
+            helpers: helpers,
+            source: source,
+            timeout: timeout,
+          }, resolve);
+        }
+      })
+      .catch((e) => pm({
+        error: e.message,
+        helpers: helpers,
+        source: source,
+        timeout: timeout,
+      }, resolve));
+  }
+}
+
 export const loadBDSMlr = (allURLs: Map<string, Array<string>>, config: Config, source: LibrarySource, filter: string, weight: string, helpers: {next: any, count: number, retries: number, uuid: string}, resolve?: Function) => {
   const timeout = 8000;
   let url = source.url;
@@ -2034,7 +2498,7 @@ export const loadPiwigo = (allURLs: Map<string, Array<string>>, config: Config, 
     let systemMessage = undefined;
     if (!piwigoAlerted) {
       systemMessage = "You haven't configured FlipFlip to work with Piwigo yet.\nVisit Settings to configure Piwigo.";
-      hydrusAlerted = true;
+      piwigoAlerted = true;
     }
     pm({
       systemMessage: systemMessage,
@@ -2217,7 +2681,7 @@ export function isImage(path: string, strict: boolean): boolean {
 export function isVideo(path: string, strict: boolean): boolean {
   if (path == null) return false;
   const p = path.toLowerCase();
-  const acceptableExtensions = [".mp4", ".mkv", ".webm", ".ogv", ".mov"];
+  const acceptableExtensions = [".mp4", ".mkv", ".webm", ".ogv", ".mov", ".m4v"];
   for (let ext of acceptableExtensions) {
     if (strict) {
       if (p.endsWith(ext)) return true;
@@ -2273,7 +2737,12 @@ export function getFileName(url: string, extension = true) {
   return url;
 }
 
+let _redgifOAuth: any = null;
 async function convertURL(url: string): Promise<Array<string>> {
+  if (url.includes(".gifv")) {
+    return [url.replace(".gifv", ".mp4")];
+  }
+
   // If this is a imgur image page, return image file
   let imgurMatch = url.match("^https?://(?:m\.)?imgur\.com/([\\w\\d]{7})$");
   if (imgurMatch != null) {
@@ -2321,16 +2790,32 @@ async function convertURL(url: string): Promise<Array<string>> {
   }
 
   // If this is redgif page, return redgif image
-  let redgifMatch = url.match("^https?://(?:www\.)?redgifs\.com/watch/(\\w*)$");
+  let redgifMatch = /^https?:\/\/(?:www\.)?redgifs\.com\/watch\/(\w*).*$/.exec(url);
   if (redgifMatch != null) {
     let fourOFour = false
-    let html = await wretch(url).get().notFound(() => {fourOFour = true}).text();
+    if (_redgifOAuth == null) {
+      let authJson: any = await wretch("https://api.redgifs.com/v2/oauth/client")
+        .content("application/x-www-form-urlencoded")
+        .formUrl({
+          grant_type: "client_credentials",
+          client_id: "183c871ed84-0009-314e-0005-2eb73632ccb8",
+          client_secret: "e600b7ca33a0d5a012df08468b3adb25"
+        })
+        .post().json();
+      if (_redgifOAuth == null && authJson.access_token) {
+        _redgifOAuth = "Bearer " + authJson.access_token;
+      }
+    }
+
+    let json: any = await wretch("https://api.redgifs.com/v2/gifs/" + redgifMatch[1]).auth(_redgifOAuth).get().notFound(() => {fourOFour = true}).json();
     if (fourOFour) {
       return [url];
-    } else if (html) {
-      let redgif = /<meta property="og:video" content="([^"]*)">/g.exec(html);
-      if (redgif != null) {
-        return [redgif[1]];
+    } else if (json && json.gif) {
+      if (json.gif.urls.hd) {
+        return [json.gif.urls.hd];
+      }
+      if (json.gif.urls.sd) {
+        return [json.gif.urls.sd];
       }
     }
   }
@@ -2353,6 +2838,8 @@ export function getSourceType(url: string): string {
     return ST.tumblr;
   } else if (/^https?:\/\/(www\.)?reddit\.com\//.exec(url) != null) {
     return ST.reddit;
+  } else if (/^https?:\/\/(www\.)?redgifs\.com\//.exec(url) != null) {
+    return ST.redgifs;
   } else if (/^https?:\/\/(www\.)?imagefap\.com\//.exec(url) != null) {
     return ST.imagefap;
   } else if (/^https?:\/\/(www\.)?imgur\.com\//.exec(url) != null) {
@@ -2371,6 +2858,8 @@ export function getSourceType(url: string): string {
     return ST.gelbooru2;
   } else if (/^https?:\/\/(www\.)?(e621\.net)\//.exec(url) != null) {
     return ST.e621;
+  } else if (/^https?:\/\/(www\.|members\.)?luscious\.net\//.exec(url) != null) {
+    return ST.luscious;
   } else if (/^https?:\/\/(www\.)?(.*\.booru\.org|idol\.sankakucomplex\.com)\//.exec(url) != null) {
     return ST.gelbooru1;
   } else if (/^https?:\/\/(www\.)?e-hentai\.org\/g\//.exec(url) != null) {
@@ -2403,6 +2892,18 @@ export function getFileGroup(url: string) {
       if (redditID.endsWith("/saved")) redditID = redditID.replace("/saved", "");
       redditID = redditID.substring(redditID.lastIndexOf("/") + 1);
       return redditID;
+    case ST.redgifs:
+      let redgifID;
+      if (url.includes("/browse?")) {
+        let redgifRegex = /^https?:\/\/(?:www\.)?redgifs\.com\/browse\?.*tags=([^&]*)/.exec(url);
+        return redgifRegex.length ? redgifRegex[1] : "all";
+      } else  if (url.includes("/users/")) {
+        redgifID = url.replace(/^https?:\/\/(www\.)?redgifs\.com\/users\//, "");
+        if (redgifID.includes("/")) {
+          redgifID = redgifID.substring(0, redgifID.indexOf("/"));
+        }
+      }
+      return redgifID;
     case ST.imagefap:
       let imagefapID = url.replace(/https?:\/\/www.imagefap.com\//, "");
       imagefapID = imagefapID.replace(/pictures\//, "");
@@ -2457,14 +2958,22 @@ export function getFileGroup(url: string) {
         }
       }
       return hostE621 + "/" + decodeURIComponent(E621ID);
+    case ST.luscious:
+      let albumID = url.replace(/^https?:\/\/(www\.|members\.)?luscious\.net\/(albums|users)\//, "");
+      if (albumID.includes("/")) {
+        albumID = albumID.substring(0, albumID.indexOf("/"));
+      }
+      return albumID;
     case ST.danbooru:
     case ST.gelbooru1:
     case ST.gelbooru2:
       const hostRegex = /^https?:\/\/(?:www\.)?([^.]*)\./g;
       const host =  hostRegex.exec(url)[1];
       let danbooruID = "";
-      if (url.includes("/pool/")) {
-        danbooruID = "pool" + url.substring(url.lastIndexOf("/"));
+      if (url.includes("/pools/")) {
+        danbooruID = "pools/" + url.substring(url.lastIndexOf("/"));
+      } else if (url.includes("/favorite_groups/")) {
+        danbooruID = "favorite_groups/" + url.substring(url.lastIndexOf("/"));
       } else {
         const tagRegex = /[?&]tags=(.*)&?/g;
         let tags;

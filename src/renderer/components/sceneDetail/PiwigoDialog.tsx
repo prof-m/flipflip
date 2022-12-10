@@ -3,16 +3,39 @@ import wretch from "wretch";
 import Sortable from "react-sortablejs";
 
 import {
-  Button, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl,
-  MenuItem, Select, Theme, withStyles, List, ListItem, ListItemAvatar, Avatar, ListItemText,
-  Container, Card, CardContent, Typography, Checkbox, FormControlLabel, Tooltip, Divider, Chip
-} from "@material-ui/core";
-import { Rating } from '@material-ui/lab';
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  MenuItem,
+  Select,
+  Theme,
+  List,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  Checkbox,
+  FormControlLabel,
+  Tooltip,
+  Divider,
+  Chip,
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+import { Rating } from '@mui/material';
 
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 import {AF, PW, PWS} from "../../data/const";
 import {arrayMove} from "../../data/utils";
@@ -124,12 +147,12 @@ class AlbumListItem extends React.Component {
           </ListItemAvatar>
           <ListItemText primary={album.name} secondary={album.comment} />
           {(album.sub_categories?.length && !foldersOpen) &&
-            <Tooltip title="Show Sub-Albums">
+            <Tooltip disableInteractive title="Show Sub-Albums">
               <ExpandMoreIcon onClick={this.setOpen.bind(this, true)} /> 
             </Tooltip>
           }
           {(album.sub_categories?.length && foldersOpen) &&
-            <Tooltip title="Hide Sub-Albums">
+            <Tooltip disableInteractive title="Hide Sub-Albums">
               <ExpandLessIcon onClick={this.setOpen.bind(this, false)} /> 
             </Tooltip>
           }
@@ -189,7 +212,7 @@ class PiwigoDialog extends React.Component {
         aria-describedby="url-import-description">
         <DialogTitle id="url-import-title">Create a New Piwigo Source</DialogTitle>
         <DialogContent>
-          <FormControl>
+          <FormControl variant="standard">
             <Typography component="h2" variant="h6" className={classes.areaHeaderFirst}>
               Piwigo Source Type
             </Typography>
@@ -197,6 +220,7 @@ class PiwigoDialog extends React.Component {
               Select the type of image list to create
             </DialogContentText>
             <Select
+              variant="standard"
               value={listType}
               className={classes.typeSelect}
               onChange={this.onListTypeChange.bind(this)}>
@@ -303,12 +327,12 @@ class PiwigoDialog extends React.Component {
                       {column.label}
                     </Typography>
                     {column.direction === "ASC" &&
-                      <Tooltip title="Sort Ascending">
+                      <Tooltip disableInteractive title="Sort Ascending">
                           <ArrowUpwardIcon className={classes.sortColDir} />
                       </Tooltip>
                     }
                     {column.direction === "DESC" &&
-                      <Tooltip title="Sort Descending">
+                      <Tooltip disableInteractive title="Sort Descending">
                           <ArrowDownwardIcon className={classes.sortColDir} />
                       </Tooltip>
                     }

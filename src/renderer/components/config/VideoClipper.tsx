@@ -1,22 +1,40 @@
 import * as React from "react";
 import clsx from "clsx";
-import {green, red} from "@material-ui/core/colors";
+import {green, red} from "@mui/material/colors";
 
 import {
-  AppBar, Button, Card, CardActionArea, CardContent, CircularProgress, Collapse, Container, createStyles, Drawer,
-  Fab, Grid, IconButton, Slider, SvgIcon, TextField, Theme, Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
-import ValueLabel from "@material-ui/core/Slider/ValueLabel";
+  AppBar,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CircularProgress,
+  Collapse,
+  Container,
+  Drawer,
+  Fab,
+  Grid,
+  IconButton,
+  Slider,
+  SvgIcon,
+  TextField,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
-import AddIcon from '@material-ui/icons/Add';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import CheckIcon from '@material-ui/icons/Check';
-import CloseIcon from '@material-ui/icons/Close';
-import DeleteIcon from '@material-ui/icons/Delete';
-import KeyboardReturnIcon from '@material-ui/icons/KeyboardReturn';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
-import SaveIcon from '@material-ui/icons/Save';
-import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
+import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import SaveIcon from '@mui/icons-material/Save';
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 
 import {getTimestamp, getTimestampValue} from "../../data/utils";
 import {BT, VCT} from "../../data/const";
@@ -157,23 +175,14 @@ const styles = (theme: Theme) => createStyles({
       backgroundColor: red[700],
     },
   },
-});
-
-const StyledValueLabel = withStyles((theme: Theme) => createStyles({
-  offset: {
-    top: -5,
-    left: 'calc(-50% + 8px)',
-    fontSize: '1rem',
-  },
-  circle: {
-    width: theme.spacing(1),
-    height: theme.spacing(1),
+  valueLabel: {
     backgroundColor: 'transparent',
+    top: 2
   },
-  label: {
-    color: theme.palette.text.primary,
+  noTransition: {
+    transition: 'unset',
   }
-}))(ValueLabel as any);
+});
 
 class VideoClipper extends React.Component {
   readonly props: {
@@ -210,18 +219,18 @@ class VideoClipper extends React.Component {
       tagNames = this.state.isEditing.tags.map((t) => t.name);
     }
 
-    return(
+    return (
       <div className={clsx(classes.root, "VideoClipper")}>
-        <AppBar
-          className={classes.appBar}>
+        <AppBar enableColorOnDark className={classes.appBar}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title="Back" placement="right-end">
+              <Tooltip disableInteractive title="Back" placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
-                  onClick={this.props.goBack.bind(this)}>
+                  onClick={this.props.goBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
@@ -299,7 +308,7 @@ class VideoClipper extends React.Component {
                     </div>
                   </Grid>
                   <Grid item className={classes.tagButtons}>
-                    <Tooltip title="Inherit Source Tags">
+                    <Tooltip disableInteractive title="Inherit Source Tags">
                       <Fab
                         color="primary"
                         size="small"
@@ -307,9 +316,8 @@ class VideoClipper extends React.Component {
                         <SystemUpdateAltIcon/>
                       </Fab>
                     </Tooltip>
-                    <Tooltip title="End Tagging" placement="top">
-                      <IconButton
-                        onClick={this.onTag.bind(this)}>
+                    <Tooltip disableInteractive title="End Tagging" placement="top">
+                      <IconButton onClick={this.onTag.bind(this)} size="large">
                         <KeyboardReturnIcon/>
                       </IconButton>
                     </Tooltip>
@@ -339,7 +347,7 @@ class VideoClipper extends React.Component {
                     <Collapse in={!this.state.isEditing}>
                       <Grid container spacing={1} alignItems="center" className={clsx(this.props.tutorial == VCT.controls && classes.disable, this.props.tutorial == VCT.clips && classes.highlight)}>
                         <Grid key={-1} item>
-                          <Tooltip title="New Clip" placement="top">
+                          <Tooltip disableInteractive title="New Clip" placement="top">
                             <Fab
                               color="primary"
                               size="small"
@@ -367,7 +375,7 @@ class VideoClipper extends React.Component {
                       <Grid container spacing={1} alignItems="center" className={clsx(this.props.tutorial == VCT.clip && classes.highlight)}>
                         {!this.props.isLibrary && this.state.isEditing && this.props.source.clips.find((c) => c.id == this.state.isEditing.id) && (
                           <Grid item>
-                            <Tooltip title={this.props.source.disabledClips && this.props.source.disabledClips.includes(this.state.isEditing.id) ? "Disabled" : "Enabled"} placement="top">
+                            <Tooltip disableInteractive title={this.props.source.disabledClips && this.props.source.disabledClips.includes(this.state.isEditing.id) ? "Disabled" : "Enabled"} placement="top">
                               <Fab
                                 size="small"
                                 className={clsx(classes.fab,
@@ -384,7 +392,11 @@ class VideoClipper extends React.Component {
                             min={0}
                             max={this.state.video.duration}
                             value={this.state.isEditingValue}
-                            ValueLabelComponent={(props) => <StyledValueLabel {...props}/>}
+                            classes={{
+                              valueLabel: classes.valueLabel,
+                              thumb: classes.noTransition,
+                              track: classes.noTransition,
+                            }}
                             valueLabelDisplay="on"
                             valueLabelFormat={(value) => getTimestamp(value)}
                             marks={[{value: 0, label: getTimestamp(0)}, {value: this.state.video.duration, label: getTimestamp(this.state.video.duration)}]}
@@ -392,24 +404,26 @@ class VideoClipper extends React.Component {
                         </Grid>
                         <Grid item>
                           <TextField
+                            variant="standard"
                             id="start"
                             className={classes.clipField}
                             label="Start"
                             value={this.state.isEditingStartText}
                             onDoubleClick={this.onClickStartText.bind(this)}
-                            onChange={this.onChangeStartText.bind(this)}/>
+                            onChange={this.onChangeStartText.bind(this)} />
                         </Grid>
                         <Grid item>
                           <TextField
+                            variant="standard"
                             id="end"
                             className={classes.clipField}
                             label="End"
                             value={this.state.isEditingEndText}
                             onDoubleClick={this.onClickEndText.bind(this)}
-                            onChange={this.onChangeEndText.bind(this)}/>
+                            onChange={this.onChangeEndText.bind(this)} />
                         </Grid>
                         <Grid item>
-                          <Tooltip title="Save" placement="top">
+                          <Tooltip disableInteractive title="Save" placement="top">
                             <Fab
                               color="primary"
                               size="small"
@@ -420,7 +434,7 @@ class VideoClipper extends React.Component {
                           </Tooltip>
                         </Grid>
                         <Grid item>
-                          <Tooltip title="Tag Clip" placement="top">
+                          <Tooltip disableInteractive title="Tag Clip" placement="top">
                             <Fab
                               color="secondary"
                               size="small"
@@ -431,7 +445,7 @@ class VideoClipper extends React.Component {
                           </Tooltip>
                         </Grid>
                         <Grid item>
-                          <Tooltip title="Set Volume" placement="top">
+                          <Tooltip disableInteractive title="Set Volume" placement="top">
                             <Fab
                               color="secondary"
                               size="small"
@@ -446,7 +460,7 @@ class VideoClipper extends React.Component {
                         </Grid>
                         {this.state.isEditing && this.props.source.clips.find((c) => c.id == this.state.isEditing.id) && (
                           <Grid item>
-                            <Tooltip title="Delete Clip" placement="top">
+                            <Tooltip disableInteractive title="Delete Clip" placement="top">
                               <Fab
                                 size="small"
                                 className={clsx(classes.fab, classes.removeFab, this.props.tutorial == VCT.clip && classes.disable)}
@@ -457,10 +471,11 @@ class VideoClipper extends React.Component {
                           </Grid>
                         )}
                         <Grid item>
-                          <Tooltip title="Cancel" placement="top">
+                          <Tooltip disableInteractive title="Cancel" placement="top">
                             <IconButton
                               className={clsx(this.props.tutorial == VCT.clip && classes.disable)}
-                              onClick={this.onCancel.bind(this)}>
+                              onClick={this.onCancel.bind(this)}
+                              size="large">
                               <KeyboardReturnIcon/>
                             </IconButton>
                           </Tooltip>

@@ -1,8 +1,10 @@
 import Select from "react-select";
 import * as React from "react";
 
-import {createStyles, Theme, withStyles} from "@material-ui/core";
-import {grey} from "@material-ui/core/colors";
+import { Theme } from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+import {grey} from "@mui/material/colors";
 
 import Scene from "../../data/Scene";
 import SceneGrid from "../../data/SceneGrid";
@@ -11,7 +13,7 @@ import {areWeightsValid} from "../../data/utils";
 const styles = (theme: Theme) => createStyles({
   searchSelect: {
     minWidth: 200,
-    maxWidth: `calc(100% - ${theme.spacing(7)}px)`,
+    maxWidth: `calc(100% - ${theme.spacing(7)})`,
     maxHeight: theme.mixins.toolbar.minHeight,
     color: grey[900],
   },
@@ -32,7 +34,7 @@ class SceneSelect extends React.Component {
     autoFocus?: boolean,
     includeExtra?: boolean
     onlyExtra?: boolean
-    getSceneName(sceneID: string): void,
+    getSceneName(sceneID: string): string,
     onChange(sceneID: number): void,
   }
 
@@ -47,7 +49,7 @@ class SceneSelect extends React.Component {
     if (this.props.allSceneGrids) {
       idList = idList.concat(this.props.allSceneGrids.map((s) => "999" + s.id));
     }
-    const options = idList.map((id) => {return {label: this.props.getSceneName(id), value: id}})
+    const options = idList.map((id) => {return{label: this.props.getSceneName(id), value: id}}).filter((o) => o.label != "library_scene_temp");
     return (
       <Select
         className={classes.select}

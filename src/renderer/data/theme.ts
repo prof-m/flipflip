@@ -1,6 +1,6 @@
 const defaultTheme = {
   palette: {
-    type: "light",
+    mode: "light",
     primary: {
       50: "#e8eaf6",
       100: "#c5cae9",
@@ -24,6 +24,9 @@ const defaultTheme = {
     error: {
       main: "#f44336",
     },
+    text: {
+      hint: 'rgba(0, 0, 0, 0.38)',
+    }
   }
 };
 

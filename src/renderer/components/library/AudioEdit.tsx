@@ -2,22 +2,24 @@ import * as React from "react";
 import {remote} from "electron";
 import {readFileSync} from "fs";
 import clsx from "clsx";
-import * as mm from "music-metadata";
+import {parseFile} from "music-metadata";
 
 import {
   Button,
-  createStyles, Dialog,
+  Dialog,
   DialogActions,
   DialogContent,
   IconButton,
   TextField,
   Theme,
   Typography,
-  withStyles
-} from "@material-ui/core";
+} from "@mui/material";
 
-import AudiotrackIcon from "@material-ui/icons/Audiotrack";
-import DeleteIcon from "@material-ui/icons/Delete";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AudiotrackIcon from "@mui/icons-material/Audiotrack";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import {extractMusicMetadata, generateThumbnailFile} from "../../data/utils";
 import {isImage} from "../player/Scrapers";
@@ -86,7 +88,7 @@ class AudioEdit extends React.Component {
   render() {
     const classes = this.props.classes;
 
-    return(
+    return (
       <Dialog
         open={true}
         onClose={this.props.onCancel.bind(this)}
@@ -94,11 +96,12 @@ class AudioEdit extends React.Component {
         <DialogContent>
           <Typography variant="h6">{this.props.title}</Typography>
           <TextField
+            variant="standard"
             className={classes.input}
             value={this.state.audio.name == null ? "" : this.state.audio.name}
             margin="normal"
             label="Name"
-            onChange={this.onEdit.bind(this, 'name')}/>
+            onChange={this.onEdit.bind(this, 'name')} />
           <div className={clsx(classes.trackThumb, this.state.audio.thumb == null && classes.pointer)} onClick={this.state.audio.thumb == null ? this.loadThumb.bind(this) : this.nop}>
             {this.state.audio.thumb != null && (
               <React.Fragment>
@@ -118,18 +121,21 @@ class AudioEdit extends React.Component {
             )}
           </div>
           <TextField
+            variant="standard"
             className={classes.input}
             value={this.state.audio.artist == null ? "" : this.state.audio.artist}
             margin="normal"
             label="Artist"
-            onChange={this.onEdit.bind(this, 'artist')}/>
+            onChange={this.onEdit.bind(this, 'artist')} />
           <TextField
+            variant="standard"
             className={classes.input}
             value={this.state.audio.album == null ? "" : this.state.audio.album}
             margin="normal"
             label="Album"
-            onChange={this.onEdit.bind(this, 'album')}/>
+            onChange={this.onEdit.bind(this, 'album')} />
           <TextField
+            variant="standard"
             className={classes.inputShort}
             value={this.state.audio.trackNum == null ? "" : this.state.audio.trackNum}
             margin="normal"
@@ -138,18 +144,19 @@ class AudioEdit extends React.Component {
               min: 0,
               type: 'number',
             }}
-            onChange={this.onEditInt.bind(this, 'trackNum')}/>
+            onChange={this.onEditInt.bind(this, 'trackNum')} />
           <TextField
+            variant="standard"
             className={classes.inputFull}
             value={this.state.audio.comment == null ? "" : this.state.audio.comment}
             margin="normal"
             label="Comment"
             multiline
-            onChange={this.onEdit.bind(this, 'comment')}/>
+            onChange={this.onEdit.bind(this, 'comment')} />
         </DialogContent>
         <DialogActions className={classes.actions}>
           {this.props.allowSuggestion && (
-            <Button onClick={this.loadSuggestions.bind(this)} color="default">
+            <Button onClick={this.loadSuggestions.bind(this)}>
               Use Suggestions
             </Button>
           )}
@@ -201,7 +208,7 @@ class AudioEdit extends React.Component {
 
   loadSuggestions() {
     const url = this.state.audio.url;
-    mm.parseFile(url)
+    parseFile(url)
       .then((metadata: any) => {
         if (metadata) {
           const newAudio = new Audio(this.state.audio);

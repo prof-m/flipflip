@@ -1,17 +1,34 @@
 import * as React from 'react';
 
-import {SvgIcon} from "@material-ui/core";
-import AudiotrackIcon from "@material-ui/icons/Audiotrack";
-import FolderIcon from '@material-ui/icons/Folder';
-import InstagramIcon from '@material-ui/icons/Instagram';
-import ListIcon from '@material-ui/icons/List';
-import MovieIcon from '@material-ui/icons/Movie';
-import RedditIcon from '@material-ui/icons/Reddit';
-import SubscriptionsIcon from '@material-ui/icons/Subscriptions';
-import TwitterIcon from '@material-ui/icons/Twitter';
+import {SvgIcon} from "@mui/material";
+import AudiotrackIcon from "@mui/icons-material/Audiotrack";
+import FolderIcon from '@mui/icons-material/Folder';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import ListIcon from '@mui/icons-material/List';
+import MovieIcon from '@mui/icons-material/Movie';
+import RedditIcon from '@mui/icons-material/Reddit';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import TwitterIcon from '@mui/icons-material/Twitter';
 
 import {getSourceType} from "../player/Scrapers";
 import {ST} from "../../data/const";
+
+function RedGifsIcon(props: any) {
+  return (
+    <SvgIcon {...props} viewBox="0 0 32 32" fontSize="small">
+      <g transform="translate(0,32) scale(0.1,-0.1)">
+        <path d="M0 160 l0 -160 160 0 160 0 0 160 0 160 -160 0 -160 0 0 -160z m268
+        84 c36 -10 27 -34 -13 -34 -39 0 -60 -27 -51 -65 6 -24 31 -39 47 -29 15 9 10
+        24 -7 24 -9 0 -14 7 -12 18 2 12 13 17 33 17 28 0 30 -3 33 -39 4 -44 -7 -56
+        -53 -56 -43 0 -73 25 -81 65 -7 40 14 81 49 95 28 11 27 11 55 4z m-140 -16
+        c15 -15 15 -43 0 -67 -9 -14 -8 -23 5 -42 21 -29 21 -39 2 -39 -8 0 -25 14
+        -37 31 l-23 31 -5 -28 c-3 -17 -13 -30 -23 -32 -15 -3 -17 6 -17 77 l0 81 43
+        0 c24 0 48 -5 55 -12z"/>
+        <path d="M70 191 c0 -14 5 -19 15 -14 17 6 15 25 -3 31 -7 2 -12 -5 -12 -17z"/>
+      </g>
+    </SvgIcon>
+  );
+}
 
 function TumblrIcon(props: any) {
   return (
@@ -194,6 +211,33 @@ function NimjaIcon(props: any) {
   )
 }
 
+function LusciousIcon(props: any) {
+  return (
+    <SvgIcon {...props} viewBox="0 0 511.997 511.997" fontSize="small">
+      <g>
+        <g>
+          <path d="M511.793,186.518c-0.655-11.844-10.112-21.301-21.954-21.954c-2.111-0.115-29.974-1.472-66.212,4.893
+      c-8.084-36.28-20.178-61.744-20.794-63.028c-5.137-10.692-17.489-15.809-28.683-11.881c-1.344,0.472-27.893,9.923-59.257,29.853
+      c-21.036-29.997-41.617-48.698-43.372-50.268c-8.835-7.914-22.21-7.914-31.047,0c-1.755,1.57-22.336,20.271-43.372,50.268
+      c-31.365-19.93-57.913-29.381-59.257-29.853c-11.189-3.93-23.549,1.188-28.683,11.881c-0.616,1.283-12.709,26.747-20.794,63.027
+      c-36.237-6.367-64.097-5.01-66.212-4.892c-11.844,0.653-21.3,10.111-21.954,21.954c-0.271,4.923-5.84,121.399,64.921,192.158
+      c60.028,60.026,152.95,65.124,182.764,65.124c3.806,0,6.561-0.082,8.112-0.146c1.548,0.064,4.302,0.146,8.111,0.146
+      c29.821,0,122.74-5.101,182.764-65.124C517.633,307.917,512.065,191.442,511.793,186.518z M369.093,147.374
+      c3.108,8.995,6.575,20.48,9.417,33.565c-9.361,3.205-18.811,7.023-28.129,11.564c-3.376-9.8-7.352-19.18-11.704-28.065
+      C349.914,157.227,360.511,151.552,369.093,147.374z M142.939,147.358c8.556,4.162,19.124,9.83,30.383,17.07
+      c-4.353,8.888-8.331,18.271-11.709,28.076c-9.315-4.539-18.76-8.356-28.118-11.561
+      C136.342,167.896,139.823,156.385,142.939,147.358z M98.033,345.766c-39.675-39.678-48.927-101.488-50.938-134.363
+      c13.842,0.825,32.811,2.946,53.125,8.12c0.596,0.178,1.198,0.338,1.814,0.47c16.267,4.273,33.315,10.523,49.236,19.65
+      c-0.492,5.354-0.766,10.778-0.766,16.273c0,55.482,26.526,104.301,50.791,137.359C168.532,387.833,127.389,375.122,98.033,345.766
+      z M255.997,386.899c-21.841-24.697-58.951-74.915-58.951-130.982c0-56.078,37.121-106.301,58.95-130.985
+      c21.841,24.696,58.953,74.912,58.953,130.985C314.948,311.983,277.838,362.201,255.997,386.899z M413.963,345.764
+      c-29.19,29.19-70.359,41.909-103.179,47.395c24.243-33.056,50.707-81.825,50.707-137.244c0-5.492-0.275-10.913-0.766-16.265
+      c36.331-20.78,78.826-26.644,104.171-28.196C462.878,244.36,453.612,306.116,413.963,345.764z"/>
+        </g>
+      </g>
+    </SvgIcon>
+  )
+}
 
 export default class SourceIcon extends React.Component {
   readonly props: {
@@ -222,6 +266,8 @@ export default class SourceIcon extends React.Component {
         return <ListIcon className={this.props.className}/>;
       case ST.reddit:
         return <RedditIcon className={this.props.className}/>;
+      case ST.redgifs:
+        return <RedGifsIcon className={this.props.className}/>;
       case ST.twitter:
         return <TwitterIcon className={this.props.className}/>;
       case ST.instagram:
@@ -239,6 +285,8 @@ export default class SourceIcon extends React.Component {
       case ST.danbooru:
       case ST.e621:
         return <DanbooruIcon className={this.props.className}/>;
+      case ST.luscious:
+        return <LusciousIcon className={this.props.className}/>;
       case ST.gelbooru1:
       case ST.gelbooru2:
         return <GelbooruIcon className={this.props.className}/>;

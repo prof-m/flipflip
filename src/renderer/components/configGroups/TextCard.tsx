@@ -1,20 +1,12 @@
 import * as React from "react";
 
-import {
-  Collapse,
-  createStyles,
-  Divider,
-  Fab,
-  FormControlLabel,
-  Grid,
-  Switch,
-  Theme,
-  Tooltip,
-  withStyles
-} from "@material-ui/core";
+import { Collapse, Divider, Fab, FormControlLabel, Grid, Switch, Theme, Tooltip } from "@mui/material";
+
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
 import Scene from "../../data/Scene";
-import AddIcon from "@material-ui/icons/Add";
+import AddIcon from "@mui/icons-material/Add";
 import {RP} from "../../data/const";
 import ScriptPlaylist from "./ScriptPlaylist";
 import ScriptOptions from "../library/ScriptOptions";
@@ -92,7 +84,7 @@ class TextCard extends React.Component {
             </Grid>
             <Grid item>
               <Collapse in={this.props.scene.textEnabled}>
-                <Tooltip title={"Add Playlist"}>
+                <Tooltip disableInteractive title={"Add Playlist"}>
                   <Fab
                     className={classes.addButton}
                     onClick={this.onAddPlaylist.bind(this)}

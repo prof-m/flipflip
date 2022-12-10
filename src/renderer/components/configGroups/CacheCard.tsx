@@ -6,12 +6,30 @@ import {existsSync} from "fs";
 import getFolderSize from "get-folder-size";
 
 import {
-  Button, Chip, Collapse, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, Divider,
-  FormControlLabel, Grid, IconButton, InputAdornment, Link, Switch, TextField, Theme, Tooltip, withStyles
-} from "@material-ui/core";
+  Button,
+  Chip,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  Divider,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Link,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+} from "@mui/material";
 
-import ClearIcon from '@material-ui/icons/Clear';
-import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ClearIcon from '@mui/icons-material/Clear';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 
 import Config, {CacheSettings} from "../../data/Config";
 import {getCachePath, urlToPath} from "../../data/utils";
@@ -42,12 +60,12 @@ class CacheCard extends React.Component {
   render() {
     const classes = this.props.classes;
     const cachePath = getCachePath(null, this.props.config);
-    return(
+    return (
       <Grid container spacing={this.props.config.caching.enabled ? 2 : 0} alignItems="center">
         <Grid item xs={12}>
           <Grid container alignItems="center">
             <Grid item xs>
-              <Tooltip title="When enabled, FlipFlip will store downloaded images in a local directory to improve future performance and reduce the need re-download files.">
+              <Tooltip disableInteractive title="When enabled, FlipFlip will store downloaded images in a local directory to improve future performance and reduce the need re-download files.">
                 <FormControlLabel
                   control={
                     <Switch checked={this.props.config.caching.enabled}
@@ -58,11 +76,12 @@ class CacheCard extends React.Component {
             </Grid>
             <Grid item>
               <Collapse in={this.props.config.caching.enabled} className={clsx(classes.fullWidth, classes.paddingLeft)}>
-                <Tooltip title="Clear Cache">
+                <Tooltip disableInteractive title="Clear Cache">
                   <IconButton
                     edge="start"
                     color="inherit"
-                    onClick={this.onClearCache.bind(this)}>
+                    onClick={this.onClearCache.bind(this)}
+                    size="large">
                     <DeleteSweepIcon color="error" />
                   </IconButton>
                 </Tooltip>
@@ -80,6 +99,7 @@ class CacheCard extends React.Component {
             <Grid container spacing={2} alignItems="center">
               <Grid item xs>
                 <TextField
+                  variant="standard"
                   fullWidth
                   label="Caching Directory"
                   placeholder={cachePath}
@@ -90,12 +110,11 @@ class CacheCard extends React.Component {
                   InputProps={{
                     readOnly: true,
                   }}
-                  onClick={this.onCacheDirChange.bind(this)}/>
+                  onClick={this.onCacheDirChange.bind(this)} />
               </Grid>
               <Grid item>
-                <Tooltip title="Reset Cache Directory">
-                  <IconButton
-                    onClick={this.onResetCacheDir.bind(this)}>
+                <Tooltip disableInteractive title="Reset Cache Directory">
+                  <IconButton onClick={this.onResetCacheDir.bind(this)} size="large">
                     <ClearIcon color="error"/>
                   </IconButton>
                 </Tooltip>
@@ -103,8 +122,9 @@ class CacheCard extends React.Component {
             </Grid>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs>
-                <Tooltip title="The maximum size of the caching directory. After the max is reached, new images won't be kept. Set this to 0 to ignore size.">
+                <Tooltip disableInteractive title="The maximum size of the caching directory. After the max is reached, new images won't be kept. Set this to 0 to ignore size.">
                   <TextField
+                    variant="standard"
                     label="Max Cache Size"
                     margin="dense"
                     value={this.props.config.caching.maxSize}
@@ -116,7 +136,7 @@ class CacheCard extends React.Component {
                     inputProps={{
                       min: 0,
                       type: 'number',
-                    }}/>
+                    }} />
                 </Tooltip>
               </Grid>
               <Grid item>
@@ -134,7 +154,10 @@ class CacheCard extends React.Component {
           aria-describedby="clean-cache-description">
           <DialogContent>
             <DialogContentText id="clean-cache-description">
-              Are you SURE you want to delete the contents of <Link href="#" onClick={this.openDirectory.bind(this, cachePath)}>{cachePath}</Link> ?
+              Are you SURE you want to delete the contents of <Link
+              href="#"
+              onClick={this.openDirectory.bind(this, cachePath)}
+              underline="hover">{cachePath}</Link> ?
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -161,7 +184,7 @@ class CacheCard extends React.Component {
         getFolderSize(getCachePath(null, this.props.config), (err: string, size: number) => {
           if (err) { throw err; }
           const mbSize = (size / 1024 / 1024);
-          this.setState({cacheSize: mbSize.toFixed(2) + "MB"});
+          this.setState({cacheSize: mbSize.toFixed(2)});
         });
       }
     }

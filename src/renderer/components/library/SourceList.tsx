@@ -8,12 +8,34 @@ import {FixedSizeList} from "react-window";
 import clsx from "clsx";
 
 import {
-  Button, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel,
-  IconButton, InputAdornment, InputLabel, Link, List, ListItemSecondaryAction, ListItemText, Menu, MenuItem,
-  Select, Switch, TextField, Theme, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  FormControl,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  Link,
+  List,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Select,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import FolderIcon from "@material-ui/icons/Folder";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import FolderIcon from "@mui/icons-material/Folder";
 
 import {arrayMove, getCachePath, getTimestamp, urlToPath} from "../../data/utils";
 import {getFileName, getSourceType} from "../player/Scrapers";
@@ -63,6 +85,9 @@ const styles = (theme: Theme) => createStyles({
     position: 'absolute',
     bottom: 260,
     right: 160,
+  },
+  weightMenu: {
+    width: theme.spacing(10)
   }
 });
 
@@ -76,12 +101,14 @@ class SourceList extends React.Component {
     tutorial: string,
     onClearBlacklist(sourceURL: string): void,
     onClip(source: LibrarySource, displayed: Array<LibrarySource>): void,
+    onDownload(source: LibrarySource): void;
     onEditBlacklist(sourceURL: string, blacklist: string): void,
     onPlay(source: LibrarySource, displayed: Array<LibrarySource>): void,
     systemMessage(message: string): void,
     isSelect?: boolean,
     selected?: Array<string>,
     yOffset?: number,
+    useWeights?: boolean,
     onUpdateLibrary?(fn: (library: Array<LibrarySource>) => void): void,
     onUpdateScene?(fn: (scene: Scene) => void): void,
     onUpdateSelected?(selected: Array<string>): void,
@@ -94,6 +121,7 @@ class SourceList extends React.Component {
     mouseX: null as any,
     mouseY: null as any,
     clipMenu: null as LibrarySource,
+    weightMenu: null as LibrarySource,
     blacklistSource: null as string,
     editBlacklist: null as string,
     sourceOptionsType: null as string,
@@ -193,6 +221,36 @@ class SourceList extends React.Component {
             </MenuItem>
           )}
         </Menu>
+        <Menu
+          id="weight-menu"
+          classes={{paper: classes.weightMenu}}
+          elevation={1}
+          anchorReference="anchorPosition"
+          anchorPosition={
+            this.state.mouseY !== null && this.state.mouseX !== null
+              ? { top: this.state.mouseY, left: this.state.mouseX }
+              : undefined
+          }
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          keepMounted
+          open={!!this.state.weightMenu}
+          onClose={this.onCloseDialog.bind(this)}>
+          <MenuItem >
+            <TextField
+              variant="standard"
+              margin="dense"
+              value={!!this.state.weightMenu ? !!this.state.weightMenu.weight ? this.state.weightMenu.weight : 1 : 1}
+              onChange={this.onWeightInput.bind(this)}
+              onBlur={this.blurWeight.bind(this)}
+              inputProps={{
+                min: 1,
+                type: 'number',
+              }} />
+          </MenuItem>
+        </Menu>
         {this.state.cachePath != null && (
           <Dialog
             open={true}
@@ -200,7 +258,11 @@ class SourceList extends React.Component {
             aria-describedby="clean-cache-description">
             <DialogContent>
               <DialogContentText id="clean-cache-description">
-                Are you SURE you want to delete <Link className={classes.wordWrap} href="#" onClick={this.openDirectory.bind(this, this.state.cachePath)}>{this.state.cachePath}</Link> ?
+                Are you SURE you want to delete <Link
+                className={classes.wordWrap}
+                href="#"
+                onClick={this.openDirectory.bind(this, this.state.cachePath)}
+                underline="hover">{this.state.cachePath}</Link> ?
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -222,14 +284,14 @@ class SourceList extends React.Component {
               Blacklist ({this.state.blacklistSource})
             </DialogContentText>
             <TextField
+              variant="standard"
               fullWidth
               multiline
               helperText="One URL to blacklist per line"
               value={this.state.editBlacklist}
               margin="dense"
               inputProps={{className: classes.blacklistInput}}
-              onChange={this.onChangeBlacklist.bind(this)}
-            />
+              onChange={this.onChangeBlacklist.bind(this)} />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.onCloseBlacklist.bind(this)} color="secondary">
@@ -251,7 +313,7 @@ class SourceList extends React.Component {
               </DialogContentText>
               <FormControlLabel
                 control={
-                  <Tooltip title={"Enable this to treat directories directly inside this one as their own individual sources"}>
+                  <Tooltip disableInteractive title={"Enable this to treat directories directly inside this one as their own individual sources"}>
                     <Switch checked={this.state.sourceOptions.dirOfSources}
                             onChange={this.onSourceBoolInput.bind(this, 'dirOfSources')}/>
                   </Tooltip>
@@ -270,6 +332,7 @@ class SourceList extends React.Component {
                 Video Options ({this.state.sourceOptions.url})
               </DialogContentText>
               <TextField
+                variant="standard"
                 label="Subtitle File"
                 fullWidth
                 placeholder="Paste URL Here"
@@ -278,16 +341,14 @@ class SourceList extends React.Component {
                 InputProps={{
                   endAdornment:
                     <InputAdornment position="end">
-                      <Tooltip title="Open File">
-                        <IconButton
-                          onClick={this.onOpenSubtitleFile.bind(this)}>
+                      <Tooltip disableInteractive title="Open File">
+                        <IconButton onClick={this.onOpenSubtitleFile.bind(this)} size="large">
                           <FolderIcon/>
                         </IconButton>
                       </Tooltip>
                     </InputAdornment>,
                 }}
-                onChange={this.onSourceInput.bind(this, 'subtitleFile')}
-              />
+                onChange={this.onSourceInput.bind(this, 'subtitleFile')} />
             </DialogContent>
           </Dialog>
         )}
@@ -300,9 +361,10 @@ class SourceList extends React.Component {
               <DialogContentText id="reddit-options-description">
                 Reddit Options ({this.state.sourceOptions.url})
               </DialogContentText>
-              <FormControl className={classes.fullWidth}>
+              <FormControl variant="standard" className={classes.fullWidth}>
                 <InputLabel>Post Order</InputLabel>
                 <Select
+                  variant="standard"
                   disabled={this.state.sourceOptions.url.includes("/user/") || this.state.sourceOptions.url.includes("/u/")}
                   value={this.state.sourceOptions.redditFunc == null ? RF.hot : this.state.sourceOptions.redditFunc}
                   onChange={this.onSourceInput.bind(this, 'redditFunc')}>
@@ -313,6 +375,7 @@ class SourceList extends React.Component {
               </FormControl>
               {this.state.sourceOptions.redditFunc == RF.top && (
                 <Select
+                  variant="standard"
                   className={classes.fullWidth}
                   disabled={this.state.sourceOptions.url.includes("/user/") || this.state.sourceOptions.url.includes("/u/")}
                   value={this.state.sourceOptions.redditTime == null ? RT.day : this.state.sourceOptions.redditTime}
@@ -376,7 +439,7 @@ class SourceList extends React.Component {
           </Dialog>
         )}
       </React.Fragment>
-    )
+    );
   }
 
   componentDidMount() {
@@ -479,6 +542,29 @@ class SourceList extends React.Component {
     }
     this._lastChecked = source;
     this.props.onUpdateSelected(newSelected);
+  }
+
+  blurWeight(e: MouseEvent) {
+    const min = (e.currentTarget as any).min ? (e.currentTarget as any).min : null;
+    const max = (e.currentTarget as any).max ? (e.currentTarget as any).max : null;
+    if (min && this.state.weightMenu.weight < min) {
+      this.changeWeight(min);
+    } else if (max && this.state.weightMenu.weight > max) {
+      this.changeWeight(max);
+    }
+  }
+
+  onWeightInput(e: MouseEvent) {
+    const input = (e.target as HTMLInputElement);
+    this.changeWeight(input.value === '' ? 1 : Number(input.value));
+  }
+
+  changeWeight(intString: number) {
+    this.props.onUpdateScene((scene) => {
+      const source = scene.sources.find((ls) => ls.id == this.state.weightMenu.id);
+      source.weight = intString;
+      this.setState({weightMenu: source});
+    });
   }
 
   onToggleClip(s: LibrarySource, c: Clip) {
@@ -610,8 +696,12 @@ class SourceList extends React.Component {
     this.setState({mouseX: e.clientX, mouseY: e.clientY, clipMenu: source});
   }
 
+  onOpenWeightMenu(source: LibrarySource, e: MouseEvent) {
+    this.setState({mouseX: e.clientX, mouseY: e.clientY, weightMenu: source});
+  }
+
   onCloseDialog() {
-    this.setState({menuAnchorEl: null, clipMenu: null});
+    this.setState({menuAnchorEl: null, clipMenu: null, weightMenu: null});
   }
 
   onCloseBlacklist() {
@@ -708,13 +798,16 @@ class SourceList extends React.Component {
         sources={this.props.sources}
         style={value.style}
         tutorial={this.props.tutorial}
+        useWeights={this.props.useWeights}
         onClean={this.onClean.bind(this)}
         onClearBlacklist={this.props.onClearBlacklist.bind(this)}
         onClip={this.props.onClip.bind(this)}
         onDelete={this.onDelete.bind(this)}
+        onDownload={this.props.onDownload.bind(this)}
         onEditBlacklist={this.onEditBlacklist.bind(this)}
         onEndEdit={this.onEndEdit.bind(this)}
         onOpenClipMenu={this.onOpenClipMenu.bind(this)}
+        onOpenWeightMenu={this.onOpenWeightMenu.bind(this)}
         onPlay={this.props.onPlay.bind(this)}
         onRemove={this.onRemove.bind(this)}
         onSourceOptions={this.onSourceOptions.bind(this)}

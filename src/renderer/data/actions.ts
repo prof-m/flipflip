@@ -10,14 +10,16 @@ import Snoowrap from "snoowrap";
 import Twitter from "twitter";
 import {IgApiClient} from "instagram-private-api";
 import {analyze} from "web-audio-beat-detector";
-import * as mm from "music-metadata";
+import {parseFile} from "music-metadata";
 import request from "request";
 import moment from "moment";
 
 import {
+  applyEffects,
+  areWeightsValid,
   filterSource,
   getBackups,
-  getCachePath,
+  getCachePath, getEffects,
   getFilesRecursively,
   getRandomIndex,
   randomizeList,
@@ -28,8 +30,37 @@ import {
 import {getFileGroup, getFileName, getSourceType, isVideo, isVideoPlaylist} from "../components/player/Scrapers";
 import defaultTheme from "./theme";
 import {
-  AF, ALT, ASF, BT, CST, DONE, GT, HTF, IF, IT, LT, OF, PR, PT, RP, SDGT, SDT, SF, SGT, SL, SLT, SOF, SP, SPT, ST, TF,
-  TT, VCT, VO, VTF
+  AF,
+  ALT,
+  ASF,
+  BT,
+  CST,
+  DONE,
+  GT,
+  HTF,
+  IF,
+  IT,
+  LT,
+  OF,
+  PR,
+  PT,
+  RP,
+  SDGT,
+  SDT,
+  SF,
+  SGT,
+  SL,
+  SLT,
+  SOF,
+  SP,
+  SPT,
+  SS,
+  ST,
+  TF,
+  TT,
+  VCT,
+  VO,
+  VTF
 } from "./const";
 import {defaultInitialState} from './AppStorage';
 import {Route} from "./Route";
@@ -46,6 +77,7 @@ import Playlist from "./Playlist";
 import CaptionScript from "./CaptionScript";
 import SceneGroup from "./SceneGroup";
 import SceneGridCell from "./SceneGridCell";
+import WeightGroup from "./WeightGroup";
 
 type State = typeof defaultInitialState;
 
@@ -173,6 +205,7 @@ export function restoreFromBackup(state: State, backupFile: string): Object {
     progressNext: null as string,
     systemMessage: null as string,
     systemSnack: null as string,
+    systemSnackSeverity: null as string,
     tutorial: null as string,
     theme: data.theme ? data.theme : defaultTheme,
   };
@@ -182,7 +215,7 @@ export function changeThemeColor(state: State, colorTheme: any, primary: boolean
   const newTheme = JSON.parse(JSON.stringify(state.theme));
   if (primary) {
     newTheme.palette.primary = colorTheme;
-    const type = newTheme.palette.type;
+    const type = newTheme.palette.mode;
     if (type === "dark") {
       (newTheme.palette as any).background = {};
     } else if (type === "light") {
@@ -325,12 +358,12 @@ export function doneTutorial(state: State, tutorial: string): Object {
 
 export function toggleDarkMode(state: State): Object {
   const newTheme = state.theme;
-  const type = newTheme.palette.type;
+  const type = newTheme.palette.mode;
   if (type === "dark") {
-    newTheme.palette.type = "light";
+    newTheme.palette.mode = "light";
     (newTheme.palette as any).background = {default: newTheme.palette.primary[50]};
   } else if (type === "light") {
-    newTheme.palette.type = "dark";
+    newTheme.palette.mode = "dark";
     (newTheme.palette as any).background = {};
   }
   return {theme: newTheme};
@@ -486,7 +519,8 @@ export function cloneScene(state: State, scene: Scene): Object {
     scenes: state.scenes.concat([sceneCopy]),
     route: [new Route({kind: 'scene', value: sceneCopy.id})],
     specialMode: SP.autoEdit,
-    systemSnack: "Clone successful!"
+    systemSnack: "Clone successful!",
+    systemSnackSeverity: SS.success,
   };
 }
 
@@ -503,20 +537,21 @@ export function saveScene(state: State, scene: Scene): Object {
     scenes: state.scenes.concat([sceneCopy]),
     route: [new Route({kind: 'scene', value: sceneCopy.id})],
     specialMode: SP.autoEdit,
-    systemSnack: "Save successful!"
+    systemSnack: "Save successful!",
+    systemSnackSeverity: SS.success,
   };
 }
 
 export function closeMessage(state: State): Object {
-  return {systemMessage: null, systemSnack: null};
+  return {systemMessage: null, systemSnack: null, systemSnackSeverity: null};
 }
 
 export function systemMessage(state: State, message: string): Object {
   return {systemMessage: message};
 }
 
-export function systemSnack(state: State, message: string): Object {
-  return {systemSnack: message};
+export function systemSnack(state: State, message: string, severity: string): Object {
+  return {systemSnack: message, systemSnackSeverity: severity};
 }
 
 export function changeScenePickerTab(state: State, newTab: number): Object {
@@ -914,43 +949,87 @@ export function playScript(state: State, source: CaptionScript, sceneID: number,
 export function playSceneFromLibrary(state: State, source: LibrarySource, displayed: Array<LibrarySource>): Object {
   const sourceURL = source.url.startsWith("http") ? source.url : source.url.replace(/\//g, path.sep);
   let librarySource = state.library.find((s) => s.url == sourceURL);
-  if (librarySource == null) {
-    throw new Error("Source not found in Library");
+  if (librarySource != null) {
+    librarySource.disabledClips =  [];
+    let id = state.scenes.length + 1;
+    state.scenes.forEach((s: Scene) => {
+      id = Math.max(s.id + 1, id);
+    });
+    const sourceType = getSourceType(source.url);
+    let tempScene = new Scene({
+      id: id,
+      name: "library_scene_temp",
+      sources: [librarySource],
+      libraryID: librarySource.id,
+      forceAll: state.config.defaultScene.forceAll,
+      backgroundType: state.config.defaultScene.backgroundType,
+      backgroundColor: state.config.defaultScene.backgroundColor,
+      backgroundColorSet: state.config.defaultScene.backgroundColorSet,
+      backgroundBlur: state.config.defaultScene.backgroundBlur,
+      imageOrientation: state.config.defaultScene.imageOrientation,
+      videoOrientation: state.config.defaultScene.videoOrientation,
+      randomVideoStart: state.config.defaultScene.randomVideoStart,
+      videoOption: sourceType == ST.video ? VO.full : state.config.defaultScene.videoOption,
+      continueVideo:  sourceType == ST.video || state.config.defaultScene.continueVideo,
+      playVideoClips: state.config.defaultScene.playVideoClips,
+      videoVolume: state.config.defaultScene.videoVolume,
+      orderFunction: state.config.defaultScene.orderFunction,
+    });
+    if (getLibrarySource(state) != null) {
+      const activeScene = getActiveScene(state);
+      applyEffects(tempScene, getEffects(activeScene));
+      tempScene.overlayEnabled = activeScene.overlayEnabled;
+      tempScene.overlays = activeScene.overlays;
+      state.route.pop();
+      state.route.pop();
+      state.scenes.pop();
+    }
+    return {
+      displayedSources: displayed,
+      scenes: state.scenes.concat([tempScene]),
+      route: state.route.concat([new Route({kind: 'scene', value: tempScene.id}), new Route({kind: 'libraryplay', value: tempScene.id})]),
+    };
+  } else {
+    source.disabledClips =  [];
+    let id = state.scenes.length + 1;
+    state.scenes.forEach((s: Scene) => {
+      id = Math.max(s.id + 1, id);
+    });
+    const sourceType = getSourceType(source.url);
+    let tempScene = new Scene({
+      id: id,
+      name: "library_scene_temp",
+      sources: [source],
+      libraryID: null,
+      forceAll: state.config.defaultScene.forceAll,
+      backgroundType: state.config.defaultScene.backgroundType,
+      backgroundColor: state.config.defaultScene.backgroundColor,
+      backgroundColorSet: state.config.defaultScene.backgroundColorSet,
+      backgroundBlur: state.config.defaultScene.backgroundBlur,
+      imageOrientation: state.config.defaultScene.imageOrientation,
+      videoOrientation: state.config.defaultScene.videoOrientation,
+      randomVideoStart: state.config.defaultScene.randomVideoStart,
+      videoOption: sourceType == ST.video ? VO.full : state.config.defaultScene.videoOption,
+      continueVideo:  sourceType == ST.video || state.config.defaultScene.continueVideo,
+      playVideoClips: state.config.defaultScene.playVideoClips,
+      videoVolume: state.config.defaultScene.videoVolume,
+    });
+    if (getActiveScene(state)?.libraryID != -1) {
+      const activeScene = getActiveScene(state);
+      applyEffects(tempScene, getEffects(activeScene));
+      tempScene.overlayEnabled = activeScene.overlayEnabled;
+      tempScene.overlays = activeScene.overlays;
+      state.route.pop();
+      state.route.pop();
+      state.scenes.pop();
+    }
+    return {
+      displayedSources: displayed,
+      scenes: state.scenes.concat([tempScene]),
+      route: state.route.concat([new Route({kind: 'scene', value: tempScene.id}), new Route({kind: 'libraryplay', value: tempScene.id})]),
+    };
   }
-  librarySource.disabledClips =  [];
-  let id = state.scenes.length + 1;
-  state.scenes.forEach((s: Scene) => {
-    id = Math.max(s.id + 1, id);
-  });
-  if (getLibrarySource(state) != null) {
-    state.route.pop();
-    state.route.pop();
-    state.scenes.pop();
-  }
-  const sourceType = getSourceType(source.url);
-  let tempScene = new Scene({
-    id: id,
-    name: "library_scene_temp",
-    sources: [librarySource],
-    libraryID: librarySource.id,
-    forceAll: state.config.defaultScene.forceAll,
-    backgroundType: state.config.defaultScene.backgroundType,
-    backgroundColor: state.config.defaultScene.backgroundColor,
-    backgroundColorSet: state.config.defaultScene.backgroundColorSet,
-    backgroundBlur: state.config.defaultScene.backgroundBlur,
-    imageOrientation: state.config.defaultScene.imageOrientation,
-    videoOrientation: state.config.defaultScene.videoOrientation,
-    randomVideoStart: state.config.defaultScene.randomVideoStart,
-    videoOption: sourceType == ST.video ? VO.full : state.config.defaultScene.videoOption,
-    continueVideo:  sourceType == ST.video || state.config.defaultScene.continueVideo,
-    playVideoClips: state.config.defaultScene.playVideoClips,
-    videoVolume: state.config.defaultScene.videoVolume,
-  });
-  return {
-    displayedSources: displayed,
-    scenes: state.scenes.concat([tempScene]),
-    route: state.route.concat([new Route({kind: 'scene', value: tempScene.id}), new Route({kind: 'libraryplay', value: tempScene.id})]),
-  };
+
 }
 
 export function onUpdateClips(state: State, sourceURL: string, clips: Array<Clip>) {
@@ -1016,19 +1095,21 @@ export function navigateClipping(state: State, offset: number): Object {
 export function navigateDisplayedLibrary(state: State, offset: number): Object {
   const activeScene = getActiveScene(state);
   const librarySource = getLibrarySource(state);
-  const tagNames = state.tags.map((t: Tag) => t.name);
-  // Re-order the tags of the source we were playing
-  librarySource.tags = librarySource.tags.sort((a: Tag, b: Tag) => {
-    const aIndex = tagNames.indexOf(a.name);
-    const bIndex = tagNames.indexOf(b.name);
-    if (aIndex < bIndex) {
-      return -1;
-    } else if (aIndex > bIndex) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
+  if (librarySource != null) {
+    const tagNames = state.tags.map((t: Tag) => t.name);
+    // Re-order the tags of the source we were playing
+    librarySource.tags = librarySource.tags.sort((a: Tag, b: Tag) => {
+      const aIndex = tagNames.indexOf(a.name);
+      const bIndex = tagNames.indexOf(b.name);
+      if (aIndex < bIndex) {
+        return -1;
+      } else if (aIndex > bIndex) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+  }
   const displayed = Array.from(state.displayedSources);
   const indexOf = displayed.map((s) => s.url).indexOf(activeScene.sources[0].url);
   let newIndexOf = indexOf + offset;
@@ -1050,19 +1131,21 @@ export function endPlaySceneFromLibrary(state: State): Object {
     librarySource = getLibrarySource(state);
   }
   state.scenes.pop();
-  const tagNames = state.tags.map((t: Tag) => t.name);
-  // Re-order the tags of the source we were playing
-  librarySource.tags = librarySource.tags.sort((a: Tag, b: Tag) => {
-    const aIndex = tagNames.indexOf(a.name);
-    const bIndex = tagNames.indexOf(b.name);
-    if (aIndex < bIndex) {
-      return -1;
-    } else if (aIndex > bIndex) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
+  if (librarySource != null) {
+    const tagNames = state.tags.map((t: Tag) => t.name);
+    // Re-order the tags of the source we were playing
+    librarySource.tags = librarySource.tags.sort((a: Tag, b: Tag) => {
+      const aIndex = tagNames.indexOf(a.name);
+      const bIndex = tagNames.indexOf(b.name);
+      if (aIndex < bIndex) {
+        return -1;
+      } else if (aIndex > bIndex) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+  }
   state.route.pop();
   state.route.pop();
   return {route: state.route.slice(0), scenes: state.scenes.slice(0)};
@@ -1125,16 +1208,72 @@ function reduceList(sources: Array<LibrarySource>, limit: number): Array<Library
   return sources;
 }
 
-export function generateScenes(state: State, scenes: Array<Scene>): Object {
+export function generateScenes(state: State, s: Scene | SceneGrid, children: boolean =  true, force: boolean = false): Object {
+  const generateScenes: Array<Scene> = []
+  if (s instanceof SceneGrid) {
+    for (let row of s.grid) {
+      for (let cell of row) {
+        const gScene = state.scenes.find((s) => s.id == cell.sceneID);
+        if (gScene && gScene.generatorWeights && gScene.regenerate && areWeightsValid(gScene)) {
+          generateScenes.push(gScene);
+        }
+        if (gScene && gScene.overlayEnabled) {
+          for (let overlay of gScene.overlays) {
+            if (overlay.sceneID.toString().startsWith('999')) {
+              // No grid overlays within a grid
+            } else {
+              const oScene = state.scenes.find((s) => s.id == overlay.sceneID);
+              if (oScene && oScene.generatorWeights && oScene.regenerate && areWeightsValid(oScene)) {
+                generateScenes.push(oScene);
+              }
+            }
+          }
+        }
+      }
+    }
+  } else {
+    if ((s.regenerate || force) && areWeightsValid(s)) {
+      generateScenes.push(s);
+    }
+    if (s.overlayEnabled && children) {
+      for (let overlay of s.overlays) {
+        if (overlay.sceneID.toString().startsWith('999')) {
+          const id = overlay.sceneID.toString().replace('999', '');
+          const oScene = state.grids.find((s) => s.id.toString() == id);
+          for (let row of oScene.grid) {
+            for (let cell of row) {
+              const gScene = state.scenes.find((s) => s.id == cell.sceneID);
+              if (gScene && gScene.generatorWeights && gScene.regenerate && areWeightsValid(gScene)) {
+                generateScenes.push(gScene);
+              }
+            }
+          }
+        } else {
+          const oScene = state.scenes.find((s) => s.id == overlay.sceneID);
+          if (oScene && oScene.generatorWeights && oScene.regenerate && areWeightsValid(oScene)) {
+            generateScenes.push(oScene);
+          }
+        }
+      }
+    }
+  }
   const newScenes = Array.from(state.scenes);
-  for (let scene of scenes) {
+  for (let scene of generateScenes) {
     const newScene = state.scenes.find((s) => s.id == scene.id);
+    let generatorWeights = newScene.generatorWeights;
+
+    // Add globally ignored tags/types if not overridden by generator
+    if (!newScene.overrideIgnore) {
+      for (let ignored of state.config.displaySettings.ignoredTags) {
+        generatorWeights = generatorWeights.concat([new WeightGroup({type: TT.none, search: ignored})]);
+      }
+    }
 
     // Record all the groups we're requiring/excluding
-    const allSearches = newScene.generatorWeights.filter((wg) => wg.type == TT.all && !wg.rules).map((wg) => wg.search);
-    const noneSearches = newScene.generatorWeights.filter((wg) => wg.type == TT.none && !wg.rules).map((wg) => wg.search);
-    const allAdvRules = newScene.generatorWeights.filter((wg) => wg.type == TT.all && wg.rules).map((wg) => wg.search);
-    const noneAdvRules = newScene.generatorWeights.filter((wg) => wg.type == TT.none && wg.rules).map((wg) => wg.search);
+    const allSearches = generatorWeights.filter((wg) => wg.type == TT.all && !wg.rules).map((wg) => wg.search);
+    const noneSearches = generatorWeights.filter((wg) => wg.type == TT.none && !wg.rules).map((wg) => wg.search);
+    const allAdvRules = generatorWeights.filter((wg) => wg.type == TT.all && wg.rules).map((wg) => wg.search);
+    const noneAdvRules = generatorWeights.filter((wg) => wg.type == TT.none && wg.rules).map((wg) => wg.search);
 
     // Sources to require
     let reqAdvSources: Array<LibrarySource> = null;
@@ -1145,7 +1284,7 @@ export function generateScenes(state: State, scenes: Array<Scene>): Object {
     let genSources = new Array<LibrarySource>();
 
     // First, build all our adv rules
-    for (let wg of newScene.generatorWeights.filter((wg) => !!wg.rules)) {
+    for (let wg of generatorWeights.filter((wg) => !!wg.rules)) {
       // Build each adv rule like a regular set of simple rules
       // First get tags to require/exclude
       const ruleAllSearches = wg.rules.filter((wg) => wg.type == TT.all).map((wg) => wg.search);
@@ -1443,7 +1582,7 @@ export function generateScenes(state: State, scenes: Array<Scene>): Object {
 
     // Now, build our simple rules
     // If we don't have any weights, calculate by just require/exclude
-    if (allSearches.length + noneSearches.length + allAdvRules.length + noneAdvRules.length == newScene.generatorWeights.length) {
+    if (allSearches.length + noneSearches.length + allAdvRules.length + noneAdvRules.length == generatorWeights.length) {
       let sources = [];
       for (let s of state.library) {
         // Filter out sources which are not in required list
@@ -1518,7 +1657,7 @@ export function generateScenes(state: State, scenes: Array<Scene>): Object {
       genSources = sources;
     } else {
       // Otherwise, generate sources for each weight
-      for (let wg of newScene.generatorWeights.filter((wg) => !wg.rules && wg.type == TT.weight)) {
+      for (let wg of generatorWeights.filter((wg) => !wg.rules && wg.type == TT.weight)) {
         let sources = [];
         // For each source in the library
         for (let s of state.library) {
@@ -2390,7 +2529,7 @@ function audioSortFunction(algorithm: string, ascending: boolean): (a: Audio, b:
         return 0;
       }
     }
-  }
+  };
 }
 
 export function sortScripts(state: State, algorithm: string, ascending: boolean): Object {
@@ -2546,6 +2685,86 @@ function sortFunction(algorithm: string, ascending: boolean, getName: (a: any) =
   }
 }
 
+export function downloadSource(state: State, source: LibrarySource): Object {
+  const sourceURL = source.url.startsWith("http") ? source.url : source.url.replace(/\//g, path.sep);
+  let librarySource = state.library.find((s) => s.url == sourceURL);
+  if (librarySource != null) {
+    librarySource.disabledClips =  [];
+    let id = state.scenes.length + 1;
+    state.scenes.forEach((s: Scene) => {
+      id = Math.max(s.id + 1, id);
+    });
+    let tempScene = new Scene({
+      id: id,
+      name: "download_scene_temp",
+      sources: [librarySource],
+      libraryID: librarySource.id,
+      timingFunction: TF.constant,
+      timingConstant: 1,
+      backgroundType: state.config.defaultScene.backgroundType,
+      backgroundColor: state.config.defaultScene.backgroundColor,
+      backgroundColorSet: state.config.defaultScene.backgroundColorSet,
+      backgroundBlur: state.config.defaultScene.backgroundBlur,
+      imageOrientation: state.config.defaultScene.imageOrientation,
+      videoOrientation: state.config.defaultScene.videoOrientation,
+      playVideoClips: false,
+      videoVolume: 0,
+      orderFunction: OF.strict,
+      downloadScene: true,
+    });
+    if (getLibrarySource(state) != null) {
+      const activeScene = getActiveScene(state);
+      applyEffects(tempScene, getEffects(activeScene));
+      tempScene.overlayEnabled = activeScene.overlayEnabled;
+      tempScene.overlays = activeScene.overlays;
+      state.route.pop();
+      state.route.pop();
+      state.scenes.pop();
+    }
+    return {
+      scenes: state.scenes.concat([tempScene]),
+      route: state.route.concat([new Route({kind: 'scene', value: tempScene.id}), new Route({kind: 'libraryplay', value: tempScene.id})]),
+    };
+  } else {
+    source.disabledClips =  [];
+    let id = state.scenes.length + 1;
+    state.scenes.forEach((s: Scene) => {
+      id = Math.max(s.id + 1, id);
+    });
+    let tempScene = new Scene({
+      id: id,
+      name: "download_scene_temp",
+      sources: [source],
+      libraryID: null,
+      timingFunction: TF.constant,
+      timingConstant: 1,
+      backgroundType: state.config.defaultScene.backgroundType,
+      backgroundColor: state.config.defaultScene.backgroundColor,
+      backgroundColorSet: state.config.defaultScene.backgroundColorSet,
+      backgroundBlur: state.config.defaultScene.backgroundBlur,
+      imageOrientation: state.config.defaultScene.imageOrientation,
+      videoOrientation: state.config.defaultScene.videoOrientation,
+      playVideoClips: false,
+      videoVolume: 0,
+      orderFunction: OF.strict,
+      downloadScene: true,
+    });
+    if (getActiveScene(state)?.libraryID != -1) {
+      const activeScene = getActiveScene(state);
+      applyEffects(tempScene, getEffects(activeScene));
+      tempScene.overlayEnabled = activeScene.overlayEnabled;
+      tempScene.overlays = activeScene.overlays;
+      state.route.pop();
+      state.route.pop();
+      state.scenes.pop();
+    }
+    return {
+      scenes: state.scenes.concat([tempScene]),
+      route: state.route.concat([new Route({kind: 'scene', value: tempScene.id}), new Route({kind: 'libraryplay', value: tempScene.id})]),
+    };
+  }
+}
+
 export function exportScene(state: State, scene: Scene): Object {
   const scenesToExport = Array<Scene>();
   const gridsToExport = Array<SceneGrid>();
@@ -2688,7 +2907,7 @@ export function importScene(state: State, importScenes: any, addToLibrary: boole
         grid.id = newGridMap.get(grid.id);
         for (let r = 0; r < grid.grid.length; r++) {
           for (let c = 0; c < grid.grid[r].length; c++) {
-            const cellID = parseInt(grid.grid[r][c] as any);
+            const cellID = parseInt(grid.grid[r][c].sceneID as any);
             if (cellID != -1) {
               if (!newSceneMap.has(cellID)) {
                 newSceneMap.set(cellID, id++);
@@ -2821,6 +3040,7 @@ export function importScene(state: State, importScenes: any, addToLibrary: boole
       }
       return {
         systemSnack: message,
+        systemSnackSeverity: SS.info,
         scenes: newScenes,
         grids: newGrids,
         library: state.library.concat(sources),
@@ -2831,6 +3051,7 @@ export function importScene(state: State, importScenes: any, addToLibrary: boole
     } else {
       return {
         systemSnack: "No new sources detected",
+        systemSnackSeverity: SS.info,
         scenes: newScenes,
         grids: newGrids,
         route: [new Route({kind: 'scene', value: scene.id})]};
@@ -2912,7 +3133,7 @@ export function importLibrary(state: State, backup: Function, libraryImport: any
     }
   }
 
-  return {systemSnack: "Library Import complete!", library: newLibrary, tags: newTags};
+  return {systemSnack: "Library Import complete!", systemSnackSeverity: SS.success, library: newLibrary, tags: newTags};
 }
 
 export function setMode(state: State, mode: string): Object {
@@ -2937,6 +3158,7 @@ export function markOffline(getState: () => State, setState: Function) {
       win.setProgressBar(-1);
       setState({
         systemSnack: "Offline Check has completed. Sources not available are now marked.",
+        systemSnackSeverity: SS.success,
         progressMode: null,
         progressCurrent: 0,
         progressTotal: 0,
@@ -3017,7 +3239,7 @@ export function detectBPMs(getState: () => State, setState: Function) {
   const readMetadata = (audio: Audio, offset: number) => {
     const win = remote.getCurrentWindow();
     const state = getState();
-    mm.parseFile(audio.url)
+    parseFile(audio.url)
       .then((metadata: any) => {
         if (metadata && metadata.common && metadata.common.bpm) {
           audio.bpm = metadata.common.bpm;
@@ -3102,6 +3324,7 @@ export function detectBPMs(getState: () => State, setState: Function) {
       win.setProgressBar(-1);
       setState({
         systemSnack: "BPM Detection has completed.",
+        systemSnackSeverity: SS.success,
         progressMode: null,
         progressCurrent: 0,
         progressTotal: 0,
@@ -3159,6 +3382,7 @@ export function updateVideoMetadata(getState: () => State, setState: Function) {
       win.setProgressBar(-1);
       setState({
         systemSnack: "Video Metadata update has completed.",
+        systemSnackSeverity: SS.success,
         progressMode: null,
         progressCurrent: 0,
         progressTotal: 0,
@@ -3283,7 +3507,7 @@ export function importTumblr(getState: () => State, setState: Function) {
         setTimeout(tumblrImportLoop, 1500);
       } else {
         win.setProgressBar(-1);
-        setState({systemSnack: "Tumblr Following Import has completed", progressMode: null, progressCurrent: 0, progressTotal: 0});
+        setState({systemSnack: "Tumblr Following Import has completed", systemSnackSeverity: SS.success, progressMode: null, progressCurrent: 0, progressTotal: 0});
       }
     });
   };
@@ -3335,7 +3559,7 @@ export function importReddit(getState: () => State, setState: Function) {
     reddit.getSubscriptions({limit: 20, after: state.progressNext}).then((subscriptionListing: any) => {
       if (subscriptionListing.length == 0) {
         win.setProgressBar(-1);
-        setState({systemSnack: "Reddit Subscription Import has completed", progressMode: null, progressNext: null, progressCurrent: 0});
+        setState({systemSnack: "Reddit Subscription Import has completed", systemSnackSeverity: SS.success, progressMode: null, progressNext: null, progressCurrent: 0});
       } else {
         // Get the next 20 blogs
         let subscriptions = [];
@@ -3394,6 +3618,7 @@ export function importReddit(getState: () => State, setState: Function) {
     state.progressCurrent = 0;
     setState({
       systemSnack: "Your Reddit subscriptions are being imported... You will recieve an alert when the import is finished.",
+      systemSnackSeverity: SS.info,
       progressMode: state.progressMode, progressCurrent: state.progressCurrent
     });
     win.setProgressBar(2);
@@ -3454,7 +3679,7 @@ export function importTwitter(getState: () => State, setState: Function) {
 
       if (data.next_cursor == 0) { // We're done
         win.setProgressBar(-1);
-        setState({systemSnack: "Twitter Following Import has completed", progressMode: null, progressNext: null, progressCurrent: 0});
+        setState({systemSnack: "Twitter Following Import has completed", systemSnackSeverity: SS.success, progressMode: null, progressNext: null, progressCurrent: 0});
       } else {
         // Loop until we run out of blogs
         setTimeout(twitterImportLoop, 1500);
@@ -3480,6 +3705,7 @@ export function importTwitter(getState: () => State, setState: Function) {
     state.progressCurrent = 0;
     setState({
       systemSnack: "Your Twitter Following is being imported... You will recieve an alert when the import is finished.",
+      systemSnackSeverity: SS.info,
       progressMode: state.progressMode, progressCurrent: state.progressCurrent
     });
     win.setProgressBar(2);
@@ -3564,7 +3790,7 @@ export function importInstagram(getState: () => State, setState: Function) {
         if (!followingFeed.isMoreAvailable()) {
           ig = null;
           win.setProgressBar(-1);
-          setState({systemSnack: "Instagram Following Import has completed", progressMode: null, progressNext: null, progressCurrent: 0});
+          setState({systemSnack: "Instagram Following Import has completed", systemSnackSeverity: SS.success, progressMode: null, progressNext: null, progressCurrent: 0});
           return;
         }
         followingFeed.items().then((items) => {
@@ -3581,6 +3807,7 @@ export function importInstagram(getState: () => State, setState: Function) {
     state.progressCurrent = 0;
     setState({
       systemSnack: "Your Instagram Following is being imported... You will recieve an alert when the import is finished.",
+      systemSnackSeverity: SS.info,
       progressMode: state.progressMode, progressCurrent: state.progressCurrent
     });
     win.setProgressBar(2);

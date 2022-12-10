@@ -4,25 +4,28 @@ import {remote} from "electron";
 
 import {
   Button,
-  createStyles, Dialog,
+  Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Link, SvgIcon,
+  Link,
+  SvgIcon,
   Theme,
-  withStyles
-} from "@material-ui/core";
+} from "@mui/material";
 
-import DeleteIcon from '@material-ui/icons/Delete';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import FolderIcon from '@material-ui/icons/Folder';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import HttpIcon from '@material-ui/icons/Http';
-import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
-import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
-import MovieIcon from '@material-ui/icons/Movie';
-import SaveIcon from "@material-ui/icons/Save";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import FolderIcon from '@mui/icons-material/Folder';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import HttpIcon from '@mui/icons-material/Http';
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import MovieIcon from '@mui/icons-material/Movie';
+import SaveIcon from "@mui/icons-material/Save";
 
 import {ALT, CST, DONE, LT, PT, SDGT, SDT, SGT, SLT, SPT, TF, VCT} from "../data/const";
 import {Route} from "../data/Route";
@@ -966,7 +969,10 @@ class Tutorial extends React.Component {
                 Well that about covers all the basics! You've learned how to <b>add a Scene</b>, <b>configure it</b>, and <b>begin playback</b>!
               </DialogContentText>
               <DialogContentText id="tutorial-description">
-                Be sure to check out the <Link href="#" onClick={this.openLink.bind(this, "https://ififfy.github.io/flipflip/#")}>FlipFlip docs</Link> if you need any help.
+                Be sure to check out the <Link
+                href="#"
+                onClick={this.openLink.bind(this, "https://ififfy.github.io/flipflip/#")}
+                underline="hover">FlipFlip docs</Link> if you need any help.
               </DialogContentText>
               <DialogContentText id="tutorial-description">
                 <b>Enjoy FlipFlip!</b>
@@ -1059,7 +1065,7 @@ class Tutorial extends React.Component {
           <React.Fragment>
             <DialogTitle id="tutorial-title">Library</DialogTitle>
             <DialogContent>
-              <DialogContentText id="tutorial-description" component="div">
+              <DialogContentText component="div">
                 From here, we can
                 <ul>
                   <li><b>manage tags</b></li>
@@ -1189,7 +1195,7 @@ class Tutorial extends React.Component {
           <React.Fragment>
             <DialogTitle id="tutorial-title">Audio Library</DialogTitle>
             <DialogContent>
-              <DialogContentText id="tutorial-description" component="div">
+              <DialogContentText component="div">
                 From here we can
                 <ul>
                   <li><b>manage tags</b></li>

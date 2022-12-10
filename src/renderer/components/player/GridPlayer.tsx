@@ -3,12 +3,13 @@ import clsx from "clsx";
 import {remote} from "electron";
 const {getCurrentWindow, Menu, app} = remote;
 
-import {
-  AppBar, Container, createStyles, IconButton, Theme, Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+import { AppBar, Container, IconButton, Theme, Toolbar, Tooltip, Typography } from "@mui/material";
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
 import {createMainMenu, createMenuTemplate} from "../../../main/MainMenu";
 import SceneGrid from "../../data/SceneGrid";
@@ -17,7 +18,7 @@ import Scene from "../../data/Scene";
 import Tag from "../../data/Tag";
 import Player from "./Player";
 import ChildCallbackHack from "./ChildCallbackHack";
-import IdleTimer from "react-idle-timer";
+import {IdleTimer} from "./IdleTimer";
 import {flatten} from "../../data/utils";
 
 const styles = (theme: Theme) => createStyles({
@@ -105,6 +106,7 @@ class GridPlayer extends React.Component {
     cache(i: HTMLImageElement | HTMLVideoElement): void,
     getTags(source: string): Array<Tag>,
     goBack(): void,
+    onGenerate(scene: Scene | SceneGrid, children?: boolean, force?: boolean): void,
     setCount(sourceURL: string, count: number, countComplete: boolean): void,
     systemMessage(message: string): void,
     finishedLoading?(empty: boolean): void,
@@ -141,7 +143,7 @@ class GridPlayer extends React.Component {
       gridTemplateRows += rowSize.toString() + "% ";
     }
 
-    return(
+    return (
       <div className={classes.root}>
         {!this.props.hideBars && (
           <React.Fragment>
@@ -151,17 +153,19 @@ class GridPlayer extends React.Component {
               onMouseLeave={this.onMouseLeaveAppBar.bind(this)}/>
 
             <AppBar
+              enableColorOnDark
               position="absolute"
               onMouseEnter={this.onMouseEnterAppBar.bind(this)}
               onMouseLeave={this.onMouseLeaveAppBar.bind(this)}
               className={clsx(classes.appBar, this.state.appBarHover && classes.appBarHover)}>
               <Toolbar>
-                <Tooltip title="Back" placement="right-end">
+                <Tooltip disableInteractive title="Back" placement="right-end">
                   <IconButton
                     edge="start"
                     color="inherit"
                     aria-label="Back"
-                    onClick={this.props.goBack.bind(this)}>
+                    onClick={this.props.goBack.bind(this)}
+                    size="large">
                     <ArrowBackIcon />
                   </IconButton>
                 </Tooltip>
@@ -172,12 +176,13 @@ class GridPlayer extends React.Component {
                 </Typography>
                 <div className={classes.fill}/>
 
-                <Tooltip title="Toggle Fullscreen">
+                <Tooltip disableInteractive title="Toggle Fullscreen">
                   <IconButton
                     edge="start"
                     color="inherit"
                     aria-label="FullScreen"
-                    onClick={this.toggleFull.bind(this)}>
+                    onClick={this.toggleFull.bind(this)}
+                    size="large">
                     <FullscreenIcon fontSize="large"/>
                   </IconButton>
                 </Tooltip>
@@ -277,6 +282,7 @@ class GridPlayer extends React.Component {
                               cache={this.props.cache.bind(this)}
                               getTags={this.props.getTags.bind(this)}
                               goBack={this.props.goBack.bind(this)}
+                              onGenerate={this.props.onGenerate}
                               onLoaded={this.setCellLoaded.bind(this, rowIndex, colIndex)}
                               setCount={this.props.setCount.bind(this)}
                               setProgress={showProgress ? this.props.setProgress : this.nop}

@@ -1,11 +1,11 @@
 import {remote, webFrame} from 'electron';
 const {getCurrentWindow} = remote;
 import * as React from 'react';
-import IdleTimer from "react-idle-timer";
+import {IdleTimer} from "./IdleTimer";
 
 import {
   Button, CircularProgress, Container, Theme, Typography
-} from "@material-ui/core";
+} from "@mui/material";
 
 import {SL, WC} from "../../data/const";
 import {getRandomListItem, urlToPath} from "../../data/utils";
@@ -66,6 +66,7 @@ export default class Player extends React.Component {
     setProgress?(total: number, current: number, message: string[]): void,
     setSceneCopy?(children: React.ReactNode): void,
     setVideo?(video: HTMLVideoElement): void,
+    onGenerate?(scene: Scene | SceneGrid, children?: boolean): void,
   };
 
   readonly state = {
@@ -151,17 +152,10 @@ export default class Player extends React.Component {
         height: '100%',
       }
     }
-    if (!this.state.hasStarted) {
+    if (!this.state.hasStarted && !this.props.scene.downloadScene) {
       playerStyle = {
         ...playerStyle,
         opacity: 0,
-      }
-    }
-
-    if (this.state.hideCursor) {
-      playerStyle = {
-        ...playerStyle,
-        cursor: 'none',
       }
     }
 
@@ -251,6 +245,16 @@ export default class Player extends React.Component {
 
     return (
       <div style={rootStyle}>
+        {!this.state.recentPictureGrid && !this.props.gridView && this.state.hasStarted && (
+          <div style={{zIndex: 999, position: 'absolute', width: '100%', height: '100%', cursor: this.state.hideCursor ? 'none' : 'unset'}}
+               ref={this.idleTimerRef}>
+            <IdleTimer
+              ref={ref => {return this.idleTimerRef}}
+              onActive={this.onActive.bind(this)}
+              onIdle={this.onIdle.bind(this)}
+              timeout={2000} />
+          </div>
+        )}
         {showStrobe && (
           <Strobe
             currentAudio={this.state.currentAudio}
@@ -260,7 +264,7 @@ export default class Player extends React.Component {
             scene={this.props.scene}
           />
         )}
-        {!this.state.hasStarted && !this.state.isEmpty && (
+        {!this.state.hasStarted && !this.state.isEmpty && !this.props.scene.downloadScene && (
           <main style={{
             display: 'flex',
             flexGrow: 1,
@@ -360,7 +364,7 @@ export default class Player extends React.Component {
             scene={this.props.scene}
             scenes={this.props.scenes}
             sceneGrids={this.props.sceneGrids}
-            title={this.props.tags ? (this.props.scene.audioScene ? this.state.currentAudio ? this.state.currentAudio.name : "Loading..." : this.props.scene.sources[0].url) : this.props.scene.name}
+            title={this.props.allTags ? (this.props.scene.audioScene ? this.state.currentAudio ? this.state.currentAudio.name : "Loading..." : this.props.scene.sources[0].url) : this.props.scene.name}
             tutorial={this.props.tutorial}
             recentPictureGrid={this.state.recentPictureGrid}
             persistAudio={this.state.persistAudio}
@@ -375,6 +379,7 @@ export default class Player extends React.Component {
             play={this.play.bind(this)}
             pause={this.pause.bind(this)}
             playTrack={this.props.playTrack}
+            onGenerate={this.props.onGenerate}
             onPlaying={!this.props.scene.textEnabled || !this.state.currentAudio || this.props.getCurrentTimestamp ? undefined : this.onPlaying.bind(this)}
             setCurrentAudio={this.setCurrentAudio.bind(this)}
             allTags={this.props.allTags}
@@ -387,15 +392,7 @@ export default class Player extends React.Component {
           />
         )}
 
-        <div style={playerStyle}
-             ref={this.idleTimerRef}>
-          {!this.props.gridView && (
-            <IdleTimer
-              ref={ref => {return this.idleTimerRef}}
-              onActive={this.onActive.bind(this)}
-              onIdle={this.onIdle.bind(this)}
-              timeout={2000} />
-          )}
+        <div style={playerStyle}>
           {this.state.recentPictureGrid && (
             <PictureGrid
               pictures={this.state.historyPaths} />
@@ -415,7 +412,7 @@ export default class Player extends React.Component {
               removeChild
             />
           )}
-          {!this.state.recentPictureGrid && (this.props.config.displaySettings.audioAlert || this.props.tags) &&
+          {!this.state.recentPictureGrid && (this.props.config.displaySettings.audioAlert || this.props.allTags) &&
             (this.props.scene.audioEnabled || this.state.persistAudio) && (
             <AudioAlert
               audio={this.state.currentAudio}
@@ -445,6 +442,7 @@ export default class Player extends React.Component {
               setVideo={this.props.setVideo ? this.props.setVideo : this.setMainVideo.bind(this)}
               setCount={this.props.setCount.bind(this)}
               cache={this.props.cache.bind(this)}
+              onEndScene={this.props.goBack.bind(this)}
               setTimeToNextFrame={this.setTimeToNextFrame.bind(this)}
               systemMessage={this.props.systemMessage.bind(this)}
               playNextScene={this.props.nextScene}
@@ -541,6 +539,7 @@ export default class Player extends React.Component {
                       finishedLoading={this.setOverlayLoaded.bind(this, index)}
                       getTags={this.props.getTags}
                       goBack={this.props.goBack}
+                      onGenerate={this.props.onGenerate}
                       setCount={this.props.setCount}
                       setProgress={showProgress ? this.setProgress.bind(this) : undefined}
                       setVideo={this.setGridOverlayVideo.bind(this, index)}
@@ -591,7 +590,7 @@ export default class Player extends React.Component {
       clearInterval(this._interval);
     }
     if (!this.props.scene.scriptScene && this.state.isPlaying && this.state.startTime != null && !this.props.scene.nextSceneAllImages &&
-      Math.round(Math.abs(new Date().getTime() - this.state.startTime.getTime()) / 1000) >= this.props.scene.nextSceneTime) {
+      Math.abs(new Date().getTime() - this.state.startTime.getTime()) >= this.props.scene.nextSceneTime) {
       this.setState({startTime: null});
       this.props.nextScene();
     } else if (!this.state.isPlaying && this.state.startTime) {
@@ -614,7 +613,7 @@ export default class Player extends React.Component {
       };
     }
     if (props.scene.id !== this.props.scene.id) {
-      if (this.props.tags) {
+      if (this.props.allTags) {
         this.setState({startTime: new Date()});
       } else {
         this.setState({hasStarted: true, startTime: new Date()});
@@ -855,7 +854,6 @@ export default class Player extends React.Component {
   goBack() {
     if (this.state.recentPictureGrid) {
       this.setState({recentPictureGrid: false});
-      this.play();
     } else {
       this.props.goBack();
     }
@@ -940,7 +938,6 @@ export default class Player extends React.Component {
   }
 
   onRecentPictureGrid() {
-    this.pause();
     this.setState({recentPictureGrid: true});
   }
 }

@@ -3,8 +3,10 @@ import clsx from "clsx";
 import Select, {components} from "react-select";
 import CreatableSelect from "react-select/creatable";
 
-import {Checkbox, createStyles, Theme, withStyles} from "@material-ui/core";
-import {grey} from "@material-ui/core/colors";
+import { Checkbox, Theme } from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+import {grey} from "@mui/material/colors";
 
 import {getSourceType} from "../player/Scrapers";
 import en from "../../data/en";
@@ -19,7 +21,7 @@ const styles = (theme: Theme) => createStyles({
     color: grey[900],
   },
   limitWidth: {
-    maxWidth: `calc(100% - ${theme.spacing(7)}px)`,
+    maxWidth: `calc(100% - ${theme.spacing(7)})`,
   },
   select: {
     color: grey[900],
@@ -45,6 +47,7 @@ class LibrarySearch extends React.Component {
     onlyUsed?: boolean
     showCheckboxes?: boolean,
     fullWidth?: boolean,
+    withBrackets?: boolean,
     onUpdateFilters(filter: Array<string>): void,
   };
 
@@ -225,14 +228,14 @@ class LibrarySearch extends React.Component {
       }
     }
     for (let tag of tagKeys) {
-      const opt = this.props.isCreatable ? "[" + tag + "]" : tag;
+      const opt = this.props.isCreatable || this.props.withBrackets ? "[" + tag + "]" : tag;
       if (!this.props.filters.includes(opt)) {
         options.push({label: tag + " (" + tags.get(tag) + ")", value: opt});
       }
     }
     if (!this.props.onlyTags && !this.props.noTypes) {
       for (let type of typeKeys) {
-        const opt = this.props.isCreatable ? "{" + type + "}" : type;
+        const opt = this.props.isCreatable || this.props.withBrackets ? "{" + type + "}" : type;
         if (!this.props.filters.includes(opt)) {
           options.push({label: type + " (" + types.get(type) + ")", value: opt});
         }
@@ -240,13 +243,13 @@ class LibrarySearch extends React.Component {
     }
     if (this.state.searchInput.startsWith("-")) {
       for (let tag of tagKeys) {
-        const opt = this.props.isCreatable ? "[" + tag + "]" : tag;
+        const opt = this.props.isCreatable || this.props.withBrackets ? "[" + tag + "]" : tag;
         if (!this.props.filters.includes(opt)) {
           options.push({label: "-" + tag + " (" + tags.get(tag) + ")", value: "-" + opt});
         }
       }
       for (let type of typeKeys) {
-        const opt = this.props.isCreatable ? "{" + type + "}" : type;
+        const opt = this.props.isCreatable || this.props.withBrackets ? "{" + type + "}" : type;
         if (!this.props.filters.includes(opt)) {
           options.push({label: "-" + type + " (" + types.get(type) + ")", value: "-" + opt});
         }

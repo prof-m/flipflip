@@ -2,40 +2,72 @@ import * as React from "react";
 import {remote} from "electron";
 import path from 'path';
 import clsx from "clsx";
-import * as mm from "music-metadata";
+import {parseBuffer, parseFile} from "music-metadata";
 import * as fs from "fs";
 import wretch from "wretch";
 
 import {
-  AppBar, Backdrop, Badge, Box, Button, Chip, CircularProgress, Collapse, Container, createStyles, Dialog,
-  DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Drawer, Fab, IconButton, LinearProgress,
-  ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, Menu, MenuItem, SvgIcon, Tab, Tabs, TextField,
-  Theme, Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  AppBar,
+  Backdrop,
+  Badge,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Collapse,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Fab,
+  IconButton,
+  LinearProgress,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  SvgIcon,
+  Tab,
+  Tabs,
+  TextField,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import AlbumIcon from '@material-ui/icons/Album';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import AudiotrackIcon from '@material-ui/icons/Audiotrack';
-import CancelIcon from "@material-ui/icons/Cancel";
-import ClearIcon from '@material-ui/icons/Clear';
-import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
-import EditIcon from '@material-ui/icons/Edit';
-import FormatListBulletedIcon from '@material-ui/icons/FormatListBulleted';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import HttpIcon from '@material-ui/icons/Http';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
-import MenuIcon from'@material-ui/icons/Menu';
-import PersonIcon from '@material-ui/icons/Person';
-import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
-import QueueMusicIcon from '@material-ui/icons/QueueMusic';
-import SelectAllIcon from '@material-ui/icons/SelectAll';
-import ShuffleIcon from '@material-ui/icons/Shuffle';
-import SortIcon from '@material-ui/icons/Sort';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
-import {red} from "@material-ui/core/colors";
+import AddIcon from '@mui/icons-material/Add';
+import AlbumIcon from '@mui/icons-material/Album';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
+import CancelIcon from "@mui/icons-material/Cancel";
+import ClearIcon from '@mui/icons-material/Clear';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import EditIcon from '@mui/icons-material/Edit';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import HttpIcon from '@mui/icons-material/Http';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import MenuIcon from'@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import QueueMusicIcon from '@mui/icons-material/QueueMusic';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
+import SortIcon from '@mui/icons-material/Sort';
+
+import {red} from "@mui/material/colors";
 
 import {extractMusicMetadata, getFilesRecursively} from "../../data/utils";
 import {isAudio} from "../player/Scrapers";
@@ -145,7 +177,7 @@ const styles = (theme: Theme) => createStyles({
   drawerButton: {
     backgroundColor: theme.palette.primary.main,
     minHeight: theme.spacing(6),
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       paddingLeft: 0,
       paddingRight: 0,
     },
@@ -220,9 +252,10 @@ const styles = (theme: Theme) => createStyles({
   importBadge:{
     top: 'auto',
     right: 30,
-    bottom: 75,
+    bottom: 50,
     left: 'auto',
     position: 'fixed',
+    zIndex: theme.zIndex.fab + 1,
   },
   addButton: {
     backgroundColor: theme.palette.primary.main,
@@ -422,16 +455,17 @@ class AudioLibrary extends React.Component {
     const playlist = this.state.filters.find((f) => f.startsWith("playlist:"))?.replace("playlist:", "");
     return (
       <div className={classes.root}>
-        <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == ALT.toolbar && clsx(classes.backdropTop, classes.disable))}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == ALT.toolbar && clsx(classes.backdropTop, classes.disable))}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title={this.props.specialMode == SP.select ? "Cancel Import" : "Back"} placement="right-end">
+              <Tooltip disableInteractive title={this.props.specialMode == SP.select ? "Cancel Import" : "Back"} placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
                   className={classes.backButton}
-                  onClick={this.goBack.bind(this)}>
+                  onClick={this.goBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
@@ -485,7 +519,8 @@ class AudioLibrary extends React.Component {
           <ListItem className={classes.drawerButton}>
             <IconButton
               className={clsx(this.props.tutorial == ALT.sidebar1 && classes.highlight)}
-              onClick={this.onToggleDrawer.bind(this)}>
+              onClick={this.onToggleDrawer.bind(this)}
+              size="large">
               <MenuIcon className={classes.drawerIcon}/>
             </IconButton>
           </ListItem>
@@ -521,7 +556,7 @@ class AudioLibrary extends React.Component {
           <Divider />
 
           <div className={clsx(this.props.tutorial != null && classes.disable)}>
-            <Tooltip title={this.state.drawerOpen ? "" : "Manage Tags"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Manage Tags"}>
               <ListItem button onClick={this.props.onManageTags.bind(this)} disabled={this.props.specialMode != null}>
                 <ListItemIcon>
                   <LocalOfferIcon />
@@ -537,7 +572,7 @@ class AudioLibrary extends React.Component {
                 )}
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Add to Playlist"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Add to Playlist"}>
               <ListItem button onClick={this.onAddToPlaylist.bind(this)} disabled={this.props.specialMode != null}>
                 <ListItemIcon>
                   <PlaylistAddIcon />
@@ -545,7 +580,7 @@ class AudioLibrary extends React.Component {
                 <ListItemText primary="Add to Playlist" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Batch Tag"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Batch Tag"}>
               <ListItem button onClick={this.onBatchTag.bind(this)} disabled={this.props.specialMode != null}>
                 <ListItemIcon>
                   <FormatListBulletedIcon />
@@ -553,7 +588,7 @@ class AudioLibrary extends React.Component {
                 <ListItemText primary="Batch Tag" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Batch Edit"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Batch Edit"}>
               <ListItem button onClick={this.onBatchEdit.bind(this)} disabled={this.props.specialMode != null}>
                 <ListItemIcon>
                   <EditIcon />
@@ -566,7 +601,7 @@ class AudioLibrary extends React.Component {
           <Divider />
 
           <div className={clsx(this.props.tutorial != null && classes.disable)}>
-            <Tooltip title={"BPM Detection"}>
+            <Tooltip disableInteractive title={"BPM Detection"}>
               <ListItem button disabled={this.props.progressMode != null} onClick={this.props.onBatchDetectBPM.bind(this)}>
                 <ListItemIcon>
                   <SvgIcon viewBox="0 0 24 24" fontSize="small">
@@ -584,7 +619,7 @@ class AudioLibrary extends React.Component {
               <Divider />
 
               <div>
-                <Tooltip title={this.state.drawerOpen ? "" : "Cancel BPM Detection"}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Cancel BPM Detection"}>
                   <ListItem button onClick={this.props.onUpdateMode.bind(this, PR.cancel)}>
                     <ListItemIcon>
                       <CancelIcon color="error"/>
@@ -605,12 +640,7 @@ class AudioLibrary extends React.Component {
           <Container maxWidth={false} className={classes.container}>
 
             {this.props.openTab === 0 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.props.openTab !== 0}
-                id="vertical-tabpanel-0"
-                aria-labelledby="vertical-tab-0">
+              <Typography component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -627,11 +657,7 @@ class AudioLibrary extends React.Component {
             {this.props.openTab === 1 && (
               <Typography
                 className={classes.tabSection}
-                component="div"
-                role="tabpanel"
-                hidden={this.props.openTab !== 1}
-                id="vertical-tabpanel-1"
-                aria-labelledby="vertical-tab-1">
+                component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -647,11 +673,7 @@ class AudioLibrary extends React.Component {
             {this.props.openTab === 2 && (
               <Typography
                 className={classes.tabSection}
-                component="div"
-                role="tabpanel"
-                hidden={this.props.openTab !== 2}
-                id="vertical-tabpanel-2"
-                aria-labelledby="vertical-tab-2">
+                component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -668,11 +690,7 @@ class AudioLibrary extends React.Component {
             {this.props.openTab === 3 && (
               <Typography
                 className={classes.tabSection}
-                component="div"
-                role="tabpanel"
-                hidden={this.props.openTab !== 3}
-                id="vertical-tabpanel-3"
-                aria-labelledby="vertical-tab-3">
+                component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box className={classes.fill}>
@@ -708,7 +726,7 @@ class AudioLibrary extends React.Component {
 
         {this.props.specialMode && this.props.openTab == 3 && (
           <React.Fragment>
-            <Tooltip title="Clear"  placement="top-end">
+            <Tooltip disableInteractive title="Clear"  placement="top-end">
               <Fab
                 className={classes.selectNoneButton}
                 onClick={this.onSelectNone.bind(this)}
@@ -716,7 +734,7 @@ class AudioLibrary extends React.Component {
                 <ClearIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="Select All"  placement="top-end">
+            <Tooltip disableInteractive title="Select All"  placement="top-end">
               <Fab
                 className={classes.selectAllButton}
                 onClick={this.onSelectAll.bind(this)}
@@ -725,9 +743,12 @@ class AudioLibrary extends React.Component {
               </Fab>
             </Tooltip>
             {this.props.specialMode == SP.batchTag && (
-              <Tooltip title={"Batch Tag"}  placement="top-end">
+              <Tooltip disableInteractive title={"Batch Tag"}  placement="top-end">
                 <Badge
-                  className={classes.importBadge}
+                  classes={{
+                    badge: classes.importBadge
+                  }}
+                  overlap="circular"
                   color="secondary"
                   badgeContent={this.state.selected.length}
                   max={999}>
@@ -742,9 +763,12 @@ class AudioLibrary extends React.Component {
               </Tooltip>
             )}
             {this.props.specialMode == SP.batchEdit && (
-              <Tooltip title={"Batch Edit"}  placement="top-end">
+              <Tooltip disableInteractive title={"Batch Edit"}  placement="top-end">
                 <Badge
-                  className={classes.importBadge}
+                  classes={{
+                    badge: classes.importBadge
+                  }}
+                  overlap="circular"
                   color="secondary"
                   badgeContent={this.state.selected.length}
                   max={999}>
@@ -759,9 +783,12 @@ class AudioLibrary extends React.Component {
               </Tooltip>
             )}
             {this.props.specialMode == SP.addToPlaylist && (
-              <Tooltip title={"Add to Playlist"}  placement="top-end">
+              <Tooltip disableInteractive title={"Add to Playlist"}  placement="top-end">
                 <Badge
-                  className={classes.importBadge}
+                  classes={{
+                    badge: classes.importBadge
+                  }}
+                  overlap="circular"
                   color="secondary"
                   badgeContent={this.state.selected.length}
                   max={999}>
@@ -776,9 +803,12 @@ class AudioLibrary extends React.Component {
               </Tooltip>
             )}
             {this.props.specialMode == SP.select && (
-              <Tooltip title={"Import"}  placement="top-end">
+              <Tooltip disableInteractive title={"Import"}  placement="top-end">
                 <Badge
-                  className={classes.importBadge}
+                  classes={{
+                    badge: classes.importBadge
+                  }}
+                  overlap="circular"
                   color="secondary"
                   badgeContent={this.state.selected.length}
                   max={999}>
@@ -799,7 +829,7 @@ class AudioLibrary extends React.Component {
         {!this.props.specialMode && this.props.openTab == 3 && (
           <React.Fragment>
             {this.props.library.length > 0 && (
-              <Tooltip title={this.state.filters.length == 0 ? "Delete All Sources" : playlist ? "Delete Playlist" : "Delete These Sources"}  placement="left">
+              <Tooltip disableInteractive title={this.state.filters.length == 0 ? "Delete All Sources" : playlist ? "Delete Playlist" : "Delete These Sources"}  placement="left">
                 <Fab
                   className={classes.removeAllButton}
                   onClick={this.onRemoveAll.bind(this)}
@@ -868,7 +898,7 @@ class AudioLibrary extends React.Component {
                 </React.Fragment>
               )}
             </Dialog>
-            <Tooltip title={this.state.filters.length > 0 ? "" : "Local Audio"}  placement="left">
+            <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "Local Audio"}  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addLocalButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                 disabled={this.state.filters.length > 0}
@@ -877,7 +907,7 @@ class AudioLibrary extends React.Component {
                 <AudiotrackIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title={this.state.filters.length > 0 ? "" : "URL"}  placement="left">
+            <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "URL"}  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addURLButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                 disabled={this.state.filters.length > 0}
@@ -920,7 +950,6 @@ class AudioLibrary extends React.Component {
                 vertical: 'bottom',
                 horizontal: 'right',
               }}
-              getContentAnchorEl={null}
               anchorEl={this.state.menuAnchorEl}
               keepMounted
               classes={{paper: classes.sortMenu}}
@@ -930,10 +959,16 @@ class AudioLibrary extends React.Component {
                 <MenuItem key={sf}>
                   <ListItemText primary={en.get(sf)}/>
                   <ListItemSecondaryAction>
-                    <IconButton edge="end" onClick={playlist? this.props.onSortPlaylist.bind(this, playlist, sf, true) : this.props.onSort.bind(this, sf, true)}>
+                    <IconButton
+                      edge="end"
+                      onClick={playlist? this.props.onSortPlaylist.bind(this, playlist, sf, true) : this.props.onSort.bind(this, sf, true)}
+                      size="large">
                       <ArrowUpwardIcon/>
                     </IconButton>
-                    <IconButton edge="end" onClick={playlist ? this.props.onSortPlaylist.bind(this, playlist, sf, false) : this.props.onSort.bind(this, sf, false)}>
+                    <IconButton
+                      edge="end"
+                      onClick={playlist ? this.props.onSortPlaylist.bind(this, playlist, sf, false) : this.props.onSort.bind(this, sf, false)}
+                      size="large">
                       <ArrowDownwardIcon/>
                     </IconButton>
                   </ListItemSecondaryAction>
@@ -942,7 +977,10 @@ class AudioLibrary extends React.Component {
               <MenuItem key={ASF.random}>
                 <ListItemText primary={en.get(ASF.random)}/>
                 <ListItemSecondaryAction>
-                  <IconButton edge="end" onClick={playlist? this.props.onSortPlaylist.bind(this, playlist, ASF.random, true) : this.props.onSort.bind(this, ASF.random, true)}>
+                  <IconButton
+                    edge="end"
+                    onClick={playlist? this.props.onSortPlaylist.bind(this, playlist, ASF.random, true) : this.props.onSort.bind(this, ASF.random, true)}
+                    size="large">
                     <ShuffleIcon/>
                   </IconButton>
                 </ListItemSecondaryAction>
@@ -963,12 +1001,13 @@ class AudioLibrary extends React.Component {
                 Enter the URL of the audio file:
               </DialogContentText>
               <TextField
+                variant="standard"
                 label="Audio URL"
                 fullWidth
                 placeholder="Paste URL Here"
                 margin="dense"
                 value={this.state.importURL == null ? "" : this.state.importURL}
-                onChange={this.onURLChange.bind(this)}/>
+                onChange={this.onURLChange.bind(this)} />
             </DialogContent>
             <DialogActions>
               {this.state.loadingMetadata && <CircularProgress size={34} className={classes.progress} />}
@@ -992,7 +1031,6 @@ class AudioLibrary extends React.Component {
               vertical: 'bottom',
               horizontal: 'right',
             }}
-            getContentAnchorEl={null}
             anchorEl={this.state.menuAnchorEl}
             keepMounted
             classes={{paper: classes.playlistMenu}}
@@ -1015,12 +1053,13 @@ class AudioLibrary extends React.Component {
             <DialogTitle id="add-playist-title">New Playlist</DialogTitle>
             <DialogContent className={classes.noScroll}>
               <TextField
+                variant="standard"
                 label="Name"
                 fullWidth
                 placeholder="Name your playlist"
                 margin="dense"
                 value={this.state.importURL == null ? "" : this.state.importURL}
-                onChange={this.onURLChange.bind(this)}/>
+                onChange={this.onURLChange.bind(this)} />
             </DialogContent>
             <DialogActions>
               <Button onClick={this.onCloseDialog.bind(this)} color="secondary">
@@ -1214,7 +1253,7 @@ class AudioLibrary extends React.Component {
           if (!adResult) return;
           for (let path of adResult) {
             if (fs.existsSync(path) && fs.lstatSync(path).isDirectory()) {
-              aResult = adResult.concat(getFilesRecursively(path));
+              aResult = aResult.concat(getFilesRecursively(path));
             } else {
               aResult.push(path);
             }
@@ -1268,7 +1307,7 @@ class AudioLibrary extends React.Component {
       .timeout(error)
       .internalError(error)
       .arrayBuffer((buffer) => {
-        mm.parseBuffer(Buffer.from(buffer))
+        parseBuffer(Buffer.from(buffer))
           .then((metadata: any) => {
             if (metadata) {
               extractMusicMetadata(newAudio, metadata, this.props.cachePath);
@@ -1325,7 +1364,7 @@ class AudioLibrary extends React.Component {
           tags: [],
         });
         id += 1;
-        mm.parseFile(url)
+        parseFile(url)
           .then((metadata: any) => {
             if (metadata) {
               extractMusicMetadata(newAudio, metadata, this.props.cachePath);

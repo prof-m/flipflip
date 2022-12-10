@@ -243,10 +243,12 @@ interface CacheSettingsI {
 }
 
 interface DisplaySettingsI {
-  [key: string]: number | boolean;
+  [key: string]: number | boolean | Array<string>;
   alwaysOnTop: boolean;
   showMenu: boolean;
   fullScreen: boolean;
+  clickToProgress: boolean;
+  clickToProgressWhilePlaying: boolean;
   startImmediately: boolean;
   easingControls: boolean;
   audioAlert: boolean;
@@ -257,6 +259,8 @@ interface DisplaySettingsI {
   maxInMemory: number;
   maxInHistory: number;
   maxLoadingAtOnce: number;
+
+  ignoredTags: Array<string>;
 }
 
 interface GeneralSettingsI {
@@ -462,7 +466,7 @@ export class SceneSettings implements SceneSettingsI {
   overlayEnabled: false;
   overlays: Array<Overlay> = [];
   nextSceneID = 0;
-  nextSceneTime = 900;
+  nextSceneTime = 900000;
   nextSceneAllImages = false;
   persistAudio = false;
   persistText = false;
@@ -555,11 +559,13 @@ export class CacheSettings implements CacheSettingsI {
 }
 
 export class DisplaySettings  implements DisplaySettingsI {
-  [key: string]: number | boolean;
+  [key: string]: number | boolean | Array<string>;
 
   alwaysOnTop = false;
   showMenu = true;
   fullScreen = false;
+  clickToProgress = true;
+  clickToProgressWhilePlaying = false;
   startImmediately = false;
   easingControls = false;
   audioAlert = true;
@@ -570,6 +576,8 @@ export class DisplaySettings  implements DisplaySettingsI {
   maxInMemory = 40;
   maxInHistory = 120;
   maxLoadingAtOnce = 5;
+
+  ignoredTags = Array<string>();
 }
 
 export class GeneralSettings  implements GeneralSettingsI {

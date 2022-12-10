@@ -3,16 +3,18 @@ import clsx from "clsx";
 import Draggable, {DraggableData} from "react-draggable";
 
 import {
-  AppBar, Button, Container, createStyles, Fab, FormControlLabel, IconButton, Menu, Switch, TextField, Theme, Toolbar,
-  Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  AppBar, Button, Container, Fab, FormControlLabel, IconButton, Menu, Switch, TextField, Theme, Toolbar, Tooltip,
+  Typography,
+} from "@mui/material";
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import DeleteIcon from '@material-ui/icons/Delete';
-import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 
 import {SGT} from "../../data/const";
-import {areWeightsValid} from "../../data/utils";
 import Scene from "../../data/Scene";
 import SceneSelect from "../configGroups/SceneSelect";
 import SceneGrid from "../../data/SceneGrid";
@@ -86,9 +88,6 @@ const styles = (theme: Theme) => createStyles({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  gridCellLabel: {
-    display: 'flex',
     flexDirection: 'column',
   },
   sceneMenu: {
@@ -133,7 +132,7 @@ class GridSetup extends React.Component {
     tutorial: string,
     goBack(): void,
     onDelete(grid: SceneGrid): void,
-    onGenerate(scenes: Array<Scene>): void,
+    onGenerate(scene: Scene | SceneGrid, children?: boolean, force?: boolean): void,
     onPlayGrid(grid: SceneGrid): void,
     onTutorial(tutorial: string): void,
     onUpdateGrid(grid: SceneGrid, fn: (grid: SceneGrid) => void): void,
@@ -202,19 +201,20 @@ class GridSetup extends React.Component {
       }
     }
 
-    return(
+    return (
       <div className={classes.root}>
 
-        <AppBar position="absolute" className={clsx(classes.appBar, this.props.tutorial == SGT.dimensions && classes.backdropTop)}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, this.props.tutorial == SGT.dimensions && classes.backdropTop)}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title="Back" placement="right-end">
+              <Tooltip disableInteractive title="Back" placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
                   className={clsx(this.props.tutorial == SGT.dimensions && classes.disable)}
-                  onClick={this.goBack.bind(this)}>
+                  onClick={this.goBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
@@ -223,6 +223,7 @@ class GridSetup extends React.Component {
             {this.state.isEditingName != null && (
               <form onSubmit={this.endEditingName.bind(this)} className={classes.titleField}>
                 <TextField
+                  variant="standard"
                   autoFocus
                   fullWidth
                   id="title"
@@ -231,13 +232,13 @@ class GridSetup extends React.Component {
                   ref={this.nameInputRef}
                   inputProps={{className: classes.titleInput}}
                   onBlur={this.endEditingName.bind(this)}
-                  onChange={this.onChangeName.bind(this)}
-                />
+                  onChange={this.onChangeName.bind(this)} />
               </form>
             )}
             {this.state.isEditingName == null && (
-              <Typography component="h1" variant="h4" color="inherit" noWrap
-                          className={clsx(classes.title, this.props.scene.name.length == 0 && classes.noTitle, this.props.tutorial == SGT.dimensions && classes.disable)} onClick={this.beginEditingName.bind(this)}>
+              <Typography component="h1" variant="h4" noWrap
+                          className={clsx(classes.title, this.props.scene.name.length == 0 && classes.noTitle, this.props.tutorial == SGT.dimensions && classes.disable)}
+                          onClick={this.beginEditingName.bind(this)}>
                 {this.props.scene.name}
               </Typography>
             )}
@@ -278,7 +279,8 @@ class GridSetup extends React.Component {
                 color="inherit"
                 aria-label="Play"
                 className={clsx(this.props.tutorial == SGT.dimensions && classes.disable)}
-                onClick={this.onPlayGrid.bind(this)}>
+                onClick={this.onPlayGrid.bind(this)}
+                size="large">
                 <PlayCircleOutlineIcon fontSize="large"/>
               </IconButton>
             </div>
@@ -310,9 +312,6 @@ class GridSetup extends React.Component {
                         <Button
                           id={rowIndex + "-" + colIndex}
                           className={classes.gridCell}
-                          classes={{
-                            label: classes.gridCellLabel
-                          }}
                           style={(colors[rowIndex] == undefined || colors[rowIndex][colIndex] == undefined || colors[rowIndex][colIndex] == "") ? {} : {borderStyle: 'solid', borderWidth: 10, borderColor: colors[rowIndex][colIndex]}}
                           variant="outlined">
                           {scene ? scene.name : sceneCopy ? "*" + sceneCopy.name + "*" : ""}
@@ -341,7 +340,6 @@ class GridSetup extends React.Component {
                 vertical: 'bottom',
                 horizontal: 'center',
               }}
-              getContentAnchorEl={null}
               anchorEl={this.state.menuAnchorEl}
               keepMounted
               classes={{paper: classes.sceneMenu}}
@@ -591,31 +589,7 @@ class GridSetup extends React.Component {
 
   onPlayGrid() {
     // Regenerate scene(s) before playback
-    const generateScenes: Array<Scene> = []
-    for (let row of this.props.scene.grid) {
-      for (let cell of row) {
-        const gScene = this.props.allScenes.find((s) => s.id == cell.sceneID);
-        if (gScene && gScene.generatorWeights && gScene.regenerate && areWeightsValid(gScene)) {
-          generateScenes.push(gScene);
-        }
-        if (gScene && gScene.overlayEnabled) {
-          for (let overlay of gScene.overlays) {
-            if (overlay.sceneID.toString().startsWith('999')) {
-              // No grid overlays within a grid
-            } else {
-              const oScene = this.props.allScenes.find((s) => s.id == overlay.sceneID);
-              if (oScene && oScene.generatorWeights && oScene.regenerate && areWeightsValid(oScene)) {
-                generateScenes.push(oScene);
-              }
-            }
-          }
-        }
-      }
-    }
-    if (generateScenes.length > 0) {
-      this.props.onGenerate(generateScenes);
-    }
-
+    this.props.onGenerate(this.props.scene);
     this.props.onPlayGrid(this.props.scene);
   }
 

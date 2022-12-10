@@ -1,9 +1,12 @@
 import * as React from "react";
 import clsx from "clsx";
 
-import {Card, CardContent, CardMedia, createStyles, Grid, Theme, Tooltip, Typography, withStyles} from "@material-ui/core";
+import { Card, CardContent, CardMedia, Grid, Theme, Tooltip, Typography } from "@mui/material";
 
-import AudiotrackIcon from '@material-ui/icons/Audiotrack';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
 
 import Audio from "../../data/Audio";
 
@@ -105,7 +108,7 @@ class AudioAlbumList extends React.Component {
                   <AudiotrackIcon className={classes.mediaIcon}/>
                 )}
                 <CardContent classes={{root: classes.cardContent}}>
-                  <Tooltip title={a} enterDelay={800}>
+                  <Tooltip disableInteractive title={a} enterDelay={800}>
                     <Typography
                       className={clsx(this.state.hover == a && classes.underlineTitle)}
                       noWrap
@@ -135,7 +138,7 @@ class AudioAlbumList extends React.Component {
           )
         })}
       </Grid>
-    )
+    );
   }
 
   nop() {}

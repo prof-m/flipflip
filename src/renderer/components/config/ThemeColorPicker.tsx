@@ -1,8 +1,11 @@
 import * as React from "react";
 
-import {createStyles, Fab, Grid, TextField, Theme, withStyles} from "@material-ui/core";
+import { Fab, Grid, TextField, Theme } from "@mui/material";
 
-import * as color from "@material-ui/core/colors";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import * as color from "@mui/material/colors";
 
 const styles = (theme: Theme) => createStyles({
   colorGrid: {
@@ -43,7 +46,7 @@ class ThemeColorPicker extends React.Component {
   render() {
     const classes = this.props.classes;
 
-    return(
+    return (
       <Grid container alignItems="center">
         <Grid item className={classes.colorGrid}>
           <Fab
@@ -53,12 +56,13 @@ class ThemeColorPicker extends React.Component {
             <div/>
           </Fab>
           <TextField
+            variant="standard"
             className={classes.colorField}
             label="Color"
             InputProps={{
               readOnly: true,
             }}
-            value={this.props.currentColor}/>
+            value={this.props.currentColor} />
         </Grid>
         <Grid item xs={12} sm>
           <Grid container alignItems="center">

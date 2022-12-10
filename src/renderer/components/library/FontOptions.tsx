@@ -1,9 +1,21 @@
 import * as React from "react";
 
 import {
-  Collapse, createStyles, FormControl, FormControlLabel, Grid, InputAdornment,
-  InputLabel, MenuItem, Select, Switch, TextField, Theme, withStyles
-} from "@material-ui/core";
+  Collapse,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Switch,
+  TextField,
+  Theme,
+} from "@mui/material";
+
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
 import {FontSettingsI} from "../../data/CaptionScript";
 import ColorPicker from "../config/ColorPicker";
@@ -52,12 +64,13 @@ class FontOptions extends React.Component {
       }
     }
 
-    return(
+    return (
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={9}>
-          <FormControl className={classes.fullWidth}>
+          <FormControl variant="standard" className={classes.fullWidth}>
             <InputLabel>{this.props.name} Font</InputLabel>
             <Select
+              variant="standard"
               value={fontFamily}
               disabled={this.props.systemFonts.length == 0}
               style={{fontFamily: this.props.options.fontFamily}}
@@ -77,6 +90,7 @@ class FontOptions extends React.Component {
         </Grid>
         <Grid item xs={3}>
           <TextField
+            variant="standard"
             label="Size"
             margin="dense"
             value={this.props.options.fontSize}
@@ -88,7 +102,7 @@ class FontOptions extends React.Component {
             inputProps={{
               min: 1,
               type: 'number',
-            }}/>
+            }} />
         </Grid>
         <Grid item xs={12}>
           <ColorPicker
@@ -107,6 +121,7 @@ class FontOptions extends React.Component {
         <Grid item xs={3}>
           <Collapse in={this.props.options.border}>
             <TextField
+              variant="standard"
               label="Width"
               margin="dense"
               value={this.props.options.borderpx}
@@ -118,7 +133,7 @@ class FontOptions extends React.Component {
               inputProps={{
                 min: 1,
                 type: 'number',
-              }}/>
+              }} />
           </Collapse>
         </Grid>
         <Grid item xs={9}>

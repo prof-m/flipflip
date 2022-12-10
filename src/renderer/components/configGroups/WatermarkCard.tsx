@@ -3,9 +3,23 @@ import fontList from "font-list";
 import SystemFonts from "system-font-families";
 
 import {
-  Collapse, createStyles, Divider, FormControl, FormControlLabel, Grid, InputAdornment, InputLabel, MenuItem, Select,
-  Switch, TextField, Theme, Tooltip, withStyles
-} from "@material-ui/core";
+  Collapse,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+} from "@mui/material";
+
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
 import {GeneralSettings} from "../../data/Config";
 import {WC} from "../../data/const";
@@ -33,12 +47,12 @@ class WatermarkCard extends React.Component {
   render() {
     const classes = this.props.classes;
 
-    return(
+    return (
       <Grid container spacing={this.props.settings.watermark ? 2 : 0} alignItems="center">
         <Grid item xs={12}>
           <Grid container alignItems="center">
             <Grid item xs={12} sm={6}>
-              <Tooltip title={
+              <Tooltip disableInteractive title={
                          <div>
                            When enabled, FlipFlip will display a watermark over each Scene. You may use the following variables:
                            <br/>
@@ -73,7 +87,7 @@ class WatermarkCard extends React.Component {
             </Grid>
             <Grid item xs={12} sm={6}>
               {this.props.settings.watermark && (
-                <Tooltip title={"When enabled, watermark will display on Grid Scenes"}>
+                <Tooltip disableInteractive title={"When enabled, watermark will display on Grid Scenes"}>
                   <FormControlLabel
                     control={
                       <Switch checked={this.props.settings.watermarkGrid}
@@ -95,6 +109,7 @@ class WatermarkCard extends React.Component {
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12}>
                 <Select
+                  variant="standard"
                   value={this.props.settings.watermarkCorner}
                   onChange={this.onInput.bind(this, 'watermarkCorner')}>
                   {Object.values(WC).map((wc) =>
@@ -104,13 +119,13 @@ class WatermarkCard extends React.Component {
               </Grid>
               <Grid item xs={12}>
                 <TextField
+                  variant="standard"
                   fullWidth
                   multiline
                   label="Watermark Text"
                   value={this.props.settings.watermarkText}
                   margin="dense"
-                  onChange={this.onInput.bind(this, 'watermarkText')}
-                />
+                  onChange={this.onInput.bind(this, 'watermarkText')} />
               </Grid>
             </Grid>
           </Collapse>
@@ -119,9 +134,10 @@ class WatermarkCard extends React.Component {
           <Collapse in={this.props.settings.watermark} className={classes.fullWidth}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={9}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Font</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.settings.watermarkFontFamily}
                     disabled={this.state.systemFonts.length == 0}
                     style={{fontFamily: this.props.settings.watermarkFontFamily}}
@@ -141,6 +157,7 @@ class WatermarkCard extends React.Component {
               </Grid>
               <Grid item xs={3}>
                 <TextField
+                  variant="standard"
                   label="Size"
                   margin="dense"
                   value={this.props.settings.watermarkFontSize}
@@ -152,7 +169,7 @@ class WatermarkCard extends React.Component {
                   inputProps={{
                     min: 1,
                     type: 'number',
-                  }}/>
+                  }} />
               </Grid>
               <Grid item xs={12}>
                 <ColorPicker

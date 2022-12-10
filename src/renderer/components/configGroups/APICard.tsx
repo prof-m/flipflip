@@ -8,16 +8,39 @@ import wretch from "wretch";
 import {IgApiClient, IgCheckpointError, IgLoginTwoFactorRequiredError} from "instagram-private-api";
 
 import {
-  Avatar, Button, Collapse, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab,
-  FormControl, FormControlLabel, Grid, InputLabel, Link, MenuItem, Radio, RadioGroup, Select, Slide, Snackbar,
-  SnackbarContent, Switch, TextField, Theme, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Alert,
+  Avatar,
+  Button,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Fab,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputLabel,
+  Link,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Slide,
+  Snackbar,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import ErrorIcon from '@material-ui/icons/Error';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
 import Config, {RemoteSettings} from "../../data/Config";
-import {IG, MO, ST} from "../../data/const";
+import {IG, MO, SS, ST} from "../../data/const";
 import en from "../../data/en";
 import SourceIcon from "../library/SourceIcon";
 
@@ -50,20 +73,15 @@ const styles = (theme: Theme) => createStyles({
   center: {
     textAlign: 'center',
   },
-  snackbarIcon: {
-    fontSize: 20,
-    opacity: 0.9,
-    marginRight: theme.spacing(1),
-  },
-  snackbarMessage: {
-    display: 'flex',
-    alignItems: 'center',
-  },
   middleInput: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
 });
+
+function TransitionUp(props: any) {
+  return <Slide {...props} direction="up" />;
+}
 
 class APICard extends React.Component {
   readonly props: {
@@ -76,8 +94,9 @@ class APICard extends React.Component {
   readonly state = {
     openMenu: null as string,
     menuType: null as string,
-    successSnack: null as string,
-    errorSnack: null as string,
+    snackbarOpen: false,
+    snackbar: null as string,
+    snackbarSeverity: null as string,
     server: null as any,
     instagramMode: null as string,
     input1: "",
@@ -117,13 +136,13 @@ class APICard extends React.Component {
         menuTypeSignOut = this.onFinishClearPiwigo.bind(this);
         break;
     }
-    return(
+    return (
       <React.Fragment>
         <Typography align="center" className={classes.title}>API Sign In</Typography>
 
         <Grid container spacing={2} alignItems="center" justifyContent="center">
           <Grid item>
-            <Tooltip title={tumblrAuthorized ? "Authorized: Click to Sign Out of Tumblr" : "Unauthorized: Click to Authorize Tumblr"}  placement="top-end">
+            <Tooltip disableInteractive title={tumblrAuthorized ? "Authorized: Click to Sign Out of Tumblr" : "Unauthorized: Click to Authorize Tumblr"}  placement="top-end">
               <Fab
                 className={clsx(classes.fab, tumblrAuthorized ? classes.authorized : classes.noAuth)}
                 onClick={tumblrAuthorized ? this.onClearTumblr.bind(this) : this.onAuthTumblr.bind(this)}
@@ -133,7 +152,7 @@ class APICard extends React.Component {
             </Tooltip>
           </Grid>
           <Grid item>
-            <Tooltip title={redditAuthorized ? "Authorized: Click to Sign Out of Reddit" : "Unauthorized: Click to Authorize Reddit"}  placement="top-end">
+            <Tooltip disableInteractive title={redditAuthorized ? "Authorized: Click to Sign Out of Reddit" : "Unauthorized: Click to Authorize Reddit"}  placement="top-end">
               <Fab
                 className={clsx(classes.fab, redditAuthorized ? classes.authorized : classes.noAuth)}
                 onClick={redditAuthorized ? this.onClearReddit.bind(this) : this.onAuthReddit.bind(this)}
@@ -143,7 +162,7 @@ class APICard extends React.Component {
             </Tooltip>
           </Grid>
           <Grid item>
-            <Tooltip title={twitterAuthorized ? "Authorized: Click to Sign Out of Twitter" : "Unauthorized: Click to Authorize Twitter"}  placement="top-end">
+            <Tooltip disableInteractive title={twitterAuthorized ? "Authorized: Click to Sign Out of Twitter" : "Unauthorized: Click to Authorize Twitter"}  placement="top-end">
               <Fab
                 className={clsx(classes.fab, twitterAuthorized ? classes.authorized : classes.noAuth)}
                 onClick={twitterAuthorized ? this.onClearTwitter.bind(this) : this.onAuthTwitter.bind(this)}
@@ -153,7 +172,7 @@ class APICard extends React.Component {
             </Tooltip>
           </Grid>
           <Grid item>
-            <Tooltip title={instagramConfigured ? "Authorized: Click to Sign Out of Instagram" : "Unauthorized: Click to Authorize Instragram"}  placement="top-end">
+            <Tooltip disableInteractive title={instagramConfigured ? "Authorized: Click to Sign Out of Instagram" : "Unauthorized: Click to Authorize Instragram"}  placement="top-end">
               <Fab
                 className={clsx(classes.fab, instagramConfigured ? classes.authorized : classes.noAuth)}
                 onClick={instagramConfigured ? this.onClearInstagram.bind(this) : this.onAuthInstagram.bind(this)}
@@ -163,7 +182,7 @@ class APICard extends React.Component {
             </Tooltip>
           </Grid>
           <Grid item>
-            <Tooltip title={hydrusConfigured ? "Configured: Click to Remove Hydrus Configuration" : "Unauthorized: Click to Configure Hydrus"}  placement="top-end">
+            <Tooltip disableInteractive title={hydrusConfigured ? "Configured: Click to Remove Hydrus Configuration" : "Unauthorized: Click to Configure Hydrus"}  placement="top-end">
               <Fab
                 className={clsx(classes.fab, hydrusConfigured ? classes.authorized : classes.noAuth)}
                 onClick={hydrusConfigured ? this.onClearHydrus.bind(this) : this.onAuthHydrus.bind(this)}
@@ -173,7 +192,7 @@ class APICard extends React.Component {
             </Tooltip>
           </Grid>
           <Grid item>
-            <Tooltip title={piwigoConfigured ? "Configured: Click to Remove Piwigo Configuration" : "Unauthorized: Click to Configure Piwigo"}  placement="top-end">
+            <Tooltip disableInteractive title={piwigoConfigured ? "Configured: Click to Remove Piwigo Configuration" : "Unauthorized: Click to Configure Piwigo"}  placement="top-end">
               <Fab
                 className={clsx(classes.fab, piwigoConfigured ? classes.authorized : classes.noAuth)}
                 onClick={piwigoConfigured ? this.onClearPiwigo.bind(this) : this.onAuthPiwigo.bind(this)}
@@ -232,7 +251,10 @@ class APICard extends React.Component {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="sign-in-description">
-              You are about to be directed to <Link href="#" onClick={this.openLink.bind(this, "https://www.tumblr.com")}>Tumblr.com</Link> to
+              You are about to be directed to <Link
+              href="#"
+              onClick={this.openLink.bind(this, "https://www.tumblr.com")}
+              underline="hover">Tumblr.com</Link> to
               authorize FlipFlip. You should only have to do this once. Tumblr has no Read-Only mode, so read <i>and</i> write
               access are requested. FlipFlip does not store any user information or make any changes to your account.
             </DialogContentText>
@@ -261,8 +283,14 @@ class APICard extends React.Component {
           <DialogContent>
             <DialogContentText id="tumblr-description">
               FlipFlip provides a few public keys for use, but we recommend registering and using your own
-              on <Link href="#" onClick={this.openLink.bind(this, "https://www.tumblr.com/oauth/apps")}>Tumblr OAuth</Link>.
-              Refer to the <Link href="#" onClick={this.openLink.bind(this, "https://ififfy.github.io/flipflip/#/tumblr_api")}>FlipFlip documentation</Link> for
+              on <Link
+              href="#"
+              onClick={this.openLink.bind(this, "https://www.tumblr.com/oauth/apps")}
+              underline="hover">Tumblr OAuth</Link>.
+              Refer to the <Link
+              href="#"
+              onClick={this.openLink.bind(this, "https://ififfy.github.io/flipflip/#/tumblr_api")}
+              underline="hover">FlipFlip documentation</Link> for
               complete instructions.
             </DialogContentText>
             <div className={classes.root}>
@@ -280,17 +308,19 @@ class APICard extends React.Component {
               </div>
               <div className={classes.tumblrFields}>
                 <TextField
+                  variant="standard"
                   fullWidth
                   margin="dense"
                   label="Tumblr OAuth Consumer Key"
                   value={this.state.input1}
-                  onChange={this.onInput1.bind(this)}/>
+                  onChange={this.onInput1.bind(this)} />
                 <TextField
+                  variant="standard"
                   fullWidth
                   margin="dense"
                   label="Tumblr OAuth Consumer Secret"
                   value={this.state.input2}
-                  onChange={this.onInput2.bind(this)}/>
+                  onChange={this.onInput2.bind(this)} />
               </div>
             </div>
           </DialogContent>
@@ -319,7 +349,10 @@ class APICard extends React.Component {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="sign-in-description">
-              You are about to be directed to <Link href="#" onClick={this.openLink.bind(this, "https://www.reddit.com")}>Reddit.com</Link> to
+              You are about to be directed to <Link
+              href="#"
+              onClick={this.openLink.bind(this, "https://www.reddit.com")}
+              underline="hover">Reddit.com</Link> to
               authorize FlipFlip. You should only have to do this once. FlipFlip does not store any user information
               or make any changes to your account.
             </DialogContentText>
@@ -347,7 +380,10 @@ class APICard extends React.Component {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="sign-in-description">
-              You are about to be directed to <Link href="#" onClick={this.openLink.bind(this, "https://www.twitter.com")}>Twitter.com</Link> to
+              You are about to be directed to <Link
+              href="#"
+              onClick={this.openLink.bind(this, "https://www.twitter.com")}
+              underline="hover">Twitter.com</Link> to
               authorize FlipFlip. You should only have to do this once. FlipFlip does not store any user information
               or make any changes to your account.
             </DialogContentText>
@@ -379,41 +415,45 @@ class APICard extends React.Component {
               stored locally on your computer and is never shared with anyone or sent to any server (besides Instagram, obviously).
             </DialogContentText>
             <TextField
+              variant="standard"
               fullWidth
               disabled={this.state.instagramMode != null}
               margin="dense"
               label="Instagram Username"
               value={this.state.input1}
-              onChange={this.onInput1.bind(this)}/>
+              onChange={this.onInput1.bind(this)} />
             <TextField
+              variant="standard"
               fullWidth
               disabled={this.state.instagramMode != null}
               margin="dense"
               label="Instagram Password"
               type="password"
               value={this.state.input2}
-              onChange={this.onInput2.bind(this)}/>
+              onChange={this.onInput2.bind(this)} />
             <Collapse in={this.state.instagramMode == IG.tfa}>
               <DialogContentText id="instagram-description">
                 Enter your two-factor authentication code to confirm login:
               </DialogContentText>
               <TextField
+                variant="standard"
                 fullWidth
                 margin="dense"
                 label="Instagram 2FA"
                 value={this.state.input3}
-                onChange={this.onInput3.bind(this)}/>
+                onChange={this.onInput3.bind(this)} />
             </Collapse>
             <Collapse in={this.state.instagramMode == IG.checkpoint}>
               <DialogContentText id="instagram-description">
                 Please verify your account to continue: (check your email)
               </DialogContentText>
               <TextField
+                variant="standard"
                 fullWidth
                 margin="dense"
                 label="Instagram Checkpoint"
                 value={this.state.input3}
-                onChange={this.onInput3.bind(this)}/>
+                onChange={this.onInput3.bind(this)} />
             </Collapse>
           </DialogContent>
           <DialogActions>
@@ -460,9 +500,10 @@ class APICard extends React.Component {
               FlipFlip does not store any user information or make changes to the Hydrus server. Your configured information is
               stored locally on your computer and is never shared with anyone or sent to any server (besides Hydrus, obviously).
             </DialogContentText>
-            <FormControl margin="dense">
+            <FormControl variant="standard" margin="dense">
               <InputLabel>Protocol</InputLabel>
               <Select
+                variant="standard"
                 value={this.state.input1}
                 onChange={this.onInput1.bind(this)}>
                 <MenuItem key={"http"} value={"http"}>http</MenuItem>
@@ -470,22 +511,25 @@ class APICard extends React.Component {
               </Select>
             </FormControl>
             <TextField
+              variant="standard"
               className={classes.middleInput}
               margin="dense"
               label="Hydrus Domain"
               value={this.state.input2}
-              onChange={this.onInput2.bind(this)}/>
+              onChange={this.onInput2.bind(this)} />
             <TextField
+              variant="standard"
               margin="dense"
               label="Hydrus Port"
               value={this.state.input3}
-              onChange={this.onInput3.bind(this)}/>
+              onChange={this.onInput3.bind(this)} />
             <TextField
+              variant="standard"
               fullWidth
               margin="dense"
               label="Hydrus API Key"
               value={this.state.input4}
-              onChange={this.onInput4.bind(this)}/>
+              onChange={this.onInput4.bind(this)} />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.onCloseDialog.bind(this)} color="secondary">
@@ -515,9 +559,10 @@ class APICard extends React.Component {
               FlipFlip does not store any user information or make changes to the Piwigo server. Your configured information is
               stored locally on your computer and is never shared with anyone or sent to any server (besides Piwigo, obviously).
             </DialogContentText>
-            <FormControl margin="dense">
+            <FormControl variant="standard" margin="dense">
               <InputLabel>Protocol</InputLabel>
               <Select
+                variant="standard"
                 value={this.state.input1}
                 onChange={this.onInput1.bind(this)}>
                 <MenuItem key={"http"} value={"http"}>http</MenuItem>
@@ -525,24 +570,27 @@ class APICard extends React.Component {
               </Select>
             </FormControl>
             <TextField
+              variant="standard"
               className={classes.middleInput}
               margin="dense"
               label="Piwigo Host"
               value={this.state.input2}
-              onChange={this.onInput2.bind(this)}/>
+              onChange={this.onInput2.bind(this)} />
             <TextField
+              variant="standard"
               fullWidth
               margin="dense"
               label="Username"
               value={this.state.input3}
-              onChange={this.onInput3.bind(this)}/>
+              onChange={this.onInput3.bind(this)} />
             <TextField
+              variant="standard"
               fullWidth
               margin="dense"
               label="Password"
               type="password"
               value={this.state.input4}
-              onChange={this.onInput4.bind(this)}/>
+              onChange={this.onInput4.bind(this)} />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.onCloseDialog.bind(this)} color="secondary">
@@ -557,33 +605,14 @@ class APICard extends React.Component {
         </Dialog>
 
         <Snackbar
-          open={!!this.state.successSnack}
+          open={this.state.snackbarOpen}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           autoHideDuration={20000}
           onClose={this.onCloseSnack.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                  <CheckCircleIcon color="inherit" className={classes.snackbarIcon}/>
-                  {this.state.successSnack}
-              </span>
-            }
-          />
-        </Snackbar>
-
-        <Snackbar
-          open={!!this.state.errorSnack}
-          autoHideDuration={20000}
-          onClose={this.onCloseErrorSnack.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                  <ErrorIcon color="error" className={classes.snackbarIcon}/>
-                  Error: {this.state.errorSnack}
-              </span>
-            }
-          />
+          TransitionComponent={TransitionUp}>
+          <Alert onClose={this.onCloseSnack.bind(this)} severity={this.state.snackbarSeverity as any}>
+            {this.state.snackbar}
+          </Alert>
         </Snackbar>
       </React.Fragment>
     );
@@ -771,11 +800,7 @@ class APICard extends React.Component {
   }
 
   onCloseSnack() {
-    this.setState({successSnack: null});
-  }
-
-  onCloseErrorSnack() {
-    this.setState({errorSnack: null});
+    this.setState({snackbarOpen: false});
   }
 
   onInput1(e: MouseEvent) {
@@ -840,7 +865,7 @@ class APICard extends React.Component {
     oauth.getOAuthRequestToken((err: {statusCode: number, data: string}, token: string, secret: string) => {
       if (err) {
         console.error(err.statusCode + " - " + err.data);
-        this.setState({errorSnack: "Error: " + err.statusCode + " - " + err.data});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + err.statusCode + " - " + err.data, snackbarSeverity: SS.error});
         this.closeServer();
         return;
       }
@@ -869,7 +894,7 @@ class APICard extends React.Component {
             (err: any, token: string, secret: string) => {
               if (err) {
                 console.error("Validation failed with error", err);
-                this.setState({errorSnack: "Error: " + err.statusCode + " - " + err.data});
+                this.setState({snackbarOpen: true, snackbar: "Error: " + err.statusCode + " - " + err.data, snackbarSeverity: SS.error});
                 this.closeServer();
                 req.connection.destroy();
                 res.end();
@@ -889,14 +914,14 @@ class APICard extends React.Component {
                 s.tumblrOAuthTokenSecret = secret;
               });
 
-              this.setState({successSnack: "Tumblr is now activated"});
+              this.setState({snackbarOpen: true, snackbar: "Tumblr is now activated", snackbarSeverity: SS.success});
               remote.getCurrentWindow().show();
               this.closeServer();
               req.connection.destroy();
             }
           );
         } else {
-          this.setState({errorSnack: "Error: Access Denied"});
+          this.setState({snackbarOpen: true, snackbar: "Error: Access Denied", snackbarSeverity: SS.error});
           this.closeServer();
           req.connection.destroy();
         }
@@ -927,7 +952,7 @@ class APICard extends React.Component {
       })
       .catch(e => {
         console.error(e);
-        this.setState({errorSnack: "Error: " + e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
         this.closeServer();
         return;
       });
@@ -963,14 +988,14 @@ class APICard extends React.Component {
                   s.redditRefreshToken = json.refresh_token;
                 });
 
-                this.setState({successSnack: "Reddit is now activated"});
+                this.setState({snackbarOpen: true, snackbar: "Reddit is now activated", snackbarSeverity: SS.success});
                 remote.getCurrentWindow().show();
                 this.closeServer();
                 req.connection.destroy();
               })
               .catch(e => {
                 console.error(e);
-                this.setState({errorSnack: "Error: " + e.message});
+                this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
                 this.closeServer();
                 req.connection.destroy();
                 res.end();
@@ -984,7 +1009,7 @@ class APICard extends React.Component {
           if (state == deviceID) {
             const error = args[1].substring(6);
             console.error(error);
-            this.setState({errorSnack: "Error: " + error});
+            this.setState({snackbarOpen: true, snackbar: "Error: " + error, snackbarSeverity: SS.error});
           }
 
           this.closeServer();
@@ -1024,7 +1049,7 @@ class APICard extends React.Component {
     oauth.getOAuthRequestToken((err: {statusCode: number, data: string}, token: string, secret: string) => {
       if (err) {
         console.error(err.statusCode + " - " + err.data);
-        this.setState({errorSnack: "Error: " + err.statusCode + " - " + err.data});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + err.statusCode + " - " + err.data, snackbarSeverity: SS.error});
         this.closeServer();
         return;
       }
@@ -1053,7 +1078,7 @@ class APICard extends React.Component {
             (err: any, token: string, secret: string) => {
               if (err) {
                 console.error("Validation failed with error", err);
-                this.setState({errorSnack: "Error: " + err.statusCode + " - " + err.data});
+                this.setState({snackbarOpen: true, snackbar: "Error: " + err.statusCode + " - " + err.data, snackbarSeverity: SS.error});
                 this.closeServer();
                 req.connection.destroy();
                 res.end();
@@ -1071,14 +1096,14 @@ class APICard extends React.Component {
                 s.twitterAccessTokenSecret = secret;
               });
 
-              this.setState({successSnack: "Twitter is now activated"});
+              this.setState({snackbarOpen: true, snackbar: "Twitter is now activated", snackbarSeverity: SS.success});
               remote.getCurrentWindow().show();
               this.closeServer();
               req.connection.destroy();
             }
           );
         } else {
-          this.setState({errorSnack: "Error: Access Denied"});
+          this.setState({snackbarOpen: true, snackbar: "Error: Access Denied", snackbarSeverity: SS.error});
           this.closeServer();
           req.connection.destroy();
         }
@@ -1106,7 +1131,7 @@ class APICard extends React.Component {
         s.instagramUsername = this.state.input1;
         s.instagramPassword = this.state.input2;
       });
-      this.setState({successSnack: "Instagram is activated"});
+      this.setState({snackbarOpen: true, snackbar: "Instagram is activated", snackbarSeverity: SS.success});
       this.onCloseDialog();
       this._ig = null;
     }).catch((e) => {
@@ -1120,7 +1145,7 @@ class APICard extends React.Component {
       } else {
         this.onCloseDialog();
         console.error(e);
-        this.setState({errorSnack: e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
         this._ig = null;
       }
     });
@@ -1144,14 +1169,14 @@ class APICard extends React.Component {
         s.instagramUsername = this.state.input1;
         s.instagramPassword = this.state.input2;
       });
-      this.setState({successSnack: "Instagram is activated"});
+      this.setState({snackbarOpen: true, snackbar: "Instagram is activated", snackbarSeverity: SS.success});
       this.onCloseDialog();
       this._ig = null;
       this._tfa = null;
     }).catch((e) => {
       this.onCloseDialog();
       console.error(e);
-      this.setState({errorSnack: e.message});
+      this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       this._ig = null;
       this._tfa = null;
     });
@@ -1169,13 +1194,13 @@ class APICard extends React.Component {
         s.instagramUsername = this.state.input1;
         s.instagramPassword = this.state.input2;
       });
-      this.setState({successSnack: "Instagram is activated"});
+      this.setState({snackbarOpen: true, snackbar: "Instagram is activated", snackbarSeverity: SS.success});
       this.onCloseDialog();
       this._ig = null;
     }).catch((e) => {
       this.onCloseDialog();
       console.error(e);
-      this.setState({errorSnack: e.message});
+      this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       this._ig = null;
     });
   }
@@ -1187,11 +1212,11 @@ class APICard extends React.Component {
       .setTimeout(5000)
       .notFound((e) => {
         console.error(e);
-        this.setState({errorSnack: e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       })
       .internalError((e) => {
         console.error(e);
-        this.setState({errorSnack: e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       })
       .json((json) => {
         if (json.session_key) {
@@ -1209,16 +1234,16 @@ class APICard extends React.Component {
             s.hydrusPort = this.state.input3;
             s.hydrusAPIKey = this.state.input4;
           });
-          this.setState({successSnack: "Hydrus is configured"});
+          this.setState({snackbarOpen: true, snackbar: "Hydrus is configured", snackbarSeverity: SS.success});
           this.onCloseDialog();
         } else {
           console.error("Invalid response from Hydrus server");
-          this.setState({errorSnack: "Invalid response from Hydrus server"});
+          this.setState({snackbarOpen: true, snackbar: "Invalid response from Hydrus server", snackbarSeverity: SS.error});
         }
       })
       .catch((e) => {
         console.error(e);
-        this.setState({errorSnack: e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       });
   }
 
@@ -1239,11 +1264,11 @@ class APICard extends React.Component {
       .setTimeout(5000)
       .notFound((e) => {
         console.error(e);
-        this.setState({errorSnack: e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       })
       .internalError((e) => {
         console.error(e);
-        this.setState({errorSnack: e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       })
       .json((json) => {
         if (json.stat == "ok") {
@@ -1260,16 +1285,16 @@ class APICard extends React.Component {
             s.piwigoUsername = this.state.input3;
             s.piwigoPassword = this.state.input4;
           });
-          this.setState({successSnack: "Piwigo is configured"});
+          this.setState({snackbarOpen: true, snackbar: "Piwigo is configured", snackbarSeverity: SS.success});
           this.onCloseDialog();
         } else {
           console.error("Invalid response from Piwigo server");
-          this.setState({errorSnack: "Invalid response from Piwigo server"});
+          this.setState({snackbarOpen: true, snackbar: "Invalid response from Piwigo server", snackbarSeverity: SS.error});
         }
       })
       .catch((e) => {
         console.error(e);
-        this.setState({errorSnack: e.message});
+        this.setState({snackbarOpen: true, snackbar: "Error: " + e.message, snackbarSeverity: SS.error});
       });
   }
 }

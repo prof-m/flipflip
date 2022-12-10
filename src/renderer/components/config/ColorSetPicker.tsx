@@ -2,12 +2,13 @@ import * as React from "react";
 import clsx from "clsx";
 import { SketchPicker } from 'react-color';
 
-import {
-  createStyles, Fab, Grid, IconButton, Menu, TextField, Theme, Tooltip, withStyles
-} from "@material-ui/core";
+import { Fab, Grid, IconButton, Menu, Theme, Tooltip } from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from "@material-ui/icons/Delete";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const styles = (theme: Theme) => createStyles({
   colorGrid: {
@@ -51,10 +52,10 @@ class ColorSetPicker extends React.Component {
   render() {
     const classes = this.props.classes;
 
-    return(
+    return (
       <Grid container>
         <Grid item className={classes.colorGrid}>
-          <Tooltip title="Add Color">
+          <Tooltip disableInteractive title="Add Color">
             <Fab
               id="add-color"
               className={classes.colorButton}
@@ -76,7 +77,6 @@ class ColorSetPicker extends React.Component {
               vertical: 'top',
               horizontal: 'left',
             }}
-            getContentAnchorEl={null}
             anchorEl={this.state.pickerAnchorEl}
             keepMounted
             open={!!this.state.pickerColor}
@@ -106,9 +106,8 @@ class ColorSetPicker extends React.Component {
           </Grid>
         </Grid>
         <Grid item>
-          <Tooltip title="Clear Colors">
-            <IconButton
-              onClick={this.onClearColors.bind(this)}>
+          <Tooltip disableInteractive title="Clear Colors">
+            <IconButton onClick={this.onClearColors.bind(this)} size="large">
               <DeleteIcon color="error"/>
             </IconButton>
           </Tooltip>

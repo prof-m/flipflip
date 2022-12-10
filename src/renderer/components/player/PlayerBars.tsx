@@ -7,18 +7,41 @@ import fs from "fs";
 import wretch from "wretch";
 
 import {
-  AppBar, Button, Card, CardActionArea, CardContent, createStyles, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, Divider, Drawer, Accordion, AccordionDetails, AccordionSummary, Grid,
-  IconButton, Link, Theme, Toolbar, Tooltip, Typography, withStyles, Fab
-} from "@material-ui/core";
+  AppBar,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Grid,
+  IconButton,
+  Link,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+  Fab,
+} from "@mui/material";
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ForwardIcon from '@material-ui/icons/Forward';
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
-import PauseIcon from '@material-ui/icons/Pause';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import SystemUpdateAltIcon from "@material-ui/icons/SystemUpdateAlt";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ForwardIcon from '@mui/icons-material/Forward';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
 
 import {createMainMenu, createMenuTemplate} from "../../../main/MainMenu";
 import {PT, ST} from "../../data/const";
@@ -77,7 +100,7 @@ const styles = (theme: Theme) => createStyles({
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
     height: theme.spacing(8),
-    marginTop: -theme.spacing(8) - 3,
+    marginTop: theme.spacing(-8.5),
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -162,6 +185,7 @@ const styles = (theme: Theme) => createStyles({
     position: 'absolute',
   },
   tagDrawerPaper: {
+    overflow: 'hidden',
     transform: 'scale(0)',
     transformOrigin: 'bottom left',
     backgroundColor: hexToRGB(theme.palette.background.default),
@@ -244,6 +268,7 @@ class PlayerBars extends React.Component {
     historyBack(): void,
     historyForward(): void,
     navigateTagging(offset: number): void,
+    onGenerate(scene: Scene | SceneGrid, children?: boolean, force?: boolean): void,
     onRecentPictureGrid(): void,
     onUpdateScene(scene: Scene, fn: (scene: Scene) => void): void,
     playNextScene(): void,
@@ -275,6 +300,7 @@ class PlayerBars extends React.Component {
   _appBarTimeout: any = null;
   _drawerTimeout: any = null;
   _tagDrawerTimeout: any = null;
+  _showVideoControls = false;
 
   render() {
     const classes = this.props.classes;
@@ -292,7 +318,11 @@ class PlayerBars extends React.Component {
       source = this.props.scene.sources.find((s) => s.url == sourceURL);
     }
 
-    return(
+    if (!this._showVideoControls) {
+      this._showVideoControls = this.props.mainVideo != null || this.props.overlayVideos.find((a) => a != null) != null;
+    }
+
+    return (
       <React.Fragment>
         <div
           className={classes.hoverBar}
@@ -300,36 +330,39 @@ class PlayerBars extends React.Component {
           onMouseLeave={this.onMouseLeaveAppBar.bind(this)}/>
 
         <AppBar
+          enableColorOnDark
           position="absolute"
           onMouseEnter={this.onMouseEnterAppBar.bind(this)}
           onMouseLeave={this.onMouseLeaveAppBar.bind(this)}
-          className={clsx(classes.appBar, (this.props.tutorial == PT.toolbar || !this.props.hasStarted || this.props.isEmpty || this.props.recentPictureGrid || this.state.appBarHover) && classes.appBarHover, this.props.tutorial == PT.toolbar && clsx(classes.backdropTop, classes.highlight))}>
+          className={clsx(classes.appBar, (this.props.tutorial == PT.toolbar || !this.props.hasStarted || this.props.isEmpty || this.state.appBarHover) && classes.appBarHover, this.props.tutorial == PT.toolbar && clsx(classes.backdropTop, classes.highlight))}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title="Back" placement="right-end">
+              <Tooltip disableInteractive title="Back" placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
-                  onClick={this.navigateBack.bind(this)}>
+                  onClick={this.navigateBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
             </div>
 
-            <Tooltip title={this.props.title}>
+            <Tooltip disableInteractive title={this.props.title}>
               <Typography component="h1" variant="h4" color="inherit" noWrap className={classes.title}>
                 {this.props.title}
               </Typography>
             </Tooltip>
 
             <div className={classes.headerRight}>
-              <Tooltip title="Toggle Fullscreen">
+              <Tooltip disableInteractive title="Toggle Fullscreen">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="FullScreen"
-                  onClick={this.toggleFull.bind(this)}>
+                  onClick={this.toggleFull.bind(this)}
+                  size="large">
                   <FullscreenIcon fontSize="large"/>
                 </IconButton>
               </Tooltip>
@@ -341,21 +374,24 @@ class PlayerBars extends React.Component {
                     edge="start"
                     color="inherit"
                     aria-label="Backward"
-                    onClick={this.historyBack.bind(this)}>
+                    onClick={this.historyBack.bind(this)}
+                    size="large">
                     <ForwardIcon fontSize="large" style={{transform: 'rotate(180deg)'}}/>
                   </IconButton>
                   <IconButton
                     edge="start"
                     color="inherit"
                     aria-label={this.props.isPlaying ? "Pause" : "Play"}
-                    onClick={this.setPlayPause.bind(this, !this.props.isPlaying)}>
+                    onClick={this.setPlayPause.bind(this, !this.props.isPlaying)}
+                    size="large">
                     {this.props.isPlaying ? <PauseIcon fontSize="large"/> : <PlayArrowIcon fontSize="large"/>}
                   </IconButton>
                   <IconButton
                     edge="start"
                     color="inherit"
                     aria-label="Forward"
-                    onClick={this.historyForward.bind(this)}>
+                    onClick={this.historyForward.bind(this)}
+                    size="large">
                     <ForwardIcon fontSize="large" style={canGoForward ? {} : {color: 'rgba(255, 255, 255, 0.3)', backgroundColor: 'transparent'}}/>
                   </IconButton>
                 </React.Fragment>
@@ -364,7 +400,7 @@ class PlayerBars extends React.Component {
           </Toolbar>
         </AppBar>
 
-        {this.props.hasStarted && !this.props.isEmpty && !this.props.recentPictureGrid && (
+        {this.props.hasStarted && !this.props.isEmpty && !this.props.recentPictureGrid && !this.props.scene.downloadScene && (
           <React.Fragment>
             <div
               className={classes.hoverDrawer}
@@ -384,7 +420,7 @@ class PlayerBars extends React.Component {
                 </Typography>
               </div>
 
-              {!this.props.scene.audioScene && (this.props.mainVideo != null || this.props.overlayVideos.find((a) => a != null) != null) && (
+              {!this.props.scene.audioScene && this._showVideoControls && (
                 <Accordion TransitionProps={{ unmountOnExit: false }}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
@@ -419,9 +455,10 @@ class PlayerBars extends React.Component {
                         sidebar
                         allScenes={this.props.scenes}
                         allSceneGrids={this.props.sceneGrids}
-                        isTagging={this.props.tags != null}
+                        isTagging={this.props.allTags != null}
                         scene={this.props.scene}
-                        onUpdateScene={this.props.onUpdateScene.bind(this)}/>
+                        onUpdateScene={this.props.onUpdateScene.bind(this)}
+                        onGenerate={this.props.onGenerate}/>
                     </AccordionDetails>
                   </Accordion>
 
@@ -577,7 +614,7 @@ class PlayerBars extends React.Component {
           </React.Fragment>
         )}
 
-        {this.props.hasStarted && this.props.allTags && (
+        {!this.props.scene.downloadScene && this.props.hasStarted && this.props.allTags && (
           <React.Fragment>
             <div
               className={classes.hoverTagDrawer}
@@ -593,32 +630,36 @@ class PlayerBars extends React.Component {
               onMouseEnter={this.onMouseEnterTagDrawer.bind(this)}
               onMouseLeave={this.onMouseLeaveTagDrawer.bind(this)}>
               <Grid container alignItems="center">
-                <Grid item xs>
-                  <div className={classes.tagList}>
-                    {this.props.allTags.map((tag) =>
-                      <Card className={clsx(classes.tag, tagNames && tagNames.includes(tag.name) && classes.selectedTag)} key={tag.id}>
-                        <CardActionArea onClick={this.props.toggleTag.bind(this, this.props.scene.libraryID, tag)}>
-                          <CardContent className={classes.tagContent}>
-                            <Typography component="h6" variant="body2">
-                              {tag.name}
-                            </Typography>
-                          </CardContent>
-                        </CardActionArea>
-                      </Card>
+                {this.props.tags != null && (
+                  <React.Fragment>
+                    <Grid item xs>
+                      <div className={classes.tagList}>
+                        {this.props.allTags.map((tag) =>
+                          <Card className={clsx(classes.tag, tagNames && tagNames.includes(tag.name) && classes.selectedTag)} key={tag.id}>
+                            <CardActionArea onClick={this.props.toggleTag.bind(this, this.props.scene.libraryID, tag)}>
+                              <CardContent className={classes.tagContent}>
+                                <Typography component="h6" variant="body2">
+                                  {tag.name}
+                                </Typography>
+                              </CardContent>
+                            </CardActionArea>
+                          </Card>
+                        )}
+                      </div>
+                    </Grid>
+                    {(this.props.inheritTags && (!tagNames || tagNames.length == 0) && this.props.scene.sources[0].clips && this.props.scene.sources[0].clips.find((c) => c.tags && c.tags.length > 0) != null) && (
+                      <Grid item className={classes.tagButtons}>
+                        <Tooltip disableInteractive title="Inherit Clip Tags">
+                          <Fab
+                            color="primary"
+                            size="small"
+                            onClick={this.props.inheritTags.bind(this, this.props.scene.libraryID)}>
+                            <SystemUpdateAltIcon/>
+                          </Fab>
+                        </Tooltip>
+                      </Grid>
                     )}
-                  </div>
-                </Grid>
-                {(this.props.inheritTags && (!tagNames || tagNames.length == 0) && this.props.scene.sources[0].clips && this.props.scene.sources[0].clips.find((c) => c.tags && c.tags.length > 0) != null) && (
-                  <Grid item className={classes.tagButtons}>
-                    <Tooltip title="Inherit Clip Tags">
-                      <Fab
-                        color="primary"
-                        size="small"
-                        onClick={this.props.inheritTags.bind(this, this.props.scene.libraryID)}>
-                        <SystemUpdateAltIcon/>
-                      </Fab>
-                    </Tooltip>
-                  </Grid>
+                  </React.Fragment>
                 )}
                 <Grid item xs={12}>
                   {this.props.scene.sources.length == 1 && getSourceType(this.props.scene.sources[0].url) == ST.video && (
@@ -644,7 +685,11 @@ class PlayerBars extends React.Component {
           <DialogTitle id="blacklist-title">Blacklist File</DialogTitle>
           <DialogContent>
             <DialogContentText id="blacklist-description">
-              Are you sure you want to blacklist <Link className={classes.wordWrap} href="#" onClick={this.openLink.bind(this, this.state.blacklistFile)}>{this.state.blacklistFile}</Link> ?
+              Are you sure you want to blacklist <Link
+              className={classes.wordWrap}
+              href="#"
+              onClick={this.openLink.bind(this, this.state.blacklistFile)}
+              underline="hover">{this.state.blacklistFile}</Link> ?
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -666,7 +711,11 @@ class PlayerBars extends React.Component {
           <DialogContent>
             {this.state.deletePath && (
               <DialogContentText id="delete-description">
-                Are you sure you want to delete <Link className={classes.wordWrap} href="#" onClick={this.openLink.bind(this, this.state.deletePath)}>{this.state.deletePath}</Link>
+                Are you sure you want to delete <Link
+                className={classes.wordWrap}
+                href="#"
+                onClick={this.openLink.bind(this, this.state.deletePath)}
+                underline="hover">{this.state.deletePath}</Link>
               </DialogContentText>
             )}
           </DialogContent>
@@ -701,8 +750,9 @@ class PlayerBars extends React.Component {
 
     window.addEventListener('contextmenu', this.showContextMenu, false);
     window.addEventListener('keydown', this.onKeyDown, false);
-    if (this.props.tags == null) {
-      window.addEventListener('wheel', this.onScroll, false);
+    window.addEventListener('wheel', this.onScroll, false);
+    if (this.props.config.displaySettings.clickToProgress) {
+      window.addEventListener('click', this.onClick, false);
     }
     this.buildMenu();
   }
@@ -719,8 +769,16 @@ class PlayerBars extends React.Component {
     createMainMenu(Menu, createMenuTemplate(app));
     window.removeEventListener('contextmenu', this.showContextMenu);
     window.removeEventListener('keydown', this.onKeyDown);
-    if (this.props.tags == null) {
-      window.removeEventListener('wheel', this.onScroll);
+    window.removeEventListener('wheel', this.onScroll);
+    if (this.props.config.displaySettings.clickToProgress) {
+      window.removeEventListener('click', this.onClick);
+    }
+  }
+
+  onClick = (e: MouseEvent) => {
+    if (this.props.recentPictureGrid || !this.props.onUpdateScene || this.state.drawerHover || this.state.tagDrawerHover || this.state.appBarHover) return;
+    if ((!this.props.isPlaying || this.props.config.displaySettings.clickToProgressWhilePlaying) && this.props.hasStarted) {
+      this.props.imagePlayerAdvanceHacks[0][0].fire();
     }
   }
 
@@ -883,6 +941,7 @@ class PlayerBars extends React.Component {
     const img = this.props.recentPictureGrid ? e.target : this.props.historyPaths[(this.props.historyPaths.length - 1) + this.props.historyOffset];
     const url = img.src;
     let source = img.getAttribute("source");
+    const literalSource = source;
     if (/^https?:\/\//g.exec(source) == null) {
       source = urlToPath(fileURL(source));
     }
@@ -890,7 +949,7 @@ class PlayerBars extends React.Component {
     const path = urlToPath(url);
     const type = getSourceType(source);
     contextMenu.append(new MenuItem({
-      label: source,
+      label: literalSource,
       click: () => { navigator.clipboard.writeText(source); }
     }));
     contextMenu.append(new MenuItem({
@@ -930,7 +989,7 @@ class PlayerBars extends React.Component {
       contextMenu.append(new MenuItem({
         label: 'Blacklist File',
         click: () => {
-          this.onBlacklistFile(source, isFile ? path : url);
+          this.onBlacklistFile(literalSource, isFile ? path : url);
         }
       }));
     }
@@ -953,7 +1012,7 @@ class PlayerBars extends React.Component {
         }
       }));
     }
-    if (!this.props.tags) {
+    if (!this.props.allTags) {
       contextMenu.append(new MenuItem({
         label: 'Goto Tag Source',
         click: () => {
@@ -969,7 +1028,7 @@ class PlayerBars extends React.Component {
         }
       }));
     }
-    if (!this.props.recentPictureGrid) {
+    if (!this.props.recentPictureGrid && !this.props.scene.downloadScene) {
       contextMenu.append(new MenuItem({
         label: 'Recent Picture Grid',
         click: () => {
@@ -995,7 +1054,7 @@ class PlayerBars extends React.Component {
       keyMap.set('onDelete', ['Delete Image', 'Delete']);
     }
 
-    if (!this.props.scene.audioScene && !this.props.scene.scriptScene && this.props.tags != null) {
+    if (!this.props.scene.downloadScene && !this.props.scene.audioScene && !this.props.scene.scriptScene && this.props.allTags != null) {
       keyMap.set('prevSource', ['Previous Source', '[']);
       keyMap.set('nextSource', ['Next Source', ']']);
     }
@@ -1061,13 +1120,13 @@ class PlayerBars extends React.Component {
         }
         break;
       case '[':
-        if (!this.props.scene.audioScene && !this.props.scene.scriptScene && this.props.tags != null) {
+        if (!this.props.scene.downloadScene && !this.props.scene.audioScene && !this.props.scene.scriptScene && this.props.allTags != null) {
           e.preventDefault();
           this.prevSource();
         }
         break;
       case ']':
-        if (!this.props.scene.audioScene && !this.props.scene.scriptScene && this.props.tags != null) {
+        if (!this.props.scene.downloadScene && !this.props.scene.audioScene && !this.props.scene.scriptScene && this.props.allTags != null) {
           e.preventDefault();
           this.nextSource();
         }

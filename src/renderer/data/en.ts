@@ -103,6 +103,7 @@ export default new Map<string, string>([
 
   ['st.tumblr', 'Tumblr'],
   ['st.reddit', 'Reddit'],
+  ['st.redgifs', 'RedGifs'],
   ['st.imagefap', 'ImageFap'],
   ['st.sexcom', 'SexCom'],
   ['st.imgur', 'Imgur'],
@@ -111,6 +112,7 @@ export default new Map<string, string>([
   ['st.instagram', 'Instagram'],
   ['st.danbooru', 'Danbooru'],
   ['st.e621', 'E621'],
+  ['st.luscious', 'Luscious'],
   ['st.gelbooru1', 'Gelbooru'],
   ['st.gelbooru2', 'Gelbooru'],
   ['st.ehentai', 'EHentai'],

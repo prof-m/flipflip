@@ -4,26 +4,52 @@ import * as fs from "fs";
 import {remote} from "electron";
 
 import {
-  AppBar, Backdrop, Badge, Button, Chip, Collapse, Container, createStyles, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, Divider, Drawer, Fab, IconButton, ListItem, ListItemIcon, ListItemSecondaryAction,
-  ListItemText, Menu, MenuItem, Theme, Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  AppBar,
+  Backdrop,
+  Badge,
+  Button,
+  Chip,
+  Collapse,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Fab,
+  IconButton,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import ClearIcon from '@material-ui/icons/Clear';
-import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
-import DescriptionIcon from '@material-ui/icons/Description';
-import FormatListBulletedIcon from '@material-ui/icons/FormatListBulleted';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import HttpIcon from '@material-ui/icons/Http';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
-import MenuIcon from'@material-ui/icons/Menu';
-import SelectAllIcon from '@material-ui/icons/SelectAll';
-import ShuffleIcon from "@material-ui/icons/Shuffle";
-import SortIcon from '@material-ui/icons/Sort';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ClearIcon from '@mui/icons-material/Clear';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import DescriptionIcon from '@mui/icons-material/Description';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import HttpIcon from '@mui/icons-material/Http';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import MenuIcon from'@mui/icons-material/Menu';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import SortIcon from '@mui/icons-material/Sort';
 
 import {AF, MO, SF, SP, SLT} from "../../data/const";
 import {getFilesRecursively, isText} from "../../data/utils";
@@ -125,7 +151,7 @@ const styles = (theme: Theme) => createStyles({
   drawerButton: {
     backgroundColor: theme.palette.primary.main,
     minHeight: theme.spacing(6),
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       paddingLeft: 0,
       paddingRight: 0,
     },
@@ -200,9 +226,10 @@ const styles = (theme: Theme) => createStyles({
   importBadge:{
     top: 'auto',
     right: 30,
-    bottom: 75,
+    bottom: 50,
     left: 'auto',
     position: 'fixed',
+    zIndex: theme.zIndex.fab + 1,
   },
   addButton: {
     backgroundColor: theme.palette.primary.main,
@@ -318,17 +345,18 @@ class ScriptLibrary extends React.Component {
 
     return (
       <div className={classes.root}>
-        <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == SLT.toolbar && clsx(classes.backdropTop, classes.disable))}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == SLT.toolbar && clsx(classes.backdropTop, classes.disable))}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title={this.props.specialMode == SP.select || this.props.specialMode == SP.selectSingle ?
+              <Tooltip disableInteractive title={this.props.specialMode == SP.select || this.props.specialMode == SP.selectSingle ?
                 "Cancel Import" : "Back"} placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
                   className={classes.backButton}
-                  onClick={this.goBack.bind(this)}>
+                  onClick={this.goBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
@@ -382,7 +410,8 @@ class ScriptLibrary extends React.Component {
           <ListItem className={classes.drawerButton}>
             <IconButton
               className={clsx(this.props.tutorial == SLT.sidebar1 && classes.highlight)}
-              onClick={this.onToggleDrawer.bind(this)}>
+              onClick={this.onToggleDrawer.bind(this)}
+              size="large">
               <MenuIcon className={classes.drawerIcon}/>
             </IconButton>
           </ListItem>
@@ -390,7 +419,7 @@ class ScriptLibrary extends React.Component {
           <Divider />
 
           <div className={clsx(this.props.tutorial != null && classes.disable)}>
-            <Tooltip title={this.state.drawerOpen ? "" : "Manage Tags"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Manage Tags"}>
               <ListItem button onClick={this.props.onManageTags.bind(this)}>
                 <ListItemIcon>
                   <LocalOfferIcon />
@@ -406,7 +435,7 @@ class ScriptLibrary extends React.Component {
                 )}
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Batch Tag"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Batch Tag"}>
               <ListItem button onClick={this.onBatchTag.bind(this)}>
                 <ListItemIcon>
                   <FormatListBulletedIcon />
@@ -449,7 +478,7 @@ class ScriptLibrary extends React.Component {
 
         {this.props.specialMode && (
           <React.Fragment>
-            <Tooltip title="Clear"  placement="top-end">
+            <Tooltip disableInteractive title="Clear"  placement="top-end">
               <Fab
                 className={classes.selectNoneButton}
                 onClick={this.onSelectNone.bind(this)}
@@ -457,7 +486,7 @@ class ScriptLibrary extends React.Component {
                 <ClearIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="Select All"  placement="top-end">
+            <Tooltip disableInteractive title="Select All"  placement="top-end">
               <Fab
                 className={classes.selectAllButton}
                 onClick={this.onSelectAll.bind(this)}
@@ -465,9 +494,12 @@ class ScriptLibrary extends React.Component {
                 <SelectAllIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title={this.props.specialMode == SP.batchTag ? "Batch Tag" : "Import"}  placement="top-end">
+            <Tooltip disableInteractive title={this.props.specialMode == SP.batchTag ? "Batch Tag" : "Import"}  placement="top-end">
               <Badge
-                className={classes.importBadge}
+                classes={{
+                  badge: classes.importBadge
+                }}
+                overlap="circular"
                 color="secondary"
                 badgeContent={this.state.selected.length}
                 max={999}>
@@ -492,7 +524,7 @@ class ScriptLibrary extends React.Component {
         {!this.props.specialMode && (
           <React.Fragment>
             {this.props.library.length > 0 && (
-              <Tooltip title={this.state.filters.length == 0 ? "Delete All Sources" : "Delete These Sources"}  placement="left">
+              <Tooltip disableInteractive title={this.state.filters.length == 0 ? "Delete All Sources" : "Delete These Sources"}  placement="left">
                 <Fab
                   className={classes.removeAllButton}
                   onClick={this.onRemoveAll.bind(this)}
@@ -543,7 +575,7 @@ class ScriptLibrary extends React.Component {
                 </React.Fragment>
               )}
             </Dialog>
-            <Tooltip title={this.state.filters.length > 0 ? "" : "Local Script"}  placement="left">
+            <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "Local Script"}  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addLocalButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                 disabled={this.state.filters.length > 0}
@@ -552,7 +584,7 @@ class ScriptLibrary extends React.Component {
                 <DescriptionIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title={this.state.filters.length > 0 ? "" : "URL"}  placement="left">
+            <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "URL"}  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addURLButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                 disabled={this.state.filters.length > 0}
@@ -592,7 +624,6 @@ class ScriptLibrary extends React.Component {
             vertical: 'bottom',
             horizontal: 'right',
           }}
-          getContentAnchorEl={null}
           anchorEl={this.state.menuAnchorEl}
           keepMounted
           classes={{paper: classes.sortMenu}}
@@ -602,10 +633,10 @@ class ScriptLibrary extends React.Component {
             <MenuItem key={sf}>
               <ListItemText primary={en.get(sf)}/>
               <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, true)}>
+                <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, true)} size="large">
                   <ArrowUpwardIcon/>
                 </IconButton>
-                <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, false)}>
+                <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, false)} size="large">
                   <ArrowDownwardIcon/>
                 </IconButton>
               </ListItemSecondaryAction>
@@ -614,7 +645,10 @@ class ScriptLibrary extends React.Component {
           <MenuItem key={SF.random}>
             <ListItemText primary={en.get(SF.random)}/>
             <ListItemSecondaryAction>
-              <IconButton edge="end" onClick={this.props.onSort.bind(this, SF.random, true)}>
+              <IconButton
+                edge="end"
+                onClick={this.props.onSort.bind(this, SF.random, true)}
+                size="large">
                 <ShuffleIcon/>
               </IconButton>
             </ListItemSecondaryAction>

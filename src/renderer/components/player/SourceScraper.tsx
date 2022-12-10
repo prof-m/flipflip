@@ -7,13 +7,13 @@ import fileURL from "file-url";
 import wretch from "wretch";
 import uuidv4 from "uuid/v4";
 
-import {Dialog, DialogContent} from "@material-ui/core";
+import {Dialog, DialogContent} from "@mui/material";
 
-import {CancelablePromise, flatten, getCachePath, randomizeList} from "../../data/utils";
+import {CancelablePromise, flatten, getCachePath, randomizeList, urlToPath} from "../../data/utils";
 import {
   filterPathsToJustPlayable, getFileName, getSourceType, isVideo, loadBDSMlr, loadDanbooru, loadDeviantArt, loadE621,
-  loadEHentai, loadGelbooru1, loadGelbooru2, loadHydrus, loadImageFap, loadImgur, loadInstagram, loadPiwigo, loadReddit,
-  loadRemoteImageURLList, loadSexCom, loadTumblr, loadTwitter, processAllURLs
+  loadEHentai, loadGelbooru1, loadGelbooru2, loadHydrus, loadImageFap, loadImgur, loadInstagram, loadLuscious,
+  loadPiwigo, loadReddit, loadRedGifs, loadRemoteImageURLList, loadSexCom, loadTumblr, loadTwitter, processAllURLs
 } from "./Scrapers";
 import {IF, SOF, ST} from '../../data/const';
 import Config from "../../data/Config";
@@ -85,6 +85,8 @@ function scrapeFiles(worker: any, pm: Function, allURLs: Map<string, Array<strin
       workerFunction = returnPromise ? loadTumblrPromise : worker.loadTumblr;
     } else if (sourceType == ST.reddit) {
       workerFunction = returnPromise ? loadRedditPromise : worker.loadReddit;
+    } else if (sourceType == ST.redgifs) {
+      workerFunction = returnPromise ? loadRedGifsPromise : worker.loadRedGifs;
     } else if (sourceType == ST.imagefap) {
       workerFunction = returnPromise ? loadImageFapPromise : worker.loadImageFap;
     } else if (sourceType == ST.sexcom) {
@@ -101,6 +103,8 @@ function scrapeFiles(worker: any, pm: Function, allURLs: Map<string, Array<strin
       workerFunction = returnPromise ? loadDanbooruPromise : worker.loadDanbooru;
     } else if (sourceType == ST.e621) {
       workerFunction = returnPromise ? loadE621Promise : worker.loadE621;
+    } else if (sourceType == ST.luscious) {
+      workerFunction = returnPromise ? loadLusciousPromise : worker.loadLuscious;
     } else if (sourceType == ST.gelbooru1) {
       workerFunction = returnPromise ? loadGelbooru1Promise : worker.loadGelbooru1;
     } else if (sourceType == ST.gelbooru2) {
@@ -174,26 +178,11 @@ const loadLocalDirectory = (pm: Function, allURLs: Map<string, Array<string>>, c
         timeout: 0,
       }});
     } else {
-      let sources = filterPathsToJustPlayable(filter, rawFiles, true).map((p) => fileURL(p)).sort((a, b) => {
-        let aFile: any = getFileName(a, false);
-        if (parseInt(aFile)) {
-          aFile = parseInt(aFile);
-        }
-        let bFile: any = getFileName(b, false);
-        if (parseInt(aFile)) {
-          aFile = parseInt(aFile);
-        }
-        if (aFile > bFile) {
-          return 1;
-        } else if (aFile < bFile) {
-          return -1;
-        } else {
-          return 0;
-        }
-      });
+      const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+      let sources = filterPathsToJustPlayable(filter, rawFiles, true).map((p) => fileURL(p)).sort(collator.compare);
 
       if (source.blacklist && source.blacklist.length > 0) {
-        sources = sources.filter((url: string) => !source.blacklist.includes(url));
+        sources = sources.filter((url: string) => !source.blacklist.includes(url) && !source.blacklist.includes(urlToPath(url)));
       }
       allURLs = processAllURLs(sources, allURLs, source, weight, helpers);
       // If this is a local source (not a cacheDir call)
@@ -366,6 +355,10 @@ const loadRedditPromise = (allURLs: Map<string, Array<string>>, config: Config, 
   loadReddit(allURLs, config, source, filter, weight, helpers, resolve);
 }
 
+const loadRedGifsPromise = (allURLs: Map<string, Array<string>>, config: Config, source: LibrarySource, filter: string, weight: string, helpers: {next: any, count: number, retries: number, uuid: string}, resolve: Function) => {
+  loadRedGifs(allURLs, config, source, filter, weight, helpers, resolve);
+}
+
 const loadImageFapPromise = (allURLs: Map<string, Array<string>>, config: Config, source: LibrarySource, filter: string, weight: string, helpers: {next: any, count: number, retries: number, uuid: string}, resolve: Function) => {
   loadImageFap(allURLs, config, source, filter, weight, helpers, resolve);
 }
@@ -422,6 +415,10 @@ const loadPiwigoPromise = (allURLs: Map<string, Array<string>>, config: Config, 
   loadPiwigo(allURLs, config, source, filter, weight, helpers, resolve);
 }
 
+const loadLusciousPromise = (allURLs: Map<string, Array<string>>, config: Config, source: LibrarySource, filter: string, weight: string, helpers: {next: any, count: number, retries: number, uuid: string}, resolve: Function) => {
+  loadLuscious(allURLs, config, source, filter, weight, helpers, resolve);
+}
+
 export default class SourceScraper extends React.Component {
   readonly props: {
     config: Config,
@@ -447,6 +444,7 @@ export default class SourceScraper extends React.Component {
     setCount(sourceURL: string, count: number, countComplete: boolean): void,
     cache(i: HTMLImageElement | HTMLVideoElement): void,
     systemMessage(message: string): void,
+    onEndScene?(): void,
     setTimeToNextFrame?(timeToNextFrame: number): void,
     setSceneCopy?(children: React.ReactNode): void,
     playNextScene?(): void,
@@ -459,7 +457,7 @@ export default class SourceScraper extends React.Component {
     videoVolume: this.props.scene.videoVolume,
     captcha: null as any,
     load: false,
-    finishedLoading: null as number,
+    singleImage: null as number,
   };
 
   _isMounted = false;
@@ -499,11 +497,12 @@ export default class SourceScraper extends React.Component {
             deleteHack={this.props.deleteHack}
             strobeLayer={this.props.strobeLayer}
             hasStarted={this.props.hasStarted}
-            finishedLoading={this.state.finishedLoading}
+            singleImage={this.state.singleImage}
             allURLs={isEmpty(Array.from(this.state.allURLs.values())) ? null : this.state.allURLs}
             onLoaded={this.props.firstImageLoaded.bind(this)}
             setVideo={this.props.setVideo}
             cache={this.props.cache}
+            onEndScene={this.props.onEndScene}
             playNextScene={this.props.playNextScene}
             gridCoordinates={this.props.gridCoordinates}
             setSceneCopy={this.props.setSceneCopy}
@@ -622,7 +621,7 @@ export default class SourceScraper extends React.Component {
         }
 
         if (object?.error != null) {
-          console.error("Error retrieving " + object?.source?.url + (object?.helpers?.next > 0 ? "Page " + object.helpers.next : ""));
+          console.error("Error retrieving " + object?.source?.url + (object?.helpers?.next > 0 ? " Page " + object.helpers.next : ""));
           console.error(object.error);
         }
 
@@ -659,7 +658,9 @@ export default class SourceScraper extends React.Component {
             }
           } else {
             const values = flatten(Array.from(newAllURLs.values()));
-            this.setState({finishedLoading: values.length});
+            if (this._promiseQueue.length == 0) {
+              this.setState({singleImage: values.length == 1});
+            }
             this.props.finishedLoading(isEmpty(values));
             promiseLoop();
             if (this.props.nextScene && this.props.playNextScene) {
@@ -690,11 +691,6 @@ export default class SourceScraper extends React.Component {
     let nextSourceLoop = () => {
       if (!this._isMounted) return;
 
-      if (!this.props.isPlaying) {
-        setTimeout(nextSourceLoop, 500);
-        return;
-      }
-
       const d = nextSources[n];
       if (!this.props.nextScene.playVideoClips && d.clips) {
         d.clips = [];
@@ -705,7 +701,7 @@ export default class SourceScraper extends React.Component {
         if (object?.type == "RPC" || (object?.helpers != null && object.helpers.uuid != uuid)) return;
 
         if (object?.error != null) {
-          console.error("Error retrieving " + object?.source?.url + (object?.helpers?.next > 0 ? "Page " + object.helpers.next : ""));
+          console.error("Error retrieving " + object?.source?.url + (object?.helpers?.next > 0 ? " Page " + object.helpers.next : ""));
           console.error(object.error);
         }
 
@@ -765,11 +761,6 @@ export default class SourceScraper extends React.Component {
         return;
       }
 
-      if (!this.props.isPlaying) {
-        setTimeout(promiseLoop, 500);
-        return;
-      }
-
       const receiveMessage = (message: any) => {
         let object = message.data;
         if (object?.type == "RPC" || (object?.helpers != null && object.helpers.uuid != uuid)) return;
@@ -779,7 +770,7 @@ export default class SourceScraper extends React.Component {
         }
 
         if (object?.error != null) {
-          console.error("Error retrieving " + object?.source?.url + (object?.helpers?.next > 0 ? "Page " + object.helpers.next : ""));
+          console.error("Error retrieving " + object?.source?.url + (object?.helpers?.next > 0 ? " Page " + object.helpers.next : ""));
           console.error(object.error);
         }
 
@@ -872,7 +863,7 @@ export default class SourceScraper extends React.Component {
             allURLs: newAllURLs,
             preload: true,
             restart: true,
-            finishedLoading: null,
+            singleImage: null,
           });
         } else { // Replace values
           this._promiseQueue = this._nextPromiseQueue;
@@ -880,7 +871,7 @@ export default class SourceScraper extends React.Component {
             allURLs: this._nextAllURLs,
             preload: true,
             restart: true,
-            finishedLoading: null,
+            singleImage: null,
           });
           this._nextPromiseQueue = Array<{source: LibrarySource, helpers: {next: any, count: number, retries: number, uuid: string}}>();
           this._nextAllURLs = new Map<string, Array<string>>();
@@ -891,7 +882,7 @@ export default class SourceScraper extends React.Component {
           allURLs: new Map<string, Array<string>>(),
           preload: false,
           restart: true,
-          finishedLoading: null,
+          singleImage: null,
         });
       }
     }

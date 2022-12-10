@@ -3,14 +3,14 @@ import {remote} from "electron";
 import rimraf from "rimraf";
 import path from "path";
 
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import RestoreIcon from "@material-ui/icons/Restore";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import RestoreIcon from "@mui/icons-material/Restore";
 
 import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, InputLabel,
   Link, MenuItem, Select, Typography
-} from "@material-ui/core";
+} from "@mui/material";
 
 import {convertFromEpoch, getBackups, saveDir, savePath} from "../renderer/data/utils";
 
@@ -39,14 +39,14 @@ export default class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return(
+      return (
         <Box style={{overflow: "auto", padding: 8, position: "absolute", top: 0, left: 0, bottom: 0, right: 0}} className="Error">
           <Typography component={"h2"} variant={"h2"}>Mistakes were made ಥ﹏ಥ</Typography>
           <Divider/>
           <Typography style={{margin: 10}} component={"h5"} variant={"h5"} color={"error"}>{this.state.error.name}: {this.state.error.message}</Typography>
           <Typography style={{whiteSpace: "pre", marginBottom: 20}} component={"div"} variant={"body2"} color={"error"}>{this.state.info.componentStack.trim().replace(/\s*in (ForwardRef|div)/g, "")}</Typography>
           <Typography component={"h6"} variant={"h6"}>
-            Please consider reporting this bug to our <Link href="#" onClick={this.onSubmitIssue.bind(this)}>GitHub</Link>
+            Please consider reporting this bug to our <Link href="#" onClick={this.onSubmitIssue.bind(this)} underline="hover">GitHub</Link>
           </Typography>
           <Button
             style={{margin: 10}}
@@ -100,9 +100,10 @@ export default class ErrorBoundary extends React.Component {
                       Choose a backup to restore from:
                     </DialogContentText>
                     {this.state.backup && (
-                      <FormControl>
+                      <FormControl variant="standard">
                         <InputLabel>Backups</InputLabel>
                         <Select
+                          variant="standard"
                           value={this.state.backup.url}
                           MenuProps={{
                             PaperProps: {

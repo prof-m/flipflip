@@ -3,19 +3,41 @@ import path from "path";
 import clsx from "clsx";
 
 import {
-  Button, Chip, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl,
-  FormControlLabel, Grid, InputAdornment, InputLabel, MenuItem, Select, Slide, Snackbar, SnackbarContent, Switch,
-  TextField, Theme, Tooltip, withStyles
-} from "@material-ui/core";
+  Alert,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slide,
+  Snackbar,
+  SnackbarContent,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+} from "@mui/material";
 
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import DeleteIcon from '@material-ui/icons/Delete';
-import ErrorIcon from '@material-ui/icons/Error';
-import RestoreIcon from '@material-ui/icons/Restore';
-import SaveIcon from '@material-ui/icons/Save';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ErrorIcon from '@mui/icons-material/Error';
+import RestoreIcon from '@mui/icons-material/Restore';
+import SaveIcon from '@mui/icons-material/Save';
 
 import {convertFromEpoch, getBackups, saveDir} from "../../data/utils";
-import {MO} from "../../data/const";
+import {MO, SS} from "../../data/const";
 import {GeneralSettings} from "../../data/Config";
 
 const styles = (theme: Theme) => createStyles({
@@ -26,7 +48,7 @@ const styles = (theme: Theme) => createStyles({
     paddingTop: theme.spacing(1),
   },
   hideXS: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
   },
@@ -49,6 +71,10 @@ const styles = (theme: Theme) => createStyles({
   }
 });
 
+function TransitionUp(props: any) {
+  return <Slide {...props} direction="up" />;
+}
+
 class BackupCard extends React.Component {
   readonly props: {
     classes: any,
@@ -63,16 +89,15 @@ class BackupCard extends React.Component {
     backups: Array<{url: string, size: number}>(),
     backup: (null as {url: string, size: number}),
     openMenu: null as string,
-    restoreSnack: false,
-    backupSnack: false,
-    cleanSnack: false,
-    errorSnack: null as any,
+    snackbarOpen: false,
+    snackbar: null as string,
+    snackbarSeverity: null as string,
   };
 
   render() {
     const classes = this.props.classes;
     const hasBackup = this.state.backups.length > 0;
-    return(
+    return (
       <React.Fragment>
         <Grid container spacing={2} alignItems="center" justifyContent="center" className={classes.chipGrid}>
           <Grid item xs={"auto"} className={classes.buttonGrid}>
@@ -103,7 +128,7 @@ class BackupCard extends React.Component {
           </Grid>
         </Grid>
         <Grid container spacing={2} alignItems="center" justifyContent="center" className={classes.chipGrid}>
-          <Tooltip title="If enabled, backups will be automatically cleaned up. This algorithm will keep 1 backup for
+          <Tooltip disableInteractive title="If enabled, backups will be automatically cleaned up. This algorithm will keep 1 backup for
            each of the configured periods.">
             <Grid item xs={"auto"} className={classes.buttonGrid}>
               <FormControlLabel
@@ -281,9 +306,10 @@ class BackupCard extends React.Component {
               Choose a backup to restore from:
             </DialogContentText>
             {this.state.backup && (
-              <FormControl>
+              <FormControl variant="standard">
                 <InputLabel>Backups</InputLabel>
                 <Select
+                  variant="standard"
                   value={this.state.backup.url}
                   MenuProps={{
                     PaperProps: {
@@ -310,60 +336,14 @@ class BackupCard extends React.Component {
           </DialogActions>
         </Dialog>
         <Snackbar
-          open={this.state.restoreSnack}
+          open={this.state.snackbarOpen}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           autoHideDuration={5000}
-          onClose={this.onCloseRestoreSnack.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                  <CheckCircleIcon color="secondary" className={classes.snackbarIcon}/>
-                  Restore succes!
-              </span>
-            }
-          />
-        </Snackbar>
-        <Snackbar
-          open={this.state.backupSnack}
-          autoHideDuration={5000}
-          onClose={this.onCloseBackupSnack.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                  <CheckCircleIcon color="primary" className={classes.snackbarIcon}/>
-                  Backup succes!
-              </span>
-            }
-          />
-        </Snackbar>
-        <Snackbar
-          open={this.state.cleanSnack}
-          autoHideDuration={5000}
-          onClose={this.onCloseCleanSnack.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                  <CheckCircleIcon color="inherit" className={classes.snackbarIcon}/>
-                  Clean succes!
-              </span>
-            }
-          />
-        </Snackbar>
-        <Snackbar
-          open={!!this.state.errorSnack}
-          autoHideDuration={10000}
-          onClose={this.onCloseErrorSnack.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                  <ErrorIcon color="error" className={classes.snackbarIcon}/>
-                  Error: {this.state.errorSnack ? this.state.errorSnack.message : ""}
-              </span>
-            }
-          />
+          onClose={this.onCloseDialog.bind(this)}
+          TransitionComponent={TransitionUp}>
+          <Alert onClose={this.onCloseDialog.bind(this)} severity={this.state.snackbarSeverity as any}>
+            {this.state.snackbar}
+          </Alert>
         </Snackbar>
       </React.Fragment>
     );
@@ -385,9 +365,10 @@ class BackupCard extends React.Component {
   onBackup() {
     try {
       this.props.onBackup();
-      this.setState({backupSnack: true});
+      this.setState({snackbarOpen: true, snackbar: "Backup success!", snackbarSeverity: SS.success});
     } catch (e) {
-      this.setState({errorSnack: e});
+      console.error(e);
+      this.setState({snackbarOpen: true, snackbar: "Error: " + e, snackbarSeverity: SS.error});
     }
     this.refreshBackups();
   }
@@ -400,9 +381,10 @@ class BackupCard extends React.Component {
     this.onCloseDialog();
     try {
       this.props.onClean();
-      this.setState({cleanSnack: true});
+      this.setState({snackbarOpen: true, snackbar: "Clean success!", snackbarSeverity: SS.success});
     } catch (e) {
-      this.setState({errorSnack: e});
+      console.error(e);
+      this.setState({snackbarOpen: true, snackbar: "Error: " + e, snackbarSeverity: SS.error});
     }
     this.refreshBackups();
   }
@@ -415,30 +397,15 @@ class BackupCard extends React.Component {
     this.onCloseDialog();
     try {
       this.props.onRestore(saveDir + path.sep + this.state.backup.url);
-      this.setState({restoreSnack: true});
+      this.setState({snackbarOpen: true, snackbar: "Restore success!", snackbarSeverity: SS.success});
     } catch (e) {
-      this.setState({errorSnack: e});
+      console.error(e);
+      this.setState({snackbarOpen: true, snackbar: "Error: " + e, snackbarSeverity: SS.error});
     }
   }
 
-  onCloseRestoreSnack() {
-    this.setState({restoreSnack: false});
-  }
-
-  onCloseBackupSnack() {
-    this.setState({backupSnack: false});
-  }
-
-  onCloseCleanSnack() {
-    this.setState({cleanSnack: false});
-  }
-
-  onCloseErrorSnack() {
-    this.setState({errorSnack: null});
-  }
-
   onCloseDialog() {
-    this.setState({openMenu: null});
+    this.setState({openMenu: null, snackbarOpen: false});
   }
 
   blurIntKey(key: string, e: MouseEvent) {

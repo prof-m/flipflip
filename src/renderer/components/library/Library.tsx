@@ -8,33 +8,63 @@ import {remote} from "electron";
 import wretch from "wretch";
 
 import {
-  AppBar, Backdrop, Badge, Button, Chip, Collapse, Container, createStyles, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, Divider, Drawer, Fab, IconButton, InputAdornment, LinearProgress, ListItem,
-  ListItemIcon, ListItemSecondaryAction, ListItemText, ListSubheader, Menu, MenuItem, SvgIcon, TextField, Theme,
-  Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  AppBar,
+  Backdrop,
+  Badge,
+  Button,
+  Chip,
+  Collapse,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Fab,
+  IconButton,
+  InputAdornment,
+  LinearProgress,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  ListSubheader,
+  Menu,
+  MenuItem,
+  SvgIcon,
+  TextField,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import CancelIcon from '@material-ui/icons/Cancel';
-import ClearIcon from '@material-ui/icons/Clear';
-import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
-import FolderIcon from '@material-ui/icons/Folder';
-import FormatListBulletedIcon from '@material-ui/icons/FormatListBulleted';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import HttpIcon from '@material-ui/icons/Http';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
-import MenuIcon from'@material-ui/icons/Menu';
-import MergeTypeIcon from '@material-ui/icons/MergeType';
-import MovieFilterIcon from '@material-ui/icons/MovieFilter';
-import MovieIcon from '@material-ui/icons/Movie';
-import OfflineBoltIcon from '@material-ui/icons/OfflineBolt';
-import PublishIcon from '@material-ui/icons/Publish';
-import SelectAllIcon from '@material-ui/icons/SelectAll';
-import ShuffleIcon from "@material-ui/icons/Shuffle";
-import SortIcon from '@material-ui/icons/Sort';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CancelIcon from '@mui/icons-material/Cancel';
+import ClearIcon from '@mui/icons-material/Clear';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import FolderIcon from '@mui/icons-material/Folder';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import HttpIcon from '@mui/icons-material/Http';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import MenuIcon from'@mui/icons-material/Menu';
+import MergeTypeIcon from '@mui/icons-material/MergeType';
+import MovieFilterIcon from '@mui/icons-material/MovieFilter';
+import MovieIcon from '@mui/icons-material/Movie';
+import OfflineBoltIcon from '@mui/icons-material/OfflineBolt';
+import PublishIcon from '@mui/icons-material/Publish';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import SortIcon from '@mui/icons-material/Sort';
 
 import {AF, LT, MO, PR, SF, SP, ST} from "../../data/const";
 import {filterSource, getCachePath, getLocalPath} from "../../data/utils";
@@ -142,7 +172,7 @@ const styles = (theme: Theme) => createStyles({
   drawerButton: {
     backgroundColor: theme.palette.primary.main,
     minHeight: theme.spacing(6),
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       paddingLeft: 0,
       paddingRight: 0,
     },
@@ -217,9 +247,10 @@ const styles = (theme: Theme) => createStyles({
   importBadge:{
     top: 'auto',
     right: 30,
-    bottom: 75,
+    bottom: 50,
     left: 'auto',
     position: 'fixed',
+    zIndex: theme.zIndex.fab + 1,
   },
   addButton: {
     backgroundColor: theme.palette.primary.main,
@@ -320,6 +351,7 @@ class Library extends React.Component {
     onBatchTag(): void,
     onClearBlacklist(sourceURL: string): void,
     onClip(source: LibrarySource, displayed: Array<LibrarySource>): void,
+    onDownload(source: LibrarySource): void;
     onEditBlacklist(sourceURL: string, blacklist: string): void,
     onExportLibrary(): void,
     onImportFromLibrary(sources: Array<LibrarySource>): void,
@@ -387,16 +419,17 @@ class Library extends React.Component {
 
     return (
       <div className={classes.root}>
-        <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == LT.toolbar && clsx(classes.backdropTop, classes.disable))}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == LT.toolbar && clsx(classes.backdropTop, classes.disable))}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title={this.props.specialMode == SP.select ? "Cancel Import" : "Back"} placement="right-end">
+              <Tooltip disableInteractive title={this.props.specialMode == SP.select ? "Cancel Import" : "Back"} placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
                   className={classes.backButton}
-                  onClick={this.goBack.bind(this)}>
+                  onClick={this.goBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
@@ -449,7 +482,8 @@ class Library extends React.Component {
           <ListItem className={classes.drawerButton}>
             <IconButton
               className={clsx(this.props.tutorial == LT.sidebar1 && classes.highlight)}
-              onClick={this.onToggleDrawer.bind(this)}>
+              onClick={this.onToggleDrawer.bind(this)}
+              size="large">
               <MenuIcon className={classes.drawerIcon}/>
             </IconButton>
           </ListItem>
@@ -458,7 +492,7 @@ class Library extends React.Component {
 
           <div className={clsx(this.props.tutorial != null && classes.disable)}>
 
-            <Tooltip title={this.state.drawerOpen ? "" : "Manage Tags"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Manage Tags"}>
               <ListItem button onClick={this.props.onManageTags.bind(this)}>
                 <ListItemIcon>
                   <LocalOfferIcon />
@@ -474,7 +508,7 @@ class Library extends React.Component {
                 )}
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Batch Tag"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Batch Tag"}>
               <ListItem button onClick={this.onBatchTag.bind(this)}>
                 <ListItemIcon>
                   <FormatListBulletedIcon />
@@ -482,7 +516,7 @@ class Library extends React.Component {
                 <ListItemText primary="Batch Tag" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Batch Clip"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Batch Clip"}>
               <ListItem button onClick={this.onBatchClip.bind(this)}>
                 <ListItemIcon>
                   <SvgIcon>
@@ -500,7 +534,7 @@ class Library extends React.Component {
                 <ListItemText primary="Batch Clip" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={"Identify local sources which have identical tags"}>
+            <Tooltip disableInteractive title={"Identify local sources which have identical tags"}>
               <ListItem button onClick={this.onFindMerges.bind(this)}>
                 <ListItemIcon>
                   <MergeTypeIcon />
@@ -521,7 +555,7 @@ class Library extends React.Component {
                   </ListSubheader>
                 </Collapse>
                 {tumblrAuthorized && (
-                  <Tooltip title={this.state.drawerOpen ? "" : "Import from Tumblr"}>
+                  <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Import from Tumblr"}>
                     <ListItem button disabled={this.props.progressMode != null} onClick={this.props.onImportTumblr.bind(this)}>
                       <ListItemIcon>
                         <SourceIcon type={ST.tumblr}/>
@@ -531,7 +565,7 @@ class Library extends React.Component {
                   </Tooltip>
                 )}
                 {redditAuthorized && (
-                  <Tooltip title={this.state.drawerOpen ? "" : "Import from Reddit"}>
+                  <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Import from Reddit"}>
                     <ListItem button disabled={this.props.progressMode != null} onClick={this.props.onImportReddit.bind(this)}>
                       <ListItemIcon>
                         <SourceIcon type={ST.reddit}/>
@@ -541,7 +575,7 @@ class Library extends React.Component {
                   </Tooltip>
                 )}
                 {twitterAuthorized && (
-                  <Tooltip title={this.state.drawerOpen ? "" : "Import from Twitter"}>
+                  <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Import from Twitter"}>
                     <ListItem button disabled={this.props.progressMode != null} onClick={this.props.onImportTwitter.bind(this)}>
                       <ListItemIcon>
                         <SourceIcon type={ST.twitter}/>
@@ -551,7 +585,7 @@ class Library extends React.Component {
                   </Tooltip>
                 )}
                 {instagramAuthorized && (
-                  <Tooltip title={this.state.drawerOpen ? "" : "Import from Instagram"}>
+                  <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Import from Instagram"}>
                     <ListItem button disabled={this.props.progressMode != null} onClick={this.props.onImportInstagram.bind(this)}>
                       <ListItemIcon>
                         <SourceIcon type={ST.instagram}/>
@@ -567,7 +601,7 @@ class Library extends React.Component {
           <Divider />
 
           <div className={clsx(this.props.tutorial != null && classes.disable)}>
-            <Tooltip title={"Identify sources which are not accessible"}>
+            <Tooltip disableInteractive title={"Identify sources which are not accessible"}>
               <ListItem button disabled={this.props.progressMode != null} onClick={this.props.onMarkOffline.bind(this)}>
                 <ListItemIcon>
                   <OfflineBoltIcon />
@@ -575,7 +609,7 @@ class Library extends React.Component {
                 <ListItemText primary="Mark Offline" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={"Detect duration and resolution of video sources"}>
+            <Tooltip disableInteractive title={"Detect duration and resolution of video sources"}>
               <ListItem button disabled={this.props.progressMode != null} onClick={this.props.onUpdateVideoMetadata.bind(this)}>
                 <ListItemIcon>
                   <MovieFilterIcon />
@@ -590,7 +624,7 @@ class Library extends React.Component {
               <Divider />
 
               <div>
-                <Tooltip title={this.state.drawerOpen ? "" : cancelProgressMessage}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : cancelProgressMessage}>
                   <ListItem button onClick={this.props.onUpdateMode.bind(this, PR.cancel)}>
                     <ListItemIcon>
                       <CancelIcon color="error"/>
@@ -611,7 +645,7 @@ class Library extends React.Component {
           <div className={classes.fill}/>
 
           <div className={clsx(this.props.tutorial != null && classes.disable)}>
-            <Tooltip title={this.state.drawerOpen ? "" : "Export Library"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Export Library"}>
               <ListItem button onClick={this.props.onExportLibrary.bind(this)}>
                 <ListItemIcon>
                   <PublishIcon />
@@ -619,7 +653,7 @@ class Library extends React.Component {
                 <ListItemText primary="Export Library" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Import Library"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Import Library"}>
               <ListItem button onClick={this.onImportLibrary.bind(this)}>
                 <ListItemIcon>
                   <GetAppIcon />
@@ -647,6 +681,7 @@ class Library extends React.Component {
                 yOffset={this.props.yOffset}
                 onClearBlacklist={this.props.onClearBlacklist.bind(this)}
                 onClip={this.props.onClip.bind(this)}
+                onDownload={this.props.onDownload.bind(this)}
                 onEditBlacklist={this.props.onEditBlacklist.bind(this)}
                 onPlay={this.props.onPlay.bind(this)}
                 onUpdateSelected={this.onUpdateSelected.bind(this)}
@@ -664,7 +699,7 @@ class Library extends React.Component {
 
         {this.props.specialMode && (
           <React.Fragment>
-            <Tooltip title="Clear"  placement="top-end">
+            <Tooltip disableInteractive title="Clear"  placement="top-end">
               <Fab
                 className={classes.selectNoneButton}
                 onClick={this.onSelectNone.bind(this)}
@@ -672,7 +707,7 @@ class Library extends React.Component {
                 <ClearIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="Select All"  placement="top-end">
+            <Tooltip disableInteractive title="Select All"  placement="top-end">
               <Fab
                 className={classes.selectAllButton}
                 onClick={this.onSelectAll.bind(this)}
@@ -680,9 +715,12 @@ class Library extends React.Component {
                 <SelectAllIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title={this.props.specialMode == SP.batchTag ? "Batch Tag" : this.props.specialMode == SP.batchClip ? "Batch Clip" : "Import"}  placement="top-end">
+            <Tooltip disableInteractive title={this.props.specialMode == SP.batchTag ? "Batch Tag" : this.props.specialMode == SP.batchClip ? "Batch Clip" : "Import"}  placement="top-end">
               <Badge
-                className={classes.importBadge}
+                classes={{
+                  badge: classes.importBadge
+                }}
+                overlap="circular"
                 color="secondary"
                 badgeContent={this.state.selected.length}
                 max={999}>
@@ -719,7 +757,7 @@ class Library extends React.Component {
         {!this.props.specialMode && (
           <React.Fragment>
             {this.props.library.length > 0 && (
-              <Tooltip title={this.state.filters.length == 0 ? "Delete All Sources" : "Delete These Sources"}  placement="left">
+              <Tooltip disableInteractive title={this.state.filters.length == 0 ? "Delete All Sources" : "Delete These Sources"}  placement="left">
                 <Fab
                   className={classes.removeAllButton}
                   onClick={this.onRemoveAll.bind(this)}
@@ -739,6 +777,7 @@ class Library extends React.Component {
                   To import a library, enter the URL or open a local file.
                 </DialogContentText>
                 <TextField
+                  variant="standard"
                   label="Import File"
                   fullWidth
                   placeholder="Paste URL Here"
@@ -747,19 +786,17 @@ class Library extends React.Component {
                   InputProps={{
                     endAdornment:
                       <InputAdornment position="end">
-                        <Tooltip title="Open File">
-                          <IconButton
-                            onClick={this.onOpenImportFile.bind(this)}>
+                        <Tooltip disableInteractive title="Open File">
+                          <IconButton onClick={this.onOpenImportFile.bind(this)} size="large">
                             <FolderIcon/>
                           </IconButton>
                         </Tooltip>
                       </InputAdornment>,
                   }}
-                  onChange={this.onChangeImportFile.bind(this)}
-                />
+                  onChange={this.onChangeImportFile.bind(this)} />
               </DialogContent>
               <DialogActions>
-                <Button onClick={this.onCloseDialog.bind(this)} color="default">
+                <Button onClick={this.onCloseDialog.bind(this)}>
                   Cancel
                 </Button>
                 <Button color="primary"
@@ -860,7 +897,7 @@ class Library extends React.Component {
               )}
             </Dialog>
             {piwigoConfigured &&
-              <Tooltip title={this.state.filters.length > 0 ? "" : "Piwigo"}  placement="left">
+              <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "Piwigo"}  placement="left">
                 <Fab
                   className={clsx(classes.addButton, classes.addPiwigoButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                   disabled={this.state.filters.length > 0}
@@ -870,7 +907,7 @@ class Library extends React.Component {
                 </Fab>
               </Tooltip>
             }
-            <Tooltip title={this.state.filters.length > 0 ? "" : "Local Video/Playlist"}  placement="left">
+            <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "Local Video/Playlist"}  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addVideoButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                 disabled={this.state.filters.length > 0}
@@ -879,7 +916,7 @@ class Library extends React.Component {
                 <MovieIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title={this.state.filters.length > 0 ? "" : "Local Directory"}  placement="left">
+            <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "Local Directory"}  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addDirectoryButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                 disabled={this.state.filters.length > 0}
@@ -888,7 +925,7 @@ class Library extends React.Component {
                 <FolderIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title={this.state.filters.length > 0 ? "" : "URL"}  placement="left">
+            <Tooltip disableInteractive title={this.state.filters.length > 0 ? "" : "URL"}  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addURLButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.filters.length > 0 && classes.hidden)}
                 disabled={this.state.filters.length > 0}
@@ -935,7 +972,6 @@ class Library extends React.Component {
             vertical: 'bottom',
             horizontal: 'right',
           }}
-          getContentAnchorEl={null}
           anchorEl={this.state.menuAnchorEl}
           keepMounted
           classes={{paper: classes.sortMenu}}
@@ -945,10 +981,16 @@ class Library extends React.Component {
             <MenuItem key={sf}>
               <ListItemText primary={en.get(sf)}/>
               <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={this.props.onSort.bind(this, null, sf, true)}>
+                <IconButton
+                  edge="end"
+                  onClick={this.props.onSort.bind(this, null, sf, true)}
+                  size="large">
                   <ArrowUpwardIcon/>
                 </IconButton>
-                <IconButton edge="end" onClick={this.props.onSort.bind(this, null, sf, false)}>
+                <IconButton
+                  edge="end"
+                  onClick={this.props.onSort.bind(this, null, sf, false)}
+                  size="large">
                   <ArrowDownwardIcon/>
                 </IconButton>
               </ListItemSecondaryAction>
@@ -957,7 +999,10 @@ class Library extends React.Component {
           <MenuItem key={SF.random}>
             <ListItemText primary={en.get(SF.random)}/>
             <ListItemSecondaryAction>
-              <IconButton edge="end" onClick={this.props.onSort.bind(this, null, SF.random, true)}>
+              <IconButton
+                edge="end"
+                onClick={this.props.onSort.bind(this, null, SF.random, true)}
+                size="large">
                 <ShuffleIcon/>
               </IconButton>
             </ListItemSecondaryAction>

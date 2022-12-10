@@ -6,36 +6,68 @@ import Sortable from "react-sortablejs";
 import fs from "fs";
 
 import {
-  AppBar, Badge, Button, Card, CardActionArea, CardContent, Checkbox, Chip, Container, createStyles, Dialog,
-  DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Drawer, Fab, IconButton,
-  InputAdornment, Link, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, Menu, MenuItem, Tab, Tabs,
-  TextField, Theme, Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  AppBar,
+  Badge,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Checkbox,
+  Chip,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Fab,
+  IconButton,
+  InputAdornment,
+  Link,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Tab,
+  Tabs,
+  TextField,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import CasinoIcon from '@material-ui/icons/Casino';
-import CloseIcon from '@material-ui/icons/Close';
-import CodeIcon from '@material-ui/icons/Code';
-import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
-import DeleteIcon from '@material-ui/icons/Delete';
-import DragHandleIcon from '@material-ui/icons/DragHandle';
-import FolderIcon from "@material-ui/icons/Folder";
-import GetAppIcon from '@material-ui/icons/GetApp';
-import GridOnIcon from '@material-ui/icons/GridOn';
-import HelpIcon from '@material-ui/icons/Help';
-import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import LibraryMusicIcon from '@material-ui/icons/LibraryMusic';
-import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
-import MenuIcon from '@material-ui/icons/Menu';
-import MovieIcon from '@material-ui/icons/Movie';
-import MovieFilterIcon from '@material-ui/icons/MovieFilter';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import SettingsIcon from '@material-ui/icons/Settings';
-import ShuffleIcon from '@material-ui/icons/Shuffle';
-import SortIcon from '@material-ui/icons/Sort';
-import SystemUpdateIcon from '@material-ui/icons/SystemUpdate';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AddIcon from '@mui/icons-material/Add';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CasinoIcon from '@mui/icons-material/Casino';
+import CloseIcon from '@mui/icons-material/Close';
+import CodeIcon from '@mui/icons-material/Code';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DragHandleIcon from '@mui/icons-material/DragHandle';
+import FolderIcon from "@mui/icons-material/Folder";
+import GetAppIcon from '@mui/icons-material/GetApp';
+import GridOnIcon from '@mui/icons-material/GridOn';
+import HelpIcon from '@mui/icons-material/Help';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import MenuIcon from '@mui/icons-material/Menu';
+import MovieIcon from '@mui/icons-material/Movie';
+import MovieFilterIcon from '@mui/icons-material/MovieFilter';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
+import SortIcon from '@mui/icons-material/Sort';
+import SystemUpdateIcon from '@mui/icons-material/SystemUpdate';
 
 import {arrayMove, getRandomListItem} from "../data/utils";
 import {IPC, MO, SF, SG, SPT} from "../data/const";
@@ -63,7 +95,7 @@ const styles = (theme: Theme) => createStyles({
   },
   appBarShift: {
     marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    width: `calc(100% - ${drawerWidth})`,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -96,14 +128,6 @@ const styles = (theme: Theme) => createStyles({
     transition: theme.transitions.create(['opacity', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  titleOut: {
-    marginLeft: -111,
-    opacity: 0,
-    transition: theme.transitions.create(['opacity', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
     }),
   },
   updateIcon: {
@@ -226,7 +250,7 @@ const styles = (theme: Theme) => createStyles({
     backgroundColor: theme.palette.secondary.light,
     margin: 0,
     top: 'auto',
-    right: 130,
+    right: 132,
     bottom: 20,
     left: 'auto',
     position: 'fixed',
@@ -440,31 +464,34 @@ class ScenePicker extends React.Component {
     return (
       <div className={classes.root} onClick={this.onClickCloseMenu.bind(this)}>
 
-        <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == SPT.scenePicker && classes.backdropTop)}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, open && classes.appBarShift, this.props.tutorial == SPT.scenePicker && classes.backdropTop)}>
           <Toolbar>
-            {!open && (
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="Toggle Drawer"
-                className={clsx(this.props.tutorial == SPT.scenePicker && classes.highlight)}
-                onClick={this.onToggleDrawer.bind(this)}>
-                <MenuIcon />
-              </IconButton>
-            )}
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="Toggle Drawer"
+              className={clsx(this.props.tutorial == SPT.scenePicker && classes.highlight)}
+              onClick={this.onToggleDrawer.bind(this)}
+              size="large">
+              <MenuIcon />
+            </IconButton>
             <VSpin>
-              <div className={clsx(classes.logo, open && classes.titleOut)}/>
+              <div className={classes.logo}/>
             </VSpin>
-            <Typography component="h1" variant="h4" color="inherit" noWrap className={clsx(classes.title, open && classes.titleOut)}>
+            <Typography component="h1" variant="h4" color="inherit" noWrap className={classes.title}>
               FlipFlip
             </Typography>
-            <Typography variant="caption" color="inherit" noWrap className={clsx(classes.version, open && classes.titleOut)}>
+            <Typography variant="caption" color="inherit" noWrap className={classes.version}>
               v{this.props.version}
             </Typography>
             <div className={classes.fill}/>
             {this.state.newVersion != "" && (
-              <Tooltip title={`Download ${this.state.newVersion}`}>
-                <IconButton color="inherit" className={classes.updateIcon} onClick={this.openGitRelease.bind(this)}>
+              <Tooltip disableInteractive title={`Download ${this.state.newVersion}`}>
+                <IconButton
+                  color="inherit"
+                  className={classes.updateIcon}
+                  onClick={this.openGitRelease.bind(this)}
+                  size="large">
                   <Badge variant="dot" color="secondary">
                     <SystemUpdateIcon />
                   </Badge>
@@ -490,7 +517,8 @@ class ScenePicker extends React.Component {
               edge="start"
               color="inherit"
               aria-label="Toggle Drawer"
-              onClick={this.onToggleDrawer.bind(this)}>
+              onClick={this.onToggleDrawer.bind(this)}
+              size="large">
               <MenuIcon />
             </IconButton>
             <VSpin>
@@ -530,7 +558,7 @@ class ScenePicker extends React.Component {
               <Divider />
 
               <div>
-                <Tooltip title={this.state.drawerOpen ? "" : "Library"}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Library"}>
                   <ListItem button onClick={this.props.onOpenLibrary.bind(this)}>
                     <ListItemIcon>
                       <LocalLibraryIcon />
@@ -546,7 +574,7 @@ class ScenePicker extends React.Component {
                     )}
                   </ListItem>
                 </Tooltip>
-                <Tooltip title={this.state.drawerOpen ? "" : "Audio Library"}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Audio Library"}>
                   <ListItem button onClick={this.props.onOpenAudioLibrary.bind(this)}>
                     <ListItemIcon>
                       <LibraryMusicIcon/>
@@ -562,7 +590,7 @@ class ScenePicker extends React.Component {
                     )}
                   </ListItem>
                 </Tooltip>
-                <Tooltip title={this.state.drawerOpen ? "" : "Script Library"}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Script Library"}>
                   <ListItem button onClick={this.props.onOpenScriptLibrary.bind(this)}>
                     <ListItemIcon>
                       <LibraryBooksIcon/>
@@ -583,7 +611,7 @@ class ScenePicker extends React.Component {
               <Divider />
 
               <div>
-                <Tooltip title={this.state.drawerOpen ? "" : "Caption Scripter"}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Caption Scripter"}>
                   <ListItem button onClick={this.props.onOpenCaptionScriptor.bind(this)}>
                     <ListItemIcon>
                       <CodeIcon />
@@ -598,7 +626,7 @@ class ScenePicker extends React.Component {
               <div>
                 {this.props.scenes.length > 0 && (
                   <React.Fragment>
-                    <Tooltip title={this.state.drawerOpen ? "" : "New Window"}>
+                    <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "New Window"}>
                       <ListItem button onClick={this.onNewWindow.bind(this)}>
                         <ListItemIcon>
                           <OpenInNewIcon />
@@ -629,7 +657,7 @@ class ScenePicker extends React.Component {
                     </Dialog>
                   </React.Fragment>
                 )}
-                <Tooltip title={this.state.drawerOpen ? "" : "Settings"}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Settings"}>
                   <ListItem button onClick={this.props.onOpenConfig.bind(this)}>
                     <ListItemIcon>
                       <SettingsIcon />
@@ -637,7 +665,7 @@ class ScenePicker extends React.Component {
                     <ListItemText primary="Settings" />
                   </ListItem>
                 </Tooltip>
-                <Tooltip title={this.state.drawerOpen ? "" : "User Manual"}>
+                <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "User Manual"}>
                   <ListItem button onClick={this.openLink.bind(this,"https://ififfy.github.io/flipflip/#/")}>
                     <ListItemIcon>
                       <HelpIcon />
@@ -654,7 +682,13 @@ class ScenePicker extends React.Component {
             <Typography variant="body2" color="inherit" className={classes.drawerText}>
               Questions? Suggestions?
               <br/>
-              Visit us on <Link href="#" onClick={this.openLink.bind(this, "https://github.com/ififfy/flipflip")}>GitHub</Link> or <Link href="#" onClick={this.openLink.bind(this, "https://www.reddit.com/r/flipflip")}>Reddit</Link>
+              Visit us on <Link
+              href="#"
+              onClick={this.openLink.bind(this, "https://github.com/ififfy/flipflip")}
+              underline="hover">GitHub</Link> or <Link
+              href="#"
+              onClick={this.openLink.bind(this, "https://www.reddit.com/r/flipflip")}
+              underline="hover">Reddit</Link>
             </Typography>
           </div>
         </Drawer>
@@ -664,12 +698,7 @@ class ScenePicker extends React.Component {
           <Container maxWidth={false} className={classes.container}>
 
             {this.props.openTab === 0 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.props.openTab !== 0}
-                id="vertical-tabpanel-0"
-                aria-labelledby="vertical-tab-0">
+              <Typography component="div">
                 <Sortable
                   className={classes.sceneList}
                   options={{
@@ -737,14 +766,14 @@ class ScenePicker extends React.Component {
                         {this.state.isEditing == g.id && (
                           <form onSubmit={this.endEditingName.bind(this)} className={clsx(classes.titleField, classes.groupTitle)}>
                             <TextField
+                              variant="standard"
                               autoFocus
                               id="title"
                               value={this.state.isEditingName}
                               margin="none"
                               inputProps={{className: classes.titleInput}}
                               onBlur={this.endEditingName.bind(this)}
-                              onChange={this.onChangeName.bind(this)}
-                            />
+                              onChange={this.onChangeName.bind(this)} />
                           </form>
                         )}
                         {this.state.isEditing != g.id && (
@@ -756,7 +785,8 @@ class ScenePicker extends React.Component {
                         <IconButton
                           color="inherit"
                           aria-label="Delete"
-                          onClick={this.props.onDeleteGroup.bind(this, g)}>
+                          onClick={this.props.onDeleteGroup.bind(this, g)}
+                          size="large">
                           <CloseIcon />
                         </IconButton>
                       </div>
@@ -826,12 +856,7 @@ class ScenePicker extends React.Component {
             )}
 
             {this.props.openTab === 1 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.props.openTab !== 1}
-                id="vertical-tabpanel-1"
-                aria-labelledby="vertical-tab-1">
+              <Typography component="div">
                 <Sortable
                   className={classes.sceneList}
                   options={{
@@ -899,14 +924,14 @@ class ScenePicker extends React.Component {
                         {this.state.isEditing == g.id && (
                           <form onSubmit={this.endEditingName.bind(this)} className={clsx(classes.titleField, classes.groupTitle)}>
                             <TextField
+                              variant="standard"
                               autoFocus
                               id="title"
                               value={this.state.isEditingName}
                               margin="none"
                               inputProps={{className: classes.titleInput}}
                               onBlur={this.endEditingName.bind(this)}
-                              onChange={this.onChangeName.bind(this)}
-                            />
+                              onChange={this.onChangeName.bind(this)} />
                           </form>
                         )}
                         {this.state.isEditing != g.id && (
@@ -918,7 +943,8 @@ class ScenePicker extends React.Component {
                         <IconButton
                           color="inherit"
                           aria-label="Delete"
-                          onClick={this.props.onDeleteGroup.bind(this, g)}>
+                          onClick={this.props.onDeleteGroup.bind(this, g)}
+                          size="large">
                           <CloseIcon />
                         </IconButton>
                       </div>
@@ -988,12 +1014,7 @@ class ScenePicker extends React.Component {
             )}
 
             {this.props.openTab === 2 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.props.openTab !== 2}
-                id="vertical-tabpanel-2"
-                aria-labelledby="vertical-tab-2">
+              <Typography component="div">
                 <Sortable
                   className={classes.sceneList}
                   options={{
@@ -1061,14 +1082,14 @@ class ScenePicker extends React.Component {
                         {this.state.isEditing == g.id && (
                           <form onSubmit={this.endEditingName.bind(this)} className={clsx(classes.titleField, classes.groupTitle)}>
                             <TextField
+                              variant="standard"
                               autoFocus
                               id="title"
                               value={this.state.isEditingName}
                               margin="none"
                               inputProps={{className: classes.titleInput}}
                               onBlur={this.endEditingName.bind(this)}
-                              onChange={this.onChangeName.bind(this)}
-                            />
+                              onChange={this.onChangeName.bind(this)} />
                           </form>
                         )}
                         {this.state.isEditing != g.id && (
@@ -1082,7 +1103,8 @@ class ScenePicker extends React.Component {
                         <IconButton
                           color="inherit"
                           aria-label="Delete"
-                          onClick={this.props.onDeleteGroup.bind(this, g)}>
+                          onClick={this.props.onDeleteGroup.bind(this, g)}
+                          size="large">
                           <CloseIcon />
                         </IconButton>
                       </div>
@@ -1156,7 +1178,7 @@ class ScenePicker extends React.Component {
 
         {this.state.deleteScenes != null && (
           <React.Fragment>
-            <Tooltip title={"Delete Selected Scenes"}>
+            <Tooltip disableInteractive title={"Delete Selected Scenes"}>
               <Fab
                 className={classes.deleteButton}
                 onClick={this.onFinishDelete.bind(this)}
@@ -1164,7 +1186,7 @@ class ScenePicker extends React.Component {
                 <DeleteIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title={"Cancel Delete"}>
+            <Tooltip disableInteractive title={"Cancel Delete"}>
               <Fab
                 className={classes.sortMenuButton}
                 onClick={this.onCancelDelete.bind(this)}
@@ -1180,7 +1202,7 @@ class ScenePicker extends React.Component {
             {this.state.isFirstWindow &&  (
               <React.Fragment>
                 {this.props.scenes.length > 0 && (
-                  <Tooltip title="Delete Scenes"  placement="left">
+                  <Tooltip disableInteractive title="Delete Scenes"  placement="left">
                     <Fab
                       className={clsx(classes.addButton, classes.deleteScenesButton, this.state.openMenu != MO.new && classes.addButtonClose)}
                       onClick={this.onDeleteScenes.bind(this)}
@@ -1189,7 +1211,7 @@ class ScenePicker extends React.Component {
                     </Fab>
                   </Tooltip>
                 )}
-                <Tooltip title="Import Scene"  placement="left">
+                <Tooltip disableInteractive title="Import Scene"  placement="left">
                   <Fab
                     className={clsx(classes.addButton, classes.importSceneButton, this.state.openMenu != MO.new && classes.addButtonClose)}
                     onClick={this.onImportScene.bind(this)}
@@ -1197,7 +1219,7 @@ class ScenePicker extends React.Component {
                     <GetAppIcon className={classes.icon} />
                   </Fab>
                 </Tooltip>
-                <Tooltip title="Add Scene"  placement="left">
+                <Tooltip disableInteractive title="Add Scene"  placement="left">
                   <Fab
                     className={clsx(classes.addButton, classes.addSceneButton, this.state.openMenu != MO.new && classes.addButtonClose, this.props.tutorial == SPT.add2 && clsx(classes.backdropTop, classes.highlight))}
                     onClick={this.onAddScene.bind(this)}
@@ -1205,7 +1227,7 @@ class ScenePicker extends React.Component {
                     <MovieIcon className={classes.icon} />
                   </Fab>
                 </Tooltip>
-                <Tooltip title="Add Scene Generator"  placement="left">
+                <Tooltip disableInteractive title="Add Scene Generator"  placement="left">
                   <span className={classes.generateTooltip} style={!this.props.canGenerate ? { pointerEvents: "none" } : {}}>
                     <Fab
                       className={clsx(classes.addButton, classes.addGeneratorButton, this.state.openMenu != MO.new && classes.addButtonClose)}
@@ -1216,7 +1238,7 @@ class ScenePicker extends React.Component {
                     </Fab>
                   </span>
                 </Tooltip>
-                <Tooltip title="Add Scene Grid"  placement="left">
+                <Tooltip disableInteractive title="Add Scene Grid"  placement="left">
                   <span className={classes.gridTooltip} style={!this.props.canGrid ? { pointerEvents: "none" } : {}}>
                     <Fab
                       className={clsx(classes.addButton, classes.addGridButton, this.state.openMenu != MO.new && classes.addButtonClose)}
@@ -1227,7 +1249,7 @@ class ScenePicker extends React.Component {
                     </Fab>
                   </span>
                 </Tooltip>
-                <Tooltip title="Add Group"  placement="left">
+                <Tooltip disableInteractive title="Add Group"  placement="left">
                   <Fab
                     className={clsx(classes.addButton, classes.addGridButton, this.state.openMenu == MO.new && classes.addButtonClose)}
                     onClick={this.onAddGroup.bind(this)}
@@ -1264,7 +1286,6 @@ class ScenePicker extends React.Component {
                         vertical: 'bottom',
                         horizontal: 'right',
                       }}
-                      getContentAnchorEl={null}
                       anchorEl={this.state.menuAnchorEl}
                       keepMounted
                       classes={{paper: classes.sortMenu}}
@@ -1274,10 +1295,10 @@ class ScenePicker extends React.Component {
                         <MenuItem key={sf}>
                           <ListItemText primary={en.get(sf)}/>
                           <ListItemSecondaryAction>
-                            <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, true)}>
+                            <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, true)} size="large">
                               <ArrowUpwardIcon/>
                             </IconButton>
-                            <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, false)}>
+                            <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, false)} size="large">
                               <ArrowDownwardIcon/>
                             </IconButton>
                           </ListItemSecondaryAction>
@@ -1286,7 +1307,10 @@ class ScenePicker extends React.Component {
                       <MenuItem key={SF.random}>
                         <ListItemText primary={en.get(SF.random)}/>
                         <ListItemSecondaryAction>
-                          <IconButton edge="end" onClick={this.props.onSort.bind(this, SF.random, true)}>
+                          <IconButton
+                            edge="end"
+                            onClick={this.props.onSort.bind(this, SF.random, true)}
+                            size="large">
                             <ShuffleIcon/>
                           </IconButton>
                         </ListItemSecondaryAction>
@@ -1296,7 +1320,7 @@ class ScenePicker extends React.Component {
                 )}
               </React.Fragment>
             )}
-            <Tooltip title="Random Scene">
+            <Tooltip disableInteractive title="Random Scene">
               <Fab
                 className={clsx(classes.randomButton, !this.state.isFirstWindow && classes.extraWindowRandomButton)}
                 onClick={this.onRandomScene.bind(this)}
@@ -1318,6 +1342,7 @@ class ScenePicker extends React.Component {
               To import a scene, enter the URL or open a local file. You can also choose whether or not to import sources into your Library.
             </DialogContentText>
             <TextField
+              variant="standard"
               label="Import File"
               fullWidth
               placeholder="Paste URL Here"
@@ -1326,23 +1351,21 @@ class ScenePicker extends React.Component {
               InputProps={{
                 endAdornment:
                   <InputAdornment position="end">
-                    <Tooltip title="Open File">
-                      <IconButton
-                        onClick={this.onOpenImportFile.bind(this)}>
+                    <Tooltip disableInteractive title="Open File">
+                      <IconButton onClick={this.onOpenImportFile.bind(this)} size="large">
                         <FolderIcon/>
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Import Sources into Library">
+                    <Tooltip disableInteractive title="Import Sources into Library">
                       <Checkbox value={this.state.importSources} onChange={this.onChangeImportSources.bind(this)}
                                 checked={this.state.importSources}/>
                     </Tooltip>
                   </InputAdornment>,
               }}
-              onChange={this.onChangeImportFile.bind(this)}
-            />
+              onChange={this.onChangeImportFile.bind(this)} />
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.onCloseDialog.bind(this)} color="default">
+            <Button onClick={this.onCloseDialog.bind(this)}>
               Cancel
             </Button>
             <Button color="primary"

@@ -1,21 +1,37 @@
 import * as React from "react";
 
-import {Grid, InputAdornment, TextField, Tooltip} from "@material-ui/core";
+import {Grid, InputAdornment, TextField, Theme, Tooltip, Typography} from "@mui/material";
 
 import {DisplaySettings} from "../../data/Config";
+import LibrarySearch from "../library/LibrarySearch";
+import LibrarySource from "../../data/LibrarySource";
+import Tag from "../../data/Tag";
+import {withStyles} from "@mui/styles";
+import createStyles from "@mui/styles/createStyles";
 
-export default class PlayerNumCard extends React.Component {
+const styles = (theme: Theme) => createStyles({
+  grey: {
+    color: theme.palette.text.secondary,
+  }
+});
+
+class PlayerNumCard extends React.Component {
   readonly props: {
+    classes: any,
+    library: Array<LibrarySource>,
+    tags: Array<Tag>,
     settings: DisplaySettings,
     onUpdateSettings(fn: (settings: DisplaySettings) => void): void,
   };
 
   render() {
-    return(
+    const classes = this.props.classes;
+    return (
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12}>
-          <Tooltip title="Images under this size (width or height) will be skipped">
+          <Tooltip disableInteractive title="Images under this size (width or height) will be skipped">
             <TextField
+              variant="standard"
               label="Min Image Size"
               margin="dense"
               value={this.props.settings.minImageSize}
@@ -27,12 +43,13 @@ export default class PlayerNumCard extends React.Component {
               inputProps={{
                 min: 0,
                 type: 'number',
-              }}/>
+              }} />
           </Tooltip>
         </Grid>
         <Grid item xs={12}>
-          <Tooltip title="Videos under this size (width or height) will be skipped">
+          <Tooltip disableInteractive title="Videos under this size (width or height) will be skipped">
             <TextField
+              variant="standard"
               label="Min Video Size"
               margin="dense"
               value={this.props.settings.minVideoSize}
@@ -44,12 +61,13 @@ export default class PlayerNumCard extends React.Component {
               inputProps={{
                 min: 0,
                 type: 'number',
-              }}/>
+              }} />
           </Tooltip>
         </Grid>
         <Grid item xs={12}>
-          <Tooltip title="The maximum number of images/videos to keep in player history. Reduce this number to reduce memory usage and improve performance.">
+          <Tooltip disableInteractive title="The maximum number of images/videos to keep in player history. Reduce this number to reduce memory usage and improve performance.">
             <TextField
+              variant="standard"
               label="Max in History"
               margin="dense"
               value={this.props.settings.maxInHistory}
@@ -58,12 +76,13 @@ export default class PlayerNumCard extends React.Component {
               inputProps={{
                 min: 0,
                 type: 'number',
-              }}/>
+              }} />
           </Tooltip>
         </Grid>
         <Grid item xs={12}>
-          <Tooltip title="The maximum number of images/videos to queue up for rendering. Reduce this number to reduce memory usage and improve performance.">
+          <Tooltip disableInteractive title="The maximum number of images/videos to queue up for rendering. Reduce this number to reduce memory usage and improve performance.">
             <TextField
+              variant="standard"
               label="Max in Memory"
               margin="dense"
               value={this.props.settings.maxInMemory}
@@ -72,12 +91,13 @@ export default class PlayerNumCard extends React.Component {
               inputProps={{
                 min: 0,
                 type: 'number',
-              }}/>
+              }} />
           </Tooltip>
         </Grid>
         <Grid item xs={12}>
-          <Tooltip title="The maximum number of simultaneous images/videos loading. Increase this number to load sources faster. Reduce this number to improve display performance.">
+          <Tooltip disableInteractive title="The maximum number of simultaneous images/videos loading. Increase this number to load sources faster. Reduce this number to improve display performance.">
             <TextField
+              variant="standard"
               label="Max Loading at Once"
               margin="dense"
               value={this.props.settings.maxLoadingAtOnce}
@@ -86,11 +106,32 @@ export default class PlayerNumCard extends React.Component {
               inputProps={{
                 min: 0,
                 type: 'number',
-              }}/>
+              }} />
+          </Tooltip>
+        </Grid>
+        <Grid item xs={12}>
+          <Tooltip disableInteractive placement={"top"} title="The following tags/types will be ignored when using a Scene Generator. This setting overrides any generator rules.">
+            <div>
+              <Typography variant="caption" className={classes.grey}>Ignored Tags/Types</Typography>
+              <LibrarySearch
+                displaySources={this.props.library}
+                filters={this.props.settings.ignoredTags}
+                tags={this.props.tags}
+                isClearable
+                onlyTagsAndTypes
+                showCheckboxes
+                withBrackets
+                hideSelectedOptions={false}
+                onUpdateFilters={this.onSelectTags.bind(this)}/>
+            </div>
           </Tooltip>
         </Grid>
       </Grid>
     );
+  }
+
+  onSelectTags(selectedTags: Array<string>) {
+    this.changeKey('ignoredTags', selectedTags);
   }
 
   blurIntKey(key: string, e: MouseEvent) {
@@ -122,3 +163,4 @@ export default class PlayerNumCard extends React.Component {
 }
 
 (PlayerNumCard as any).displayName="PlayerNumCard";
+export default withStyles(styles)(PlayerNumCard as any);

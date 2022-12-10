@@ -150,6 +150,7 @@ const ST = { // source types
   list: 'st.list',
   tumblr: 'st.tumblr',
   reddit: 'st.reddit',
+  redgifs: 'st.redgifs',
   imagefap: 'st.imagefap',
   sexcom: 'st.sexcom',
   imgur: 'st.imgur',
@@ -158,6 +159,7 @@ const ST = { // source types
   instagram: 'st.instagram',
   danbooru: 'st.danbooru',
   e621: 'st.e621',
+  luscious: 'st.luscious',
   gelbooru1: 'st.gelbooru1',
   gelbooru2: 'st.gelbooru2',
   ehentai: 'st.ehentai',
@@ -233,13 +235,6 @@ const PR = { // Global progress functions
   reddit: 'pr.reddit',
   twitter: 'pr.twitter',
   instagram: 'pr.instagram',
-};
-
-const SB = { // Snackbar variants
-  error: 'sb.error',
-  warning: 'sb.warning',
-  info: 'sb.info',
-  success: 'sb.success',
 };
 
 const IG = { // Instagram modes
@@ -457,6 +452,13 @@ const PWS = { // Piwigo sort types
   sortOptionRandom: 'random',
 }
 
+const SS = { // MUI Snack Severity
+  error: 'error',
+  warning: 'warning',
+  info: 'info',
+  success: 'success',
+}
+
 export {
-  AF, ALT, ASF, BT, CST, DONE, EA, GO, GT, HTF, IF, IG, IPC, IT, LT, MO, OF, OT, PR, PT, PW, PWS, RF, RP, RT, SB, SC, SDGT, SDT, SF, SG, SGT, SL, SLT, STF, SOF, SP, SPT, ST, TF, TT, VCT, VO, VTF, WC, WF
+  AF, ALT, ASF, BT, CST, DONE, EA, GO, GT, HTF, IF, IG, IPC, IT, LT, MO, OF, OT, PR, PT, PW, PWS, RF, RP, RT, SC, SDGT, SDT, SF, SG, SGT, SL, SLT, STF, SOF, SP, SPT, SS, ST, TF, TT, VCT, VO, VTF, WC, WF
 };

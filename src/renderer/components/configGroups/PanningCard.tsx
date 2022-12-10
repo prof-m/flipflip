@@ -2,11 +2,27 @@ import * as React from "react";
 import clsx from "clsx";
 
 import {
-  Collapse, createStyles, Divider, FormControl, FormControlLabel, Grid, InputAdornment, InputLabel,
-  MenuItem, Select, Slider, Switch, TextField, Theme, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Collapse,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 import {EA, HTF, TF, VTF} from "../../data/const";
 import {SceneSettings} from "../../data/Config";
@@ -77,7 +93,7 @@ class PanningCard extends React.Component {
 
     const playlists = (this.props.scene.audioPlaylists as {audios: Audio[], shuffle: boolean, repeat: string}[]);
     const hasBPM = !!playlists && playlists.length && playlists[0].audios.length && playlists[0].audios[0].bpm;
-    return(
+    return (
       <Grid container spacing={this.props.scene.panning ? 2 : 0} alignItems="center" className={clsx(this.props.tutorial != null && classes.disable)}>
         <Grid item xs={12}>
           <FormControlLabel
@@ -96,9 +112,10 @@ class PanningCard extends React.Component {
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={!this.props.sidebar && this.props.scene.panHorizTransType != HTF.none ? 5 : 12}>
               <Collapse in={this.props.scene.panning} className={clsx(classes.fullWidth, classes.paddingLeft)}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Move Horizontally</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.panHorizTransType}
                     onChange={this.onInput.bind(this, 'panHorizTransType')}>
                     {Object.values(HTF).map((tf) => {
@@ -153,6 +170,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={3} className={classes.percentInput}>
                     <TextField
+                      variant="standard"
                       value={horizTransLevel}
                       margin="dense"
                       onChange={this.onIntInput.bind(this, 'panHorizTransLevel')}
@@ -174,7 +192,7 @@ class PanningCard extends React.Component {
               <Collapse in={this.props.scene.panning && !this.props.scene.panHorizTransImg && this.props.scene.panHorizTransType != HTF.none && this.props.scene.panHorizTransRandom} className={classes.fullWidth}>
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <Typography id="horiz-trans-min-slider">
+                    <Typography>
                       Min: {horizTransLevelMin}%
                     </Typography>
                     <Slider
@@ -185,7 +203,7 @@ class PanningCard extends React.Component {
                       aria-labelledby="horiz-trans-min-slider"/>
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <Typography id="horiz-trans-max-slider">
+                    <Typography>
                       Max: {horizTransLevelMax}%
                     </Typography>
                     <Slider
@@ -209,9 +227,10 @@ class PanningCard extends React.Component {
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={!this.props.sidebar && this.props.scene.panVertTransType != VTF.none ? 5 : 12}>
               <Collapse in={this.props.scene.panning} className={clsx(classes.fullWidth, classes.paddingLeft)}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Move Vertically</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.panVertTransType}
                     onChange={this.onInput.bind(this, 'panVertTransType')}>
                     {Object.values(VTF).map((tf) => {
@@ -266,6 +285,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={3} className={classes.percentInput}>
                     <TextField
+                      variant="standard"
                       value={vertTransLevel}
                       margin="dense"
                       onChange={this.onIntInput.bind(this, 'panVertTransLevel')}
@@ -287,7 +307,7 @@ class PanningCard extends React.Component {
               <Collapse in={this.props.scene.panning && !this.props.scene.panVertTransImg && this.props.scene.panVertTransType != VTF.none && this.props.scene.panVertTransRandom} className={classes.fullWidth}>
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <Typography id="vert-trans-min-slider">
+                    <Typography>
                       Min: {vertTransLevelMin}%
                     </Typography>
                     <Slider
@@ -298,7 +318,7 @@ class PanningCard extends React.Component {
                       aria-labelledby="vert-trans-min-slider"/>
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <Typography id="vert-trans-max-slider">
+                    <Typography>
                       Max: {vertTransLevelMax}%
                     </Typography>
                     <Slider
@@ -322,15 +342,16 @@ class PanningCard extends React.Component {
           <Collapse in={this.props.scene.panning} className={classes.fullWidth}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} style={{paddingTop: 10}}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Timing</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.panTF}
                     onChange={this.onInput.bind(this, 'panTF')}>
                     {Object.values(TF).map((tf) => {
                       if (tf == TF.bpm) {
                         return <MenuItem key={tf} value={tf}>
-                          {en.get(tf)} {!hasBPM && <Tooltip title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
+                          {en.get(tf)} {!hasBPM && <Tooltip disableInteractive title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
                         </MenuItem>
                       } else {
                         return <MenuItem key={tf} value={tf}>{en.get(tf)}</MenuItem>
@@ -341,7 +362,7 @@ class PanningCard extends React.Component {
               </Grid>
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 8}>
                 <Collapse in={this.props.scene.panning && this.props.scene.panTF == TF.sin} className={classes.fullWidth}>
-                  <Typography id="pan-sin-rate-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     Wave Rate
                   </Typography>
                   <Grid container alignItems="center">
@@ -356,6 +377,7 @@ class PanningCard extends React.Component {
                     </Grid>
                     <Grid item xs={3} className={classes.percentInput}>
                       <TextField
+                        variant="standard"
                         value={panSinRate}
                         onChange={this.onIntInput.bind(this, 'panSinRate')}
                         onBlur={this.blurIntKey.bind(this, 'panSinRate')}
@@ -366,12 +388,12 @@ class PanningCard extends React.Component {
                           max: 100,
                           type: 'number',
                           'aria-labelledby': 'pan-sin-rate-slider',
-                        }}/>
+                        }} />
                     </Grid>
                   </Grid>
                 </Collapse>
                 <Collapse in={this.props.scene.panning && this.props.scene.panTF == TF.bpm} className={classes.fullWidth}>
-                  <Typography id="pan-bpm-multi-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     BPM Multiplier {this.props.scene.panBPMMulti / 10}x
                   </Typography>
                   <Slider
@@ -455,9 +477,10 @@ class PanningCard extends React.Component {
               <Collapse in={this.props.scene.panning} className={classes.fullWidth}>
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <FormControl className={classes.fullWidth}>
+                    <FormControl variant="standard" className={classes.fullWidth}>
                       <InputLabel>Start Easing</InputLabel>
                       <Select
+                        variant="standard"
                         value={this.props.scene.panStartEase}
                         onChange={this.onInput.bind(this, 'panStartEase')}>
                         {Object.values(EA).map((rf) =>
@@ -468,7 +491,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.panStartEase == EA.polyIn || this.props.scene.panStartEase == EA.polyOut || this.props.scene.panStartEase == EA.polyInOut} className={classes.fullWidth}>
-                      <Typography id="start-exp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Exponent: {this.props.scene.panStartExp / 2}
                       </Typography>
                       <Slider
@@ -481,7 +504,7 @@ class PanningCard extends React.Component {
                         aria-labelledby="start-exp-slider"/>
                     </Collapse>
                     <Collapse in={this.props.scene.panStartEase == EA.backIn || this.props.scene.panStartEase == EA.backOut || this.props.scene.panStartEase == EA.backInOut} className={classes.fullWidth}>
-                      <Typography id="start-ov-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Overshoot: {this.props.scene.panStartOv / 2}
                       </Typography>
                       <Slider
@@ -496,7 +519,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.panStartEase == EA.elasticIn || this.props.scene.panStartEase == EA.elasticOut || this.props.scene.panStartEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="start-amp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Amplitude: {this.props.scene.panStartAmp / 20}
                       </Typography>
                       <Slider
@@ -511,7 +534,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.panStartEase == EA.elasticIn || this.props.scene.panStartEase == EA.elasticOut || this.props.scene.panStartEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="start-per-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Period: {this.props.scene.panStartPer / 20}
                       </Typography>
                       <Slider
@@ -525,9 +548,10 @@ class PanningCard extends React.Component {
                     </Collapse>
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <FormControl className={classes.fullWidth}>
+                    <FormControl variant="standard" className={classes.fullWidth}>
                       <InputLabel>End Easing</InputLabel>
                       <Select
+                        variant="standard"
                         value={this.props.scene.panEndEase}
                         onChange={this.onInput.bind(this, 'panEndEase')}>
                         {Object.values(EA).map((rf) =>
@@ -538,7 +562,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.panEndEase == EA.polyIn || this.props.scene.panEndEase == EA.polyOut || this.props.scene.panEndEase == EA.polyInOut} className={classes.fullWidth}>
-                    <Typography id="end-exp-slider" variant="caption" component="div" color="textSecondary">
+                    <Typography variant="caption" component="div" color="textSecondary">
                         Exponent: {this.props.scene.panEndExp / 2}
                       </Typography>
                       <Slider
@@ -551,7 +575,7 @@ class PanningCard extends React.Component {
                         aria-labelledby="end-exp-slider"/>
                     </Collapse>
                     <Collapse in={this.props.scene.panEndEase == EA.backIn || this.props.scene.panEndEase == EA.backOut || this.props.scene.panEndEase == EA.backInOut} className={classes.fullWidth}>
-                    <Typography id="end-ov-slider" variant="caption" component="div" color="textSecondary">
+                    <Typography variant="caption" component="div" color="textSecondary">
                         Overshoot: {this.props.scene.panEndOv / 2}
                       </Typography>
                       <Slider
@@ -566,7 +590,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.panEndEase == EA.elasticIn || this.props.scene.panEndEase == EA.elasticOut || this.props.scene.panEndEase == EA.elasticInOut} className={classes.fullWidth}>
-                    <Typography id="end-amp-slider" variant="caption" component="div" color="textSecondary">
+                    <Typography variant="caption" component="div" color="textSecondary">
                         Amplitude: {this.props.scene.panEndAmp / 20}
                       </Typography>
                       <Slider
@@ -581,7 +605,7 @@ class PanningCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.panEndEase == EA.elasticIn || this.props.scene.panEndEase == EA.elasticOut || this.props.scene.panEndEase == EA.elasticInOut} className={classes.fullWidth}>
-                    <Typography id="end-per-slider" variant="caption" component="div" color="textSecondary">
+                    <Typography variant="caption" component="div" color="textSecondary">
                         Period: {this.props.scene.panEndPer / 20}
                       </Typography>
                       <Slider

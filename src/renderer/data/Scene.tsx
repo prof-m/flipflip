@@ -12,6 +12,7 @@ export default class Scene {
   id: number = 0;
   name: string = "Unnamed scene";
   sources: Array<LibrarySource> = [];
+  useWeights = false;
 
   timingFunction = TF.constant;
   timingConstant = 1000;
@@ -199,13 +200,15 @@ export default class Scene {
   panEndPer = 6;
   panEndOv = 3;
 
+  overrideIgnore = false;
   gridScene = false;
   scriptScene = false;
+  downloadScene = false;
   generatorMax = 100;
   overlayEnabled = false;
   overlays: Array<Overlay> = [];
   nextSceneID: number = 0;
-  nextSceneTime: number = 900;
+  nextSceneTime: number = 900000;
   nextSceneAllImages = false;
   persistAudio = false;
   persistText = false;
@@ -282,7 +285,7 @@ export default class Scene {
       this.transDuration = this.effectLevel * 1000;
       this.effectLevel = 0;
     }
-    if (this.overlaySceneID != 0) {
+    if (!!this.overlaySceneID && this.overlaySceneID != 0) {
       this.overlays.push(new Overlay({sceneID: this.overlaySceneID, opacity: this.overlaySceneOpacity * 100}));
       this.overlaySceneID = 0;
     }

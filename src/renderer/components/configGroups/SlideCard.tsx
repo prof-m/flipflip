@@ -2,11 +2,27 @@ import * as React from "react";
 import clsx from "clsx";
 
 import {
-  Collapse, createStyles, Divider, FormControl, FormControlLabel, Grid, InputAdornment, InputLabel,
-  MenuItem, Select, Slider, Switch, TextField, Theme, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Collapse,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 import {EA, STF, TF} from "../../data/const";
 import {SceneSettings} from "../../data/Config";
@@ -67,7 +83,7 @@ class SlideCard extends React.Component {
 
     const playlists = (this.props.scene.audioPlaylists as {audios: Audio[], shuffle: boolean, repeat: string}[]);
     const hasBPM = !!playlists && playlists.length && playlists[0].audios.length && playlists[0].audios[0].bpm;
-    return(
+    return (
       <Grid container spacing={this.props.scene.slide ? 2 : 0} alignItems="center" className={clsx(this.props.tutorial != null && classes.disable)}>
         <Grid item xs={12}>
           <FormControlLabel
@@ -86,9 +102,10 @@ class SlideCard extends React.Component {
           <Collapse in={this.props.scene.slide} className={classes.fullWidth}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} style={{paddingTop: 10}}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Direction</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.slideType}
                     onChange={this.onInput.bind(this, 'slideType')}>
                     {Object.values(STF).map((tf) =>
@@ -98,7 +115,7 @@ class SlideCard extends React.Component {
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 8}>
-                <Typography id="slide-distance-slider" variant="caption" component="div" color="textSecondary">
+                <Typography variant="caption" component="div" color="textSecondary">
                   Distance: {slideDistance}%
                 </Typography>
                 <Slider
@@ -110,15 +127,16 @@ class SlideCard extends React.Component {
                   aria-labelledby="slide-distance-slider"/>
               </Grid>
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 4}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Timing</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.slideTF}
                     onChange={this.onInput.bind(this, 'slideTF')}>
                     {Object.values(TF).map((tf) => {
                       if (tf == TF.bpm) {
                         return <MenuItem key={tf} value={tf}>
-                          {en.get(tf)} {!hasBPM && <Tooltip title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
+                          {en.get(tf)} {!hasBPM && <Tooltip disableInteractive title={"Missing audio with BPM"}><ErrorOutlineIcon color={'error'} className={classes.noBPM}/></Tooltip>}
                         </MenuItem>
                       } else {
                         return <MenuItem key={tf} value={tf}>{en.get(tf)}</MenuItem>
@@ -129,7 +147,7 @@ class SlideCard extends React.Component {
               </Grid>
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 8}>
                 <Collapse in={this.props.scene.slideTF == TF.sin} className={classes.fullWidth}>
-                  <Typography id="slide-sin-rate-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     Wave Rate
                   </Typography>
                   <Grid container alignItems="center">
@@ -144,6 +162,7 @@ class SlideCard extends React.Component {
                     </Grid>
                     <Grid item xs={3} className={classes.percentInput}>
                       <TextField
+                        variant="standard"
                         value={slideSinRate}
                         onChange={this.onIntInput.bind(this, 'slideSinRate')}
                         onBlur={this.blurIntKey.bind(this, 'slideSinRate')}
@@ -154,12 +173,12 @@ class SlideCard extends React.Component {
                           max: 100,
                           type: 'number',
                           'aria-labelledby': 'slide-sin-rate-slider',
-                        }}/>
+                        }} />
                     </Grid>
                   </Grid>
                 </Collapse>
                 <Collapse in={this.props.scene.slideTF == TF.bpm} className={classes.fullWidth}>
-                  <Typography id="slide-bpm-multi-slider" variant="caption" component="div" color="textSecondary">
+                  <Typography variant="caption" component="div" color="textSecondary">
                     BPM Multiplier {this.props.scene.slideBPMMulti / 10}x
                   </Typography>
                   <Slider
@@ -243,9 +262,10 @@ class SlideCard extends React.Component {
               <Collapse in={this.props.scene.slide} className={classes.fullWidth}>
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-                    <FormControl className={classes.fullWidth}>
+                    <FormControl variant="standard" className={classes.fullWidth}>
                       <InputLabel>Easing</InputLabel>
                       <Select
+                        variant="standard"
                         value={this.props.scene.slideEase}
                         onChange={this.onInput.bind(this, 'slideEase')}>
                         {Object.values(EA).map((rf) =>
@@ -256,7 +276,7 @@ class SlideCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.slideEase == EA.polyIn || this.props.scene.slideEase == EA.polyOut || this.props.scene.slideEase == EA.polyInOut} className={classes.fullWidth}>
-                      <Typography id="exp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Exponent: {this.props.scene.slideExp / 2}
                       </Typography>
                       <Slider
@@ -269,7 +289,7 @@ class SlideCard extends React.Component {
                         aria-labelledby="exp-slider"/>
                     </Collapse>
                     <Collapse in={this.props.scene.slideEase == EA.backIn || this.props.scene.slideEase == EA.backOut || this.props.scene.slideEase == EA.backInOut} className={classes.fullWidth}>
-                      <Typography id="ov-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Overshoot: {this.props.scene.slideOv / 2}
                       </Typography>
                       <Slider
@@ -284,7 +304,7 @@ class SlideCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.slideEase == EA.elasticIn || this.props.scene.slideEase == EA.elasticOut || this.props.scene.slideEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="amp-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Amplitude: {this.props.scene.slideAmp / 20}
                       </Typography>
                       <Slider
@@ -299,7 +319,7 @@ class SlideCard extends React.Component {
                   </Grid>
                   <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
                     <Collapse in={this.props.scene.slideEase == EA.elasticIn || this.props.scene.slideEase == EA.elasticOut || this.props.scene.slideEase == EA.elasticInOut} className={classes.fullWidth}>
-                      <Typography id="per-slider" variant="caption" component="div" color="textSecondary">
+                      <Typography variant="caption" component="div" color="textSecondary">
                         Period: {this.props.scene.slidePer / 20}
                       </Typography>
                       <Slider

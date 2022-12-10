@@ -2,13 +2,33 @@ import * as React from "react";
 import clsx from "clsx";
 
 import {
-  Collapse, createStyles, Divider, FormControl, FormControlLabel, FormLabel, Grid, InputAdornment,
-  InputLabel, MenuItem, Radio, RadioGroup, Select, Slider, Switch, TextField, Theme, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Collapse,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Slider,
+  Switch,
+  TextField,
+  Theme,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
 
-import VolumeDownIcon from '@material-ui/icons/VolumeDown';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+
+import VolumeDownIcon from '@mui/icons-material/VolumeDown';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
 import {GO, IF, OF, OT, SDT, SOF, VO, WF} from "../../data/const";
 import {SceneSettings} from "../../data/Config";
@@ -71,7 +91,7 @@ class ImageVideoCard extends React.Component {
     const skipVideoEnd = typeof this.props.scene.skipVideoEnd === 'number' ? this.props.scene.skipVideoEnd : 0;
     const videoVolume = typeof this.props.scene.videoVolume === 'number' ? this.props.scene.videoVolume : 0;
     const disableWeightOptions = !this.props.isConfig && (this.props.scene.sources.length == 0 || (this.props.scene.sources.length == 1 && !this.props.scene.sources[0].dirOfSources));
-    return(
+    return (
       <Grid container alignItems="center">
         {!this.props.isPlayer && (
           <Grid container spacing={2} alignItems="center" className={clsx(classes.gutterBottom, this.props.tutorial == SDT.imageOptions && classes.highlight)}>
@@ -79,7 +99,7 @@ class ImageVideoCard extends React.Component {
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
-                    <Tooltip title={"When enabled, this scene will be automatically regenerated with each playback (even if used as an overlay for another scene)"}>
+                    <Tooltip disableInteractive title={"When enabled, this scene will be automatically regenerated with each playback (even if used as an overlay for another scene)"}>
                       <Switch checked={this.props.scene.regenerate}
                               onChange={this.onBoolInput.bind(this, 'regenerate')}/>
                     </Tooltip>
@@ -88,9 +108,10 @@ class ImageVideoCard extends React.Component {
               </Grid>
             )}
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 6}>
-              <FormControl className={classes.fullWidth}>
+              <FormControl variant="standard" className={classes.fullWidth}>
                 <InputLabel>Image Filter</InputLabel>
                 <Select
+                  variant="standard"
                   value={this.props.scene.imageTypeFilter}
                   onChange={this.onInput.bind(this, 'imageTypeFilter')}>
                   {Object.values(IF).map((tf) =>
@@ -103,7 +124,7 @@ class ImageVideoCard extends React.Component {
               <Collapse in={this.props.scene.weightFunction == WF.sources}>
                 <FormControlLabel
                   control={
-                    <Tooltip title={"Play all images in a source before proceeding to the next one"}>
+                    <Tooltip disableInteractive title={"Play all images in a source before proceeding to the next one"}>
                       <Switch checked={this.props.scene.fullSource}
                               onChange={this.onBoolInput.bind(this, 'fullSource')}/>
                     </Tooltip>
@@ -113,9 +134,10 @@ class ImageVideoCard extends React.Component {
             </Grid>
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 6} className={clsx(this.props.scene.imageTypeFilter == IF.videos && classes.noPadding)}>
               <Collapse in={this.props.scene.imageTypeFilter != IF.videos}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>Image Orientation</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.imageOrientation}
                     onChange={this.onInput.bind(this, 'imageOrientation')}>
                     {Object.values(OT).map((tf) =>
@@ -129,9 +151,10 @@ class ImageVideoCard extends React.Component {
             </Grid>
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 6} className={clsx((this.props.scene.imageTypeFilter == IF.stills || this.props.scene.imageTypeFilter == IF.videos) && classes.noPadding)}>
               <Collapse in={this.props.scene.imageTypeFilter != IF.stills && this.props.scene.imageTypeFilter != IF.videos}>
-                <FormControl className={classes.fullWidth}>
+                <FormControl variant="standard" className={classes.fullWidth}>
                   <InputLabel>GIF Options</InputLabel>
                   <Select
+                    variant="standard"
                     value={this.props.scene.gifOption}
                     onChange={this.onInput.bind(this, 'gifOption')}>
                     {Object.values(GO).map((go) =>
@@ -197,9 +220,10 @@ class ImageVideoCard extends React.Component {
         <Grid container spacing={2} alignItems="center" className={clsx(this.props.tutorial == SDT.videoOptions && classes.highlight)}>
           <Grid item xs={12} sm={this.props.sidebar ? 12 : 6} className={clsx((this.props.scene.imageTypeFilter == IF.stills || this.props.scene.imageTypeFilter == IF.images) && classes.noPadding)}>
             <Collapse in={this.props.scene.imageTypeFilter != IF.stills && this.props.scene.imageTypeFilter != IF.images}>
-              <FormControl className={classes.fullWidth}>
+              <FormControl variant="standard" className={classes.fullWidth}>
                 <InputLabel>Video Options</InputLabel>
                 <Select
+                  variant="standard"
                   value={this.props.scene.videoOption}
                   onChange={this.onInput.bind(this, 'videoOption')}>
                   {Object.values(VO).map((vo) =>
@@ -264,9 +288,10 @@ class ImageVideoCard extends React.Component {
             <React.Fragment>
               <Grid item xs={12} sm={this.props.sidebar ? 12 : 6} className={clsx((this.props.scene.imageTypeFilter == IF.stills || this.props.scene.imageTypeFilter == IF.images) && classes.noPadding)}>
                 <Collapse in={this.props.scene.imageTypeFilter != IF.stills && this.props.scene.imageTypeFilter != IF.images}>
-                  <FormControl className={classes.fullWidth}>
+                  <FormControl variant="standard" className={classes.fullWidth}>
                     <InputLabel>Video Orientation</InputLabel>
                     <Select
+                      variant="standard"
                       value={this.props.scene.videoOrientation}
                       onChange={this.onInput.bind(this, 'videoOrientation')}>
                       {Object.values(OT).map((tf) =>
@@ -282,7 +307,7 @@ class ImageVideoCard extends React.Component {
           )}
           <Grid item xs={12} sm={this.props.sidebar ? 12 : 8} className={clsx((this.props.scene.imageTypeFilter == IF.stills || this.props.scene.imageTypeFilter == IF.images) && classes.noPadding)}>
             <Collapse in={this.props.scene.imageTypeFilter != IF.stills && this.props.scene.imageTypeFilter != IF.images && !this.props.scene.videoRandomSpeed}>
-              <Typography id="video-speed-slider" variant="caption" component="div"
+              <Typography variant="caption" component="div"
                           color="textSecondary">
                 Video Speed {this.props.scene.videoSpeed / 10}x
               </Typography>
@@ -298,7 +323,7 @@ class ImageVideoCard extends React.Component {
             <Collapse in={this.props.scene.imageTypeFilter != IF.stills && this.props.scene.imageTypeFilter != IF.images && this.props.scene.videoRandomSpeed}>
               <Grid container spacing={1}>
                 <Grid item xs={6}>
-                  <Typography id="video-speed-min-slider" variant="caption" component="div"
+                  <Typography variant="caption" component="div"
                               color="textSecondary">
                     Video Speed Min {this.props.scene.videoSpeedMin / 10}x
                   </Typography>
@@ -312,7 +337,7 @@ class ImageVideoCard extends React.Component {
                     aria-labelledby="video-speed-min-slider"/>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography id="video-speed-max-slider" variant="caption" component="div"
+                  <Typography variant="caption" component="div"
                               color="textSecondary">
                     Video Speed Max {this.props.scene.videoSpeedMax / 10}x
                   </Typography>
@@ -354,7 +379,7 @@ class ImageVideoCard extends React.Component {
             <Collapse in={this.props.scene.imageTypeFilter != IF.stills && this.props.scene.imageTypeFilter != IF.images}>
               <FormControlLabel
                 control={
-                  <Tooltip title={"Each time a video is played, continue from where it left off. Default: Start from beginning"}>
+                  <Tooltip disableInteractive title={"Each time a video is played, continue from where it left off. Default: Start from beginning"}>
                     <Switch checked={this.props.scene.continueVideo}
                             size="small"
                             onChange={this.onBoolInput.bind(this, 'continueVideo')}/>
@@ -440,7 +465,7 @@ class ImageVideoCard extends React.Component {
         <Grid container spacing={2} alignItems="center">
           {!this.props.isPlayer && (
             <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} className={clsx(this.props.tutorial == SDT.weighting && classes.highlight)}>
-              <FormControl component="fieldset">
+              <FormControl variant="standard" component="fieldset">
                 <FormLabel component="legend">Weighting</FormLabel>
                 <RadioGroup
                   value={this.props.scene.weightFunction}
@@ -458,7 +483,7 @@ class ImageVideoCard extends React.Component {
             </Grid>
           )}
           <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} className={clsx(this.props.tutorial == SDT.sordering && classes.highlight)}>
-            <FormControl component="fieldset">
+            <FormControl variant="standard" component="fieldset">
               <FormLabel component="legend">Source Ordering</FormLabel>
               <RadioGroup
                 value={this.props.scene.sourceOrderFunction}
@@ -484,7 +509,7 @@ class ImageVideoCard extends React.Component {
             </Collapse>
           </Grid>
           <Grid item xs={12} sm={this.props.sidebar ? 12 : 4} className={clsx(this.props.tutorial == SDT.ordering && classes.highlight)}>
-            <FormControl component="fieldset">
+            <FormControl variant="standard" component="fieldset">
               <FormLabel component="legend">Image Ordering</FormLabel>
               <RadioGroup
                 value={this.props.scene.orderFunction}

@@ -2,42 +2,74 @@ import * as React from "react";
 import clsx from "clsx";
 
 import {
-  AppBar, Backdrop, Badge, Box, Button, Collapse, Container, createStyles, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, Divider, Drawer, Fab, IconButton, ListItem, ListItemIcon, ListItemSecondaryAction,
-  ListItemText, Menu, MenuItem, Slide, Snackbar, SnackbarContent, SvgIcon, Tab, Tabs, TextField, Theme, Toolbar,
-  Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  Alert,
+  AppBar,
+  Backdrop,
+  Badge,
+  Box,
+  Button,
+  Collapse,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  Fab,
+  IconButton,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Slide,
+  Snackbar,
+  SvgIcon,
+  Tab,
+  Tabs,
+  TextField,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import AudiotrackIcon from '@material-ui/icons/Audiotrack';
-import BuildIcon from '@material-ui/icons/Build';
-import CachedIcon from '@material-ui/icons/Cached';
-import CheckIcon from "@material-ui/icons/CheckCircle";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import CollectionsIcon from '@material-ui/icons/Collections';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
-import FolderIcon from '@material-ui/icons/Folder';
-import HttpIcon from '@material-ui/icons/Http';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
-import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
-import MenuIcon from'@material-ui/icons/Menu';
-import MovieIcon from '@material-ui/icons/Movie';
-import PhotoFilterIcon from '@material-ui/icons/PhotoFilter';
-import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
-import PublishIcon from '@material-ui/icons/Publish';
-import RestoreIcon from "@material-ui/icons/Restore";
-import SaveIcon from '@material-ui/icons/Save';
-import ShuffleIcon from "@material-ui/icons/Shuffle";
-import SortIcon from '@material-ui/icons/Sort';
-import WarningIcon from '@material-ui/icons/Warning';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 
-import {AF, MO, SB, SDGT, SDT, SF, ST, TT} from "../../data/const";
+import AddIcon from '@mui/icons-material/Add';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
+import BuildIcon from '@mui/icons-material/Build';
+import CachedIcon from '@mui/icons-material/Cached';
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CollectionsIcon from '@mui/icons-material/Collections';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import FilterListOffIcon from '@mui/icons-material/FilterListOff';
+import FolderIcon from '@mui/icons-material/Folder';
+import HttpIcon from '@mui/icons-material/Http';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import MenuIcon from'@mui/icons-material/Menu';
+import MovieIcon from '@mui/icons-material/Movie';
+import PhotoFilterIcon from '@mui/icons-material/PhotoFilter';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import PublishIcon from '@mui/icons-material/Publish';
+import RestoreIcon from "@mui/icons-material/Restore";
+import SaveIcon from '@mui/icons-material/Save';
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import SortIcon from '@mui/icons-material/Sort';
+
+import {AF, MO, SDGT, SDT, SF, SS, ST, TT, WF} from "../../data/const";
 import en from "../../data/en";
 import Config from "../../data/Config";
 import LibrarySource from "../../data/LibrarySource";
@@ -203,10 +235,28 @@ const styles = (theme: Theme) => createStyles({
     backgroundColor: theme.palette.error.main,
     margin: 0,
     top: 'auto',
+    right: 190,
+    bottom: 20,
+    left: 'auto',
+    position: 'fixed',
+  },
+  overrideOn: {
+    backgroundColor: theme.palette.primary.dark,
+  },
+  overrideOff: {
+    backgroundColor: theme.palette.secondary.dark,
+  },
+  overrideIgnoreWGButton: {
+    margin: 0,
+    top: 'auto',
     right: 135,
     bottom: 20,
     left: 'auto',
     position: 'fixed',
+    transition: theme.transitions.create('height', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
   generateTooltip: {
     top: 'auto',
@@ -223,6 +273,16 @@ const styles = (theme: Theme) => createStyles({
     margin: 0,
     top: 'auto',
     right: 20,
+    bottom: 20,
+    left: 'auto',
+    position: 'fixed',
+  },
+  weightButton: {
+    backgroundColor: theme.palette.secondary.dark,
+    color: theme.palette.secondary.contrastText,
+    margin: 0,
+    top: 'auto',
+    right: 135,
     bottom: 20,
     left: 'auto',
     position: 'fixed',
@@ -279,6 +339,14 @@ const styles = (theme: Theme) => createStyles({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
+  importBadge:{
+    top: 'auto',
+    right: 30,
+    bottom: 50,
+    left: 'auto',
+    position: 'fixed',
+    zIndex: theme.zIndex.fab + 1,
+},
   icon: {
     color: theme.palette.primary.contrastText,
   },
@@ -305,15 +373,6 @@ const styles = (theme: Theme) => createStyles({
     height: '100%',
     width: '100%',
   },
-  snackbarIcon: {
-    fontSize: 20,
-    opacity: 0.9,
-    marginRight: theme.spacing(1),
-  },
-  snackbarMessage: {
-    display: 'flex',
-    alignItems: 'center',
-  },
   backdropTop: {
     zIndex: `${theme.zIndex.modal + 1} !important` as any,
   },
@@ -339,6 +398,10 @@ const styles = (theme: Theme) => createStyles({
   }
 });
 
+function TransitionUp(props: any) {
+  return <Slide {...props} direction="up" />;
+}
+
 class SceneDetail extends React.Component {
   readonly props: {
     classes: any,
@@ -358,9 +421,10 @@ class SceneDetail extends React.Component {
     onClip(source: LibrarySource, displayed: Array<LibrarySource>): void,
     onCloneScene(scene: Scene): void,
     onDelete(scene: Scene): void,
+    onDownload(source: LibrarySource): void;
     onEditBlacklist(sourceURL: string, blacklist: string): void,
     onExport(scene: Scene): void,
-    onGenerate(scenes: Array<Scene>): void,
+    onGenerate(scene: Scene | SceneGrid, children?: boolean, force?: boolean): void,
     onPlayScene(scene: Scene): void,
     onPlay(source: LibrarySource, displayed: Array<LibrarySource>): void,
     onPlayAudio(source: Audio, displayed: Array<Audio>): void,
@@ -378,8 +442,9 @@ class SceneDetail extends React.Component {
     drawerOpen: false,
     menuAnchorEl: null as any,
     openMenu: null as string,
+    snackbarOpen: false,
     snackbar: null as string,
-    snackbarType: null as string,
+    snackbarSeverity: null as string,
     sceneEffects: "",
     confirmCopy: false,
     displaySources: Array<LibrarySource>(),
@@ -394,14 +459,15 @@ class SceneDetail extends React.Component {
     return (
       <div className={classes.root}>
 
-        <AppBar position="absolute" className={clsx(classes.appBar, (this.props.tutorial == SDT.title || this.props.tutorial == SDT.play) && classes.backdropTop)}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, (this.props.tutorial == SDT.title || this.props.tutorial == SDT.play) && classes.backdropTop)}>
           <Toolbar>
-            <Tooltip title="Back" placement="right-end">
+            <Tooltip disableInteractive title="Back" placement="right-end">
               <IconButton
                 edge="start"
                 color="inherit"
                 aria-label="Back"
-                onClick={this.props.goBack.bind(this)}>
+                onClick={this.props.goBack.bind(this)}
+                size="large">
                 <ArrowBackIcon />
               </IconButton>
             </Tooltip>
@@ -409,6 +475,7 @@ class SceneDetail extends React.Component {
             {this.state.isEditingName != null && (
               <form onSubmit={this.endEditingName.bind(this)} className={classes.titleField}>
                 <TextField
+                  variant="standard"
                   autoFocus
                   fullWidth
                   id="title"
@@ -416,15 +483,15 @@ class SceneDetail extends React.Component {
                   margin="none"
                   inputProps={{className: classes.titleInput}}
                   onBlur={this.endEditingName.bind(this)}
-                  onChange={this.onChangeName.bind(this)}
-                />
+                  onChange={this.onChangeName.bind(this)} />
               </form>
             )}
             {this.state.isEditingName == null && (
               <React.Fragment>
                 <div className={classes.fill}/>
                 <Typography component="h1" variant="h4" color="inherit" noWrap
-                            className={clsx(classes.title, this.props.scene.name.length == 0 && classes.noTitle, this.props.tutorial == SDT.title && classes.highlight)} onClick={this.beginEditingName.bind(this)}>
+                            className={clsx(classes.title, this.props.scene.name.length == 0 && classes.noTitle, this.props.tutorial == SDT.title && classes.highlight)}
+                            onClick={this.beginEditingName.bind(this)}>
                   {this.props.scene.name}
                 </Typography>
                 <div className={classes.fill}/>
@@ -467,7 +534,7 @@ class SceneDetail extends React.Component {
           </div>
 
           <ListItem className={classes.drawerButton}>
-            <IconButton onClick={this.onToggleDrawer.bind(this)}>
+            <IconButton onClick={this.onToggleDrawer.bind(this)} size="large">
               <MenuIcon className={classes.drawerIcon}/>
             </IconButton>
           </ListItem>
@@ -516,7 +583,7 @@ class SceneDetail extends React.Component {
                 <ListItemText primary="Save as Scene" />
               </ListItem>
             )}
-            <Tooltip title={this.state.drawerOpen ? "" : `Clone ${this.props.scene.generatorWeights ? 'Generator' : 'Scene'}`}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : `Clone ${this.props.scene.generatorWeights ? 'Generator' : 'Scene'}`}>
               <ListItem button onClick={this.props.onCloneScene.bind(this, this.props.scene)} className={clsx((this.props.tutorial == SDT.options1 || this.props.tutorial == SDT.effects1) && classes.disable)}>
                 <ListItemIcon>
                   <FileCopyIcon />
@@ -524,7 +591,7 @@ class SceneDetail extends React.Component {
                 <ListItemText primary={`Clone ${this.props.scene.generatorWeights ? 'Generator' : 'Scene'}`} />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Scene Effects Import/Export"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Scene Effects Import/Export"}>
               <ListItem button onClick={this.onOpenSceneEffectsMenu.bind(this)} className={clsx((this.props.tutorial == SDT.options1 || this.props.tutorial == SDT.effects1) && classes.disable)}>
                 <ListItemIcon>
                   <SvgIcon viewBox="0 0 488.472 488.472">
@@ -537,7 +604,7 @@ class SceneDetail extends React.Component {
                 <ListItemText primary="Export Scene Effects" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Export Scene"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Export Scene"}>
               <ListItem button onClick={this.props.onExport.bind(this, this.props.scene)} className={clsx((this.props.tutorial == SDT.options1 || this.props.tutorial == SDT.effects1) && classes.disable)}>
                 <ListItemIcon>
                   <PublishIcon />
@@ -545,7 +612,7 @@ class SceneDetail extends React.Component {
                 <ListItemText primary="Export Scene" />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Restore Defaults"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Restore Defaults"}>
               <ListItem button onClick={this.props.onResetScene.bind(this, this.props.scene)} className={clsx((this.props.tutorial == SDT.options1 || this.props.tutorial == SDT.effects1) && classes.disable)}>
                 <ListItemIcon>
                   <RestoreIcon/>
@@ -553,7 +620,7 @@ class SceneDetail extends React.Component {
                 <ListItemText primary={"Restore Defaults"} />
               </ListItem>
             </Tooltip>
-            <Tooltip title={this.state.drawerOpen ? "" : "Delete Scene"}>
+            <Tooltip disableInteractive title={this.state.drawerOpen ? "" : "Delete Scene"}>
               <ListItem button onClick={this.onDeleteScene.bind(this, this.props.scene)}
                         className={clsx(classes.deleteItem, (this.props.tutorial == SDT.options1 || this.props.tutorial == SDT.effects1) && classes.disable)}>
                 <ListItemIcon>
@@ -591,12 +658,7 @@ class SceneDetail extends React.Component {
           <Container maxWidth={false} className={classes.container}>
 
             {this.props.scene.openTab === 0 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.props.scene.openTab !== 0}
-                id="vertical-tabpanel-0"
-                aria-labelledby="vertical-tab-0">
+              <Typography component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -612,12 +674,7 @@ class SceneDetail extends React.Component {
             )}
 
             {this.props.scene.openTab === 1 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.props.scene.openTab !== 1}
-                id="vertical-tabpanel-1"
-                aria-labelledby="vertical-tab-1">
+              <Typography component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -632,12 +689,7 @@ class SceneDetail extends React.Component {
             )}
 
             {this.props.scene.openTab === 2 && (
-              <Typography
-                component="div"
-                role="tabpanel"
-                hidden={this.props.scene.openTab !== 2}
-                id="vertical-tabpanel-2"
-                aria-labelledby="vertical-tab-2">
+              <Typography component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={2} className={classes.fill}>
@@ -657,11 +709,7 @@ class SceneDetail extends React.Component {
             {this.props.scene.openTab === 3 && (
               <Typography
                 className={clsx(this.props.scene.openTab === 3 && classes.sourcesSection)}
-                component="div"
-                role="tabpanel"
-                hidden={this.props.scene.openTab !== 3}
-                id="vertical-tabpanel-3"
-                aria-labelledby="vertical-tab-3">
+                component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box className={classes.fill}>
@@ -670,8 +718,10 @@ class SceneDetail extends React.Component {
                       library={this.props.library}
                       sources={this.state.displaySources}
                       tutorial={this.props.tutorial == SDGT.final ? null : this.props.tutorial}
+                      useWeights={this.props.scene.weightFunction == WF.sources && this.props.scene.useWeights}
                       onClearBlacklist={this.props.onClearBlacklist.bind(this)}
                       onClip={this.props.onClip.bind(this)}
+                      onDownload={this.props.onDownload.bind(this)}
                       onEditBlacklist={this.props.onEditBlacklist.bind(this)}
                       onPlay={this.props.onPlay.bind(this)}
                       onUpdateScene={this.update.bind(this)}
@@ -684,11 +734,7 @@ class SceneDetail extends React.Component {
             {this.props.scene.generatorWeights && this.props.scene.openTab === 4 && (
               <Typography
                 className={clsx(this.props.scene.openTab === 4 && classes.generateSection)}
-                component="div"
-                role="tabpanel"
-                hidden={this.props.scene.openTab !== 4}
-                id="vertical-tabpanel-4"
-                aria-labelledby="vertical-tab-4">
+                component="div">
                 <div className={classes.tabPanel}>
                   <div className={classes.drawerSpacer}/>
                   <Box p={1} className={classes.fill}>
@@ -720,6 +766,7 @@ class SceneDetail extends React.Component {
           <DialogTitle id="effects-all-title">Scene Effects Import/Export</DialogTitle>
           <DialogContent>
             <TextField
+              variant="standard"
               fullWidth
               multiline
               label="Scene Effects Hash"
@@ -728,8 +775,7 @@ class SceneDetail extends React.Component {
               value={this.state.sceneEffects}
               margin="dense"
               inputProps={{className: classes.phraseInput}}
-              onChange={this.onChangeSceneEffects.bind(this)}
-            />
+              onChange={this.onChangeSceneEffects.bind(this)} />
           </DialogContent>
           <DialogActions>
             <Button onClick={this.onCopySceneEffects.bind(this)} color="secondary">
@@ -745,7 +791,7 @@ class SceneDetail extends React.Component {
         {this.props.scene.openTab == 3 && (
           <React.Fragment>
             {this.props.scene.sources.length > 0 && (
-              <Tooltip title={this.state.filters.length == 0 ? "Remove All Sources" : "Remove These Sources"}  placement="left">
+              <Tooltip disableInteractive title={this.state.filters.length == 0 ? "Remove All Sources" : "Remove These Sources"}  placement="left">
                 <Fab
                   className={clsx(classes.addButton, !piwigoConfigured && classes.removeAllButton, piwigoConfigured && classes.removeAllButtonAlt, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.props.tutorial && classes.disable)}
                   onClick={this.onRemoveAll.bind(this)}
@@ -797,7 +843,7 @@ class SceneDetail extends React.Component {
               )}
             </Dialog>
             {piwigoConfigured &&
-              <Tooltip title="From Piwigo"  placement="left">
+              <Tooltip disableInteractive title="From Piwigo"  placement="left">
                 <Fab
                   className={clsx(classes.addButton, classes.piwigoImportButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.props.tutorial && classes.disable)}
                   onClick={this.onOpenPiwigoMenu.bind(this)}
@@ -806,7 +852,7 @@ class SceneDetail extends React.Component {
                 </Fab>
               </Tooltip>
             }
-            <Tooltip title="From Library"  placement="left">
+            <Tooltip disableInteractive title="From Library"  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.libraryImportButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.props.tutorial && classes.disable)}
                 onClick={this.onAddSource.bind(this, AF.library)}
@@ -814,7 +860,7 @@ class SceneDetail extends React.Component {
                 <LocalLibraryIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="Local Video/Playlist"  placement="left">
+            <Tooltip disableInteractive title="Local Video/Playlist"  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addVideoButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.props.tutorial && classes.disable)}
                 onClick={this.onAddSource.bind(this, AF.videos)}
@@ -822,7 +868,7 @@ class SceneDetail extends React.Component {
                 <MovieIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="Local Directory"  placement="left">
+            <Tooltip disableInteractive title="Local Directory"  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addDirectoryButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.props.tutorial && classes.disable)}
                 onClick={this.onAddSource.bind(this, AF.directory)}
@@ -830,7 +876,7 @@ class SceneDetail extends React.Component {
                 <FolderIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="URL"  placement="left">
+            <Tooltip disableInteractive title="URL"  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addURLButton, this.state.openMenu != MO.new && classes.addButtonClose, this.state.openMenu == MO.new && classes.backdropTop, this.state.openMenu != MO.new && classes.addButtonClose, this.props.tutorial == SDT.add2 && classes.highlight)}
                 onClick={this.onAddSource.bind(this, AF.url)}
@@ -860,6 +906,25 @@ class SceneDetail extends React.Component {
 
             {this.props.scene.sources.length >= 2 && (
               <React.Fragment>
+                {this.props.scene.weightFunction == WF.sources && (
+                  <Fab
+                    className={classes.weightButton}
+                    onClick={this.onToggleWeight.bind(this)}
+                    size="medium">
+                    <SvgIcon viewBox="0 0 489.183 489.183" fontSize="small">
+                      <path d="M487.106,259.27c-2.808-4.906-8.032-7.918-13.678-7.918h-3.219L411.005,56.795c-4.736-15.562-20.915-24.607-36.652-20.492
+                              l-104.48,27.322V30.391c0-13.967-11.317-25.284-25.283-25.284c-13.966,0-25.283,11.317-25.283,25.284V76.9l-111.262,28.928
+                              c-13.496,3.509-24.215,13.759-28.349,27.077C62.657,187.792,18.954,329.07,18.954,329.07h-3.203c-5.653,0-10.864,3.029-13.67,7.926
+                              c-2.807,4.905-2.774,10.938,0.09,15.801c19.045,32.304,54.188,53.99,94.409,53.99c40.22,0,75.354-21.679,94.399-53.99
+                              c2.871-4.864,2.913-10.904,0.106-15.81c-2.806-4.905-8.033-7.917-13.679-7.917h-3.217l-61.611-198.008l106.728-28.022V433.51
+                              h-75.848c-13.966,0-25.283,11.316-25.283,25.283c0,13.966,11.317,25.282,25.283,25.282h202.263
+                              c13.966,0,25.283-11.316,25.283-25.282c0-13.967-11.317-25.283-25.283-25.283h-75.849V89.763l103.881-27.267l-58.78,188.856h-3.202
+                              c-5.654,0-10.864,3.029-13.671,7.925c-2.806,4.905-2.772,10.938,0.092,15.803c19.043,32.303,54.186,53.989,94.406,53.989
+                              s75.355-21.678,94.398-53.989C489.872,270.216,489.913,264.176,487.106,259.27z M147.714,329.07H45.439l51.142-164.339
+                              L147.714,329.07z M341.458,251.353l51.142-164.338l51.134,164.338H341.458z"/>
+                    </SvgIcon>
+                  </Fab>
+                )}
                 <Fab
                   className={classes.sortMenuButton}
                   aria-haspopup="true"
@@ -880,7 +945,6 @@ class SceneDetail extends React.Component {
                     vertical: 'bottom',
                     horizontal: 'right',
                   }}
-                  getContentAnchorEl={null}
                   anchorEl={this.state.menuAnchorEl}
                   keepMounted
                   classes={{paper: classes.sortMenu}}
@@ -890,10 +954,16 @@ class SceneDetail extends React.Component {
                     <MenuItem key={sf}>
                       <ListItemText primary={en.get(sf)}/>
                       <ListItemSecondaryAction>
-                        <IconButton edge="end" onClick={this.props.onSort.bind(this, this.props.scene, sf, true)}>
+                        <IconButton
+                          edge="end"
+                          onClick={this.props.onSort.bind(this, this.props.scene, sf, true)}
+                          size="large">
                           <ArrowUpwardIcon/>
                         </IconButton>
-                        <IconButton edge="end" onClick={this.props.onSort.bind(this, this.props.scene, sf, false)}>
+                        <IconButton
+                          edge="end"
+                          onClick={this.props.onSort.bind(this, this.props.scene, sf, false)}
+                          size="large">
                           <ArrowDownwardIcon/>
                         </IconButton>
                       </ListItemSecondaryAction>
@@ -902,7 +972,10 @@ class SceneDetail extends React.Component {
                   <MenuItem key={SF.random}>
                     <ListItemText primary={en.get(SF.random)}/>
                     <ListItemSecondaryAction>
-                      <IconButton edge="end" onClick={this.props.onSort.bind(this, this.props.scene, SF.random, true)}>
+                      <IconButton
+                        edge="end"
+                        onClick={this.props.onSort.bind(this, this.props.scene, SF.random, true)}
+                        size="large">
                         <ShuffleIcon/>
                       </IconButton>
                     </ListItemSecondaryAction>
@@ -917,7 +990,7 @@ class SceneDetail extends React.Component {
           <React.Fragment>
             {this.props.scene.generatorWeights.length > 0 && (
               <React.Fragment>
-                <Tooltip title="Remove All Rules" placement="top-end">
+                <Tooltip disableInteractive title="Remove All Rules" placement="top-end">
                   <Fab
                     className={classes.removeAllWGButton}
                     onClick={this.onRemoveAll.bind(this)}
@@ -947,7 +1020,16 @@ class SceneDetail extends React.Component {
                 </Dialog>
               </React.Fragment>
             )}
-            <Tooltip title="Max" placement="top">
+            <Tooltip disableInteractive title={this.props.scene.overrideIgnore ? "Overriding globally ignored tags/types" : "Respecting globally ignored tags/types"} placement="top-end">
+              <Fab
+                className={clsx(classes.overrideIgnoreWGButton, this.props.scene.overrideIgnore && classes.overrideOn, !this.props.scene.overrideIgnore && classes.overrideOff)}
+                onClick={this.onToggleOverrideIgnore.bind(this)}
+                size="medium">
+                {this.props.scene.overrideIgnore && <FilterListOffIcon className={classes.icon} />}
+                {!this.props.scene.overrideIgnore && <FilterListIcon className={classes.icon} />}
+              </Fab>
+            </Tooltip>
+            <Tooltip disableInteractive title="Max" placement="top">
               <Fab
                 className={clsx(classes.sortMenuButton, this.props.tutorial == SDGT.buttons && clsx(classes.backdropTop, classes.disable))}
                 onClick={this.onOpenMaxMenu.bind(this)}
@@ -966,13 +1048,13 @@ class SceneDetail extends React.Component {
                 vertical: 'bottom',
                 horizontal: 'right',
               }}
-              getContentAnchorEl={null}
               anchorEl={this.state.menuAnchorEl}
               keepMounted
               classes={{paper: classes.maxMenu}}
               open={this.state.openMenu == MO.max}
               onClose={this.onCloseDialog.bind(this)}>
               <TextField
+                variant="standard"
                 label="Max"
                 margin="dense"
                 value={this.props.scene.generatorMax}
@@ -981,9 +1063,9 @@ class SceneDetail extends React.Component {
                 inputProps={{
                   min: 1,
                   type: 'number',
-                }}/>
+                }} />
             </Menu>
-            <Tooltip title="Adv Rule"  placement="left">
+            <Tooltip disableInteractive title="Adv Rule"  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addDirectoryButton, this.props.tutorial == SDGT.buttons && clsx(classes.backdropTop, classes.disable))}
                 onClick={this.onAddAdvRule.bind(this)}
@@ -991,7 +1073,7 @@ class SceneDetail extends React.Component {
                 <AddCircleOutlineIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="Simple Rule"  placement="left">
+            <Tooltip disableInteractive title="Simple Rule"  placement="left">
               <Fab
                 className={clsx(classes.addButton, classes.addURLButton, this.props.tutorial == SDGT.buttons && clsx(classes.backdropTop, classes.highlight))}
                 onClick={this.onOpenTagMenu.bind(this)}
@@ -999,7 +1081,7 @@ class SceneDetail extends React.Component {
                 <AddIcon className={classes.icon} />
               </Fab>
             </Tooltip>
-            <Tooltip title="Generate Sources" placement="top-end">
+            <Tooltip disableInteractive title="Generate Sources" placement="top-end">
               <span className={clsx(classes.generateTooltip, this.props.tutorial == SDGT.buttons && clsx(classes.backdropTop, classes.disable), this.props.tutorial == SDGT.generate && classes.backdropTop)}
                     style={!areWeightsValid(this.props.scene) ? { pointerEvents: "none" } : {}}>
                 <Fab
@@ -1008,6 +1090,10 @@ class SceneDetail extends React.Component {
                   onClick={this.onGenerate.bind(this)}
                   size="large">
                   <Badge
+                    classes={{
+                      badge: classes.importBadge
+                    }}
+                    overlap="circular"
                     color="secondary"
                     max={100}
                     invisible={areWeightsValid(this.props.scene)}
@@ -1027,7 +1113,6 @@ class SceneDetail extends React.Component {
                 vertical: 'bottom',
                 horizontal: 'right',
               }}
-              getContentAnchorEl={null}
               anchorEl={this.state.menuAnchorEl}
               keepMounted
               className={clsx(this.props.tutorial == SDGT.buttons && classes.backdropTop)}
@@ -1052,27 +1137,17 @@ class SceneDetail extends React.Component {
           </React.Fragment>
         )}
         <Snackbar
-          open={!!this.state.snackbar}
+          open={this.state.snackbarOpen}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           autoHideDuration={5000}
-          ClickAwayListenerProps={{mouseEvent: false}}
           onClose={this.onCloseSnackbar.bind(this)}
-          TransitionComponent={(props) => <Slide {...props} direction="up"/>}>
-          <SnackbarContent
-            message={
-              <span className={classes.snackbarMessage}>
-                {this.state.snackbarType == SB.warning && (
-                  <WarningIcon color="inherit" className={classes.snackbarIcon}/>
-                )}
-                {this.state.snackbarType == SB.success && (
-                  <CheckIcon color="inherit" className={classes.snackbarIcon}/>
-                )}
-                {this.state.snackbar}
-              </span>
-            }
-          />
+          TransitionComponent={TransitionUp}>
+          <Alert onClose={this.onCloseSnackbar.bind(this)} severity={this.state.snackbarSeverity as any}>
+            {this.state.snackbar}
+          </Alert>
         </Snackbar>
       </div>
-    )
+    );
   }
 
   componentDidMount() {
@@ -1106,7 +1181,7 @@ class SceneDetail extends React.Component {
   };
 
   onCloseSnackbar() {
-    this.setState({snackbar: null, snackbarType: null});
+    this.setState({snackbarOpen: false});
   }
 
   onOpenMaxMenu(e: MouseEvent) {
@@ -1119,36 +1194,12 @@ class SceneDetail extends React.Component {
     }
 
     // Regenerate scene(s) before playback
-    const generateScenes: Array<Scene> = []
-    if (this.props.scene.regenerate && areWeightsValid(this.props.scene)) {
-      generateScenes.push(this.props.scene);
-    }
-    if (this.props.scene.overlayEnabled) {
-      for (let overlay of this.props.scene.overlays) {
-        if (overlay.sceneID.toString().startsWith('999')) {
-          const id = overlay.sceneID.toString().replace('999', '');
-          const oScene = this.props.allSceneGrids.find((s) => s.id.toString() == id);
-          for (let row of oScene.grid) {
-            for (let cell of row) {
-              const gScene = this.props.allScenes.find((s) => s.id == cell.sceneID);
-              if (gScene && gScene.generatorWeights && gScene.regenerate && areWeightsValid(gScene)) {
-                generateScenes.push(gScene);
-              }
-            }
-          }
-        } else {
-          const oScene = this.props.allScenes.find((s) => s.id == overlay.sceneID);
-          if (oScene && oScene.generatorWeights && oScene.regenerate && areWeightsValid(oScene)) {
-            generateScenes.push(oScene);
-          }
-        }
-      }
-    }
-    if (generateScenes.length > 0) {
-      this.props.onGenerate(generateScenes);
-    }
-
+    this.props.onGenerate(this.props.scene);
     this.props.onPlayScene(this.props.scene);
+  }
+
+  onToggleOverrideIgnore() {
+    this.changeKey("overrideIgnore", !this.props.scene.overrideIgnore);
   }
 
   getRemainingPercent(): number {
@@ -1162,18 +1213,18 @@ class SceneDetail extends React.Component {
   }
 
   onGenerate() {
-    this.props.onGenerate([this.props.scene]);
+    this.props.onGenerate(this.props.scene, false, true);
     this.generateCallback();
   }
 
   generateCallback() {
     if (this.props.scene.sources.length == 0) {
-      this.setState({snackbar: "Sorry, no sources were found for these rules", snackbarType: SB.warning});
+      this.setState({snackbarOpen: true, snackbar: "Sorry, no sources were found for these rules", snackbarSeverity: SS.warning});
       if (this.props.tutorial == SDGT.generate) {
         this.props.onTutorial(SDGT.generateError);
       }
     } else {
-      this.setState({snackbar: "Generated scene with " + this.props.scene.sources.length + " sources", snackbarType: SB.success});
+      this.setState({snackbarOpen: true, snackbar: "Generated scene with " + this.props.scene.sources.length + " sources", snackbarSeverity: SS.success});
       if (this.props.tutorial == SDGT.generate) {
         this.props.onTutorial(SDGT.generate);
       }
@@ -1240,6 +1291,10 @@ class SceneDetail extends React.Component {
 
   onOpenSortMenu(e: MouseEvent) {
     this.setState({menuAnchorEl: e.currentTarget, openMenu: MO.sort});
+  }
+
+  onToggleWeight() {
+    this.changeKey('useWeights', !this.props.scene.useWeights);
   }
 
   onOpenPiwigoMenu() {

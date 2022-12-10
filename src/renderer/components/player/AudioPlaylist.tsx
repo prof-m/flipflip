@@ -4,25 +4,32 @@ import {existsSync} from "fs";
 import {remote} from "electron";
 
 import {
-  Avatar, Badge, Chip,
-  createStyles, Fab,
+  Avatar,
+  Badge,
+  Chip,
+  Fab,
   IconButton,
   List,
-  ListItem, ListItemAvatar,
-  ListItemIcon, ListItemSecondaryAction,
+  ListItem,
+  ListItemAvatar,
+  ListItemIcon,
+  ListItemSecondaryAction,
   ListItemText,
-  Theme, Tooltip,
-  withStyles
-} from "@material-ui/core";
+  Theme,
+  Tooltip,
+} from "@mui/material";
 
-import AddIcon from "@material-ui/icons/Add";
-import AudiotrackIcon from "@material-ui/icons/Audiotrack";
-import BuildIcon from "@material-ui/icons/Build";
-import ClearIcon from "@material-ui/icons/Clear";
-import DeleteIcon from "@material-ui/icons/Delete";
-import RepeatIcon from '@material-ui/icons/Repeat';
-import RepeatOneIcon from '@material-ui/icons/RepeatOne';
-import ShuffleIcon from '@material-ui/icons/Shuffle';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AddIcon from "@mui/icons-material/Add";
+import AudiotrackIcon from "@mui/icons-material/Audiotrack";
+import BuildIcon from "@mui/icons-material/Build";
+import ClearIcon from "@mui/icons-material/Clear";
+import DeleteIcon from "@mui/icons-material/Delete";
+import RepeatIcon from '@mui/icons-material/Repeat';
+import RepeatOneIcon from '@mui/icons-material/RepeatOne';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 import {arrayMove, getTimestamp, randomizeList} from "../../data/utils";
 import {RP} from "../../data/const";
@@ -69,9 +76,6 @@ const styles = (theme: Theme) => createStyles({
   },
   listAvatar: {
     width: 56,
-  },
-  trackNum: {
-    top: 17,
   },
   bigTooltip: {
     fontSize: "medium",
@@ -156,13 +160,13 @@ class AudioPlaylist extends React.Component {
             goBack={this.props.goBack}
             playNextScene={this.props.playNextScene}/>
           <div className={classes.playlistAction}>
-            <Tooltip title={"Shuffle " + (this.props.playlist.shuffle ? "(On)" : "(Off)")}>
-              <IconButton onClick={this.toggleShuffle.bind(this)}>
+            <Tooltip disableInteractive title={"Shuffle " + (this.props.playlist.shuffle ? "(On)" : "(Off)")}>
+              <IconButton onClick={this.toggleShuffle.bind(this)} size="large">
                 <ShuffleIcon color={this.props.playlist.shuffle ? "primary" : undefined}/>
               </IconButton>
             </Tooltip>
-            <Tooltip title={"Repeat " + (this.props.playlist.repeat == RP.none ? "(Off)" : this.props.playlist.repeat == RP.all ? "(All)" : "(One)")}>
-              <IconButton onClick={this.changeRepeat.bind(this)}>
+            <Tooltip disableInteractive title={"Repeat " + (this.props.playlist.repeat == RP.none ? "(Off)" : this.props.playlist.repeat == RP.all ? "(All)" : "(One)")}>
+              <IconButton onClick={this.changeRepeat.bind(this)} size="large">
                 {this.props.playlist.repeat == RP.none && (
                   <RepeatIcon />
                 )}
@@ -197,18 +201,12 @@ class AudioPlaylist extends React.Component {
               <ListItem key={i}>
                 <ListItemAvatar className={classes.listAvatar}>
                   <Badge
-                    classes={{anchorOriginTopRightRectangular: classes.trackNum}}
                     invisible={!a.trackNum}
                     max={999}
+                    overlap="rectangular"
                     color="primary"
                     badgeContent={a.trackNum}>
-                    <Tooltip placement={a.comment ? 'right' : 'bottom'}
-                             PopperProps={a.comment || (a.tags && a.tags.length > 0) ? {modifiers:{
-                                 preventOverflow: {
-                                   enabled: true,
-                                   boundariesElement: 'viewport',
-                                 }
-                               }} : {}}
+                    <Tooltip disableInteractive placement={a.comment ? 'right' : 'bottom'}
                              classes={a.comment ? {tooltip: classes.bigTooltip} : null}
                              arrow={!!a.comment || (a.tags && a.tags.length > 0)}
                              title={
@@ -258,10 +256,13 @@ class AudioPlaylist extends React.Component {
                     color='default'
                     size='small'
                     variant='outlined'/>
-                  <IconButton edge="end" onClick={this.props.onSourceOptions.bind(this, this.props.playlistIndex, a)}>
+                  <IconButton
+                    edge="end"
+                    onClick={this.props.onSourceOptions.bind(this, this.props.playlistIndex, a)}
+                    size="large">
                     <BuildIcon/>
                   </IconButton>
-                  <IconButton edge="end" onClick={this.removeTrack.bind(this, i)}>
+                  <IconButton edge="end" onClick={this.removeTrack.bind(this, i)} size="large">
                     <DeleteIcon color={"error"}/>
                   </IconButton>
                 </ListItemSecondaryAction>
@@ -270,13 +271,13 @@ class AudioPlaylist extends React.Component {
           </Sortable>
           <div className={classes.playlistAction}>
             <div className={classes.left}>
-              <Tooltip title={"Shuffle " + (this.props.playlist.shuffle ? "(On)" : "(Off)")}>
-                <IconButton onClick={this.toggleShuffle.bind(this)}>
+              <Tooltip disableInteractive title={"Shuffle " + (this.props.playlist.shuffle ? "(On)" : "(Off)")}>
+                <IconButton onClick={this.toggleShuffle.bind(this)} size="large">
                   <ShuffleIcon color={this.props.playlist.shuffle ? "primary" : undefined}/>
                 </IconButton>
               </Tooltip>
-              <Tooltip title={"Repeat " + (this.props.playlist.repeat == RP.none ? "(Off)" : this.props.playlist.repeat == RP.all ? "(All)" : "(One)")}>
-                <IconButton onClick={this.changeRepeat.bind(this)}>
+              <Tooltip disableInteractive title={"Repeat " + (this.props.playlist.repeat == RP.none ? "(Off)" : this.props.playlist.repeat == RP.all ? "(All)" : "(One)")}>
+                <IconButton onClick={this.changeRepeat.bind(this)} size="large">
                   {this.props.playlist.repeat == RP.none && (
                     <RepeatIcon />
                   )}
@@ -289,8 +290,10 @@ class AudioPlaylist extends React.Component {
                 </IconButton>
               </Tooltip>
             </div>
-            <Tooltip title="Add Tracks">
-              <IconButton onClick={this.props.onAddTracks.bind(this, this.props.playlistIndex)}>
+            <Tooltip disableInteractive title="Add Tracks">
+              <IconButton
+                onClick={this.props.onAddTracks.bind(this, this.props.playlistIndex)}
+                size="large">
                 <AddIcon/>
               </IconButton>
             </Tooltip>
@@ -300,8 +303,8 @@ class AudioPlaylist extends React.Component {
                 color='default'
                 size='small'
                 variant='outlined'/>
-              <Tooltip title="Remove Playlist">
-                <IconButton onClick={this.removePlaylist.bind(this)}>
+              <Tooltip disableInteractive title="Remove Playlist">
+                <IconButton onClick={this.removePlaylist.bind(this)} size="large">
                   <ClearIcon color={"error"}/>
                 </IconButton>
               </Tooltip>

@@ -3,18 +3,40 @@ import clsx from "clsx";
 import Sortable from "react-sortablejs";
 
 import {
-  AppBar, Button, Card, CardActionArea, CardContent, Container, createStyles, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, Fab, IconButton, ListItemSecondaryAction, ListItemText, Menu, MenuItem, TextField,
-  Theme, Toolbar, Tooltip, Typography, withStyles
-} from "@material-ui/core";
+  AppBar,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Fab,
+  IconButton,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  TextField,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import AddIcon from '@material-ui/icons/Add';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import DeleteIcon from '@material-ui/icons/Delete';
-import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
-import SortIcon from '@material-ui/icons/Sort';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import SortIcon from '@mui/icons-material/Sort';
 
 import {MO, SF} from "../../data/const";
 import {arrayMove, removeDuplicatesBy} from "../../data/utils";
@@ -133,18 +155,19 @@ class TagManager extends React.Component {
   render() {
     const classes = this.props.classes;
 
-    return(
+    return (
       <div className={classes.root}>
-        <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title="Back" placement="right-end">
+              <Tooltip disableInteractive title="Back" placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
                   className={classes.backButton}
-                  onClick={this.goBack.bind(this)}>
+                  onClick={this.goBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
@@ -198,15 +221,16 @@ class TagManager extends React.Component {
             <DialogTitle id="edit-title">Edit Tag</DialogTitle>
             <DialogContent>
               <TextField
+                variant="standard"
                 autoFocus
                 fullWidth
                 required
                 label="Name"
                 value={this.state.tagName}
                 margin="dense"
-                onChange={this.onChangeTitle.bind(this)}
-              />
+                onChange={this.onChangeTitle.bind(this)} />
               <TextField
+                variant="standard"
                 fullWidth
                 multiline
                 label="Tag Phrases"
@@ -215,11 +239,13 @@ class TagManager extends React.Component {
                 value={this.state.tagPhrase}
                 margin="dense"
                 inputProps={{className: classes.phraseInput}}
-                onChange={this.onChangePhrase.bind(this)}
-              />
+                onChange={this.onChangePhrase.bind(this)} />
             </DialogContent>
             <DialogActions>
-              <IconButton onClick={this.onRemoveTag.bind(this)} style={{marginRight: 'auto'}}>
+              <IconButton
+                onClick={this.onRemoveTag.bind(this)}
+                style={{marginRight: 'auto'}}
+                size="large">
                 <DeleteIcon color="error"/>
               </IconButton>
               <Button onClick={this.onCloseEditDialog.bind(this)} color="secondary">
@@ -234,7 +260,7 @@ class TagManager extends React.Component {
 
         {this.props.tags.length > 0 && (
           <React.Fragment>
-            <Tooltip title="Remove All Tags">
+            <Tooltip disableInteractive title="Remove All Tags">
               <Fab
                 className={classes.removeAllButton}
                 onClick={this.onRemoveAll.bind(this)}
@@ -287,7 +313,6 @@ class TagManager extends React.Component {
                 vertical: 'bottom',
                 horizontal: 'right',
               }}
-              getContentAnchorEl={null}
               anchorEl={this.state.menuAnchorEl}
               keepMounted
               classes={{paper: classes.sortMenu}}
@@ -297,10 +322,10 @@ class TagManager extends React.Component {
                 <MenuItem key={sf}>
                   <ListItemText primary={en.get(sf)}/>
                   <ListItemSecondaryAction>
-                    <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, true)}>
+                    <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, true)} size="large">
                       <ArrowUpwardIcon/>
                     </IconButton>
-                    <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, false)}>
+                    <IconButton edge="end" onClick={this.props.onSort.bind(this, sf, false)} size="large">
                       <ArrowDownwardIcon/>
                     </IconButton>
                   </ListItemSecondaryAction>

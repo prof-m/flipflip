@@ -10,20 +10,42 @@ require('codemirror/lib/codemirror.css');
 require('codemirror/theme/material.css');
 
 import {
-  AppBar, Button, Card, CardContent, Container, createStyles, Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, Divider, Grid, IconButton, Link, Menu, MenuItem, Select, Slider, Theme, Toolbar, Tooltip, Typography,
-  withStyles
-} from "@material-ui/core";
+  AppBar,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  Link,
+  Menu,
+  MenuItem,
+  Select,
+  Slider,
+  Theme,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import FolderIcon from '@material-ui/icons/Folder';
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
-import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
-import SaveIcon from '@material-ui/icons/Save';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import FolderIcon from '@mui/icons-material/Folder';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import SaveIcon from '@mui/icons-material/Save';
 
 import {CST, MO, RP} from "../../data/const";
 import captionProgramDefaults, {CancelablePromise} from "../../data/utils";
@@ -111,7 +133,7 @@ const styles = (theme: Theme) => createStyles({
   },
   playerGrid: {
     overflow: 'hidden',
-    position: 'relative',
+    display: 'grid',
   },
   fontGrid: {
     borderWidth: 1,
@@ -172,7 +194,7 @@ const styles = (theme: Theme) => createStyles({
   openFileName: {
     marginLeft: 'auto',
     marginTop: theme.spacing(1.5),
-    color: theme.palette.text.hint,
+    color: (theme.palette.text as any).hint,
   },
   menuDivider: {
     marginLeft: 'auto',
@@ -206,6 +228,9 @@ const styles = (theme: Theme) => createStyles({
   disable: {
     pointerEvents: 'none',
   },
+  relative: {
+    position: 'relative',
+  }
 });
 
 
@@ -275,18 +300,19 @@ class CaptionScriptor extends React.Component {
       getTimestamp = this.getTimestamp.bind(this);
     }
 
-    return(
+    return (
       <div className={classes.root}>
-        <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
+        <AppBar enableColorOnDark position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
           <Toolbar className={classes.headerBar}>
             <div className={classes.headerLeft}>
-              <Tooltip title="Back" placement="right-end">
+              <Tooltip disableInteractive title="Back" placement="right-end">
                 <IconButton
                   edge="start"
                   color="inherit"
                   aria-label="Back"
                   className={classes.backButton}
-                  onClick={this.goBack.bind(this)}>
+                  onClick={this.goBack.bind(this)}
+                  size="large">
                   <ArrowBackIcon />
                 </IconButton>
               </Tooltip>
@@ -297,14 +323,15 @@ class CaptionScriptor extends React.Component {
               {this.state.captionScript.url ? this.state.captionScript.url : "Caption Scriptor"}
             </Typography>
 
-            <Tooltip title={this.state.fullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+            <Tooltip disableInteractive title={this.state.fullscreen ? "Exit Fullscreen" : "Fullscreen"}>
               <span style={this.state.scene == null ? { pointerEvents: "none" } : {}}>
                 <IconButton
                   disabled={this.state.scene == null}
                   edge="start"
                   color="inherit"
                   aria-label={this.state.fullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                  onClick={this.onFullscreen.bind(this)}>
+                  onClick={this.onFullscreen.bind(this)}
+                  size="large">
                   {this.state.fullscreen ? <FullscreenExitIcon fontSize="large"/> : <FullscreenIcon fontSize="large"/>}
                 </IconButton>
               </span>
@@ -354,13 +381,13 @@ class CaptionScriptor extends React.Component {
                       <Grid item xs={12} className={clsx(classes.menuGridButtons,
                         this.props.tutorial == CST.menu && classes.backdropTopHighlight,
                         this.props.tutorial == CST.menu && classes.disable)}>
-                        <Tooltip title="New">
-                          <IconButton onClick={this.onNew.bind(this)}>
+                        <Tooltip disableInteractive title="New">
+                          <IconButton onClick={this.onNew.bind(this)} size="large">
                             <InsertDriveFileIcon/>
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Open">
-                          <IconButton onClick={this.onOpenMenu.bind(this)}>
+                        <Tooltip disableInteractive title="Open">
+                          <IconButton onClick={this.onOpenMenu.bind(this)} size="large">
                             <FolderIcon/>
                           </IconButton>
                         </Tooltip>
@@ -375,7 +402,6 @@ class CaptionScriptor extends React.Component {
                             vertical: 'top',
                             horizontal: 'center',
                           }}
-                          getContentAnchorEl={null}
                           anchorEl={this.state.menuAnchorEl}
                           keepMounted
                           open={this.state.openMenu == MO.open}
@@ -383,8 +409,8 @@ class CaptionScriptor extends React.Component {
                           <MenuItem onClick={this.onOpen.bind(this)}>Open File</MenuItem>
                           <MenuItem onClick={this.onOpenFromLibrary.bind(this)}>Open From Library</MenuItem>
                         </Menu>
-                        <Tooltip title="Save">
-                          <IconButton onClick={this.onSaveMenu.bind(this)}>
+                        <Tooltip disableInteractive title="Save">
+                          <IconButton onClick={this.onSaveMenu.bind(this)} size="large">
                             <SaveIcon/>
                           </IconButton>
                         </Tooltip>
@@ -399,7 +425,6 @@ class CaptionScriptor extends React.Component {
                             vertical: 'top',
                             horizontal: 'center',
                           }}
-                          getContentAnchorEl={null}
                           anchorEl={this.state.menuAnchorEl}
                           keepMounted
                           open={this.state.openMenu == MO.save}
@@ -409,9 +434,12 @@ class CaptionScriptor extends React.Component {
                           <MenuItem disabled={!this.state.captionScript.url} onClick={this.onSaveToLibrary.bind(this)}>Save To Library</MenuItem>
                         </Menu>
                         <Divider orientation="vertical" flexItem className={classes.menuDivider} />
-                        <Tooltip title="Load From Scene">
+                        <Tooltip disableInteractive title="Load From Scene">
                           <span style={this.state.sceneScripts == null || !this.state.sceneScripts.length ? { pointerEvents: "none" } : {}}>
-                            <IconButton disabled={this.state.sceneScripts == null || !this.state.sceneScripts.length} onClick={this.onLoadFromScene.bind(this)}>
+                            <IconButton
+                              disabled={this.state.sceneScripts == null || !this.state.sceneScripts.length}
+                              onClick={this.onLoadFromScene.bind(this)}
+                              size="large">
                               {this.state.loadFromSceneError ? <ErrorOutlineIcon color={"error"}/> : <GetAppIcon/>}
                             </IconButton>
                           </span>
@@ -441,37 +469,37 @@ class CaptionScriptor extends React.Component {
                             <Typography variant={"h5"}>Actions</Typography>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"For each <TEXT> between slashes, show text for blinkDuration ms, then wait blinkDelay ms. When they are all done, wait blinkGroupDelay ms."}>
+                            <Tooltip disableInteractive title={"For each <TEXT> between slashes, show text for blinkDuration ms, then wait blinkDelay ms. When they are all done, wait blinkGroupDelay ms."}>
                               <Button className={classes.actionButton} onClick={this.onAddBlink.bind(this)} variant="outlined">blink</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Show smaller <TEXT> for captionDuration ms, then wait captionDelay ms."}>
+                            <Tooltip disableInteractive title={"Show smaller <TEXT> for captionDuration ms, then wait captionDelay ms."}>
                               <Button className={classes.actionButton} onClick={this.onAddCap.bind(this)} variant="outlined">cap</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Show bigger <TEXT> for captionDuration ms, then wait captionDelay ms."}>
+                            <Tooltip disableInteractive title={"Show bigger <TEXT> for captionDuration ms, then wait captionDelay ms."}>
                               <Button className={classes.actionButton} onClick={this.onAddBigCap.bind(this)} variant="outlined">bigcap</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Count from <START> to <END> (<START> and <END> are whole numbers). Display each number for countDuration ms, then wait countDelay ms. When they are all done, wait countGroupDelay ms."}>
+                            <Tooltip disableInteractive title={"Count from <START> to <END> (<START> and <END> are whole numbers). Display each number for countDuration ms, then wait countDelay ms. When they are all done, wait countGroupDelay ms."}>
                               <Button className={classes.actionButton} onClick={this.onAddCount.bind(this)} variant="outlined">count</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Wait <MILLISECONDS> ms"}>
+                            <Tooltip disableInteractive title={"Wait <MILLISECONDS> ms"}>
                               <Button className={classes.actionButton} onClick={this.onAddWait.bind(this)} variant="outlined">wait</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Advance to the next image"}>
+                            <Tooltip disableInteractive title={"Advance to the next image"}>
                               <Button className={classes.actionButton} onClick={this.onAddAdvance.bind(this)} variant="outlined">advance</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Play audio <ALIAS> at volume <VOLUME>"}>
+                            <Tooltip disableInteractive title={"Play audio <ALIAS> at volume <VOLUME>"}>
                               <Button className={classes.actionButton} onClick={this.onAddPlayAudio.bind(this)} variant="outlined">playAudio</Button>
                             </Tooltip>
                           </Grid>
@@ -487,9 +515,10 @@ class CaptionScriptor extends React.Component {
                           </Grid>
                           <Grid item xs={12}>
                             <Select
+                              variant="standard"
                               fullWidth
                               value={""}
-                              onChange={this.onAddSetter.bind(this)}>>
+                              onChange={this.onAddSetter.bind(this)}>
                               <MenuItem key={"all"} value={"all"}>Insert All</MenuItem>
                               <Divider/>
                               {tupleSetters.map((s) =>
@@ -523,22 +552,22 @@ class CaptionScriptor extends React.Component {
                             <Typography variant={"h5"}>Special</Typography>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Stores an audio file to be used with playAudio"}>
+                            <Tooltip disableInteractive title={"Stores an audio file to be used with playAudio"}>
                               <Button className={classes.storeButton} onClick={this.onAddStoreAudio.bind(this)} variant="outlined">storeAudio</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"Stores a phrase to be used with $RANDOM_PHRASE"}>
+                            <Tooltip disableInteractive title={"Stores a phrase to be used with $RANDOM_PHRASE"}>
                               <Button className={classes.storeButton} onClick={this.onAddStorePhrase.bind(this)} variant="outlined">storePhrase</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"When running, is replaced with a random stored phrase"}>
+                            <Tooltip disableInteractive title={"When running, is replaced with a random stored phrase"}>
                               <Button className={classes.keywordButton} onClick={this.onAddString.bind(this, "$RANDOM_PHRASE")} variant="outlined">$RANDOM_PHRASE</Button>
                             </Tooltip>
                           </Grid>
                           <Grid item>
-                            <Tooltip title={"When running, is replaced with a random tag phrase based on the current source"}>
+                            <Tooltip disableInteractive title={"When running, is replaced with a random tag phrase based on the current source"}>
                               <Button className={classes.keywordButton} onClick={this.onAddString.bind(this, "$TAG_PHRASE")} variant="outlined">$TAG_PHRASE</Button>
                             </Tooltip>
                           </Grid>
@@ -549,7 +578,10 @@ class CaptionScriptor extends React.Component {
                       </Grid>
                       <Grid item xs={12}>
                         <Typography variant="body2" color="inherit">
-                          See <Link href="#" onClick={this.openLink.bind(this, "https://ififfy.github.io/flipflip/#/caption_script")}>documentation</Link> for help.
+                          See <Link
+                          href="#"
+                          onClick={this.openLink.bind(this, "https://ififfy.github.io/flipflip/#/caption_script")}
+                          underline="hover">documentation</Link> for help.
                         </Typography>
                       </Grid>
                     </Grid>
@@ -564,7 +596,7 @@ class CaptionScriptor extends React.Component {
                         onPlaying={this.onPlaying.bind(this)}
                         onUpdateScene={this.onUpdateScene.bind(this)}/>
                     )}
-                    <Typography id="opacity-slider" variant="caption" component="div" color="textSecondary">
+                    <Typography variant="caption" component="div" color="textSecondary">
                       Script Opacity: {this.state.captionScript.opacity}%
                     </Typography>
                     <Slider
@@ -573,7 +605,7 @@ class CaptionScriptor extends React.Component {
                         defaultValue={this.state.captionScript.opacity}
                         onChangeCommitted={this.onSliderChange.bind(this, 'opacity')}
                         valueLabelDisplay={'auto'}
-                        valueLabelFormat={(v) => v + "%"}
+                        valueLabelFormat={(v: any) => v + "%"}
                         aria-labelledby="opacity-slider"/>
                   </CardContent>
                 </Card>
@@ -604,19 +636,21 @@ class CaptionScriptor extends React.Component {
                   <ErrorOutlineIcon className={classes.errorIcon} color="error" />
                 )}
                 {!this.state.scene && this.state.captionScript.script && this.state.captionScript.script.length > 0 && (
-                  <CaptionProgram
-                    captionScript={this.state.captionScript}
-                    repeat={RP.one}
-                    scale={0.35}
-                    singleTrack={true}
-                    getTags={this.props.getTags.bind(this)}
-                    goBack={this.props.goBack.bind(this)}
-                    playNextScene={() => {}}
-                    timeToNextFrame={null}
-                    currentAudio={null}
-                    currentImage={null}
-                    jumpToHack={this.state.captionProgramJumpToHack}
-                    onError={this.onError.bind(this)}/>
+                  <div className={clsx(!this.state.fullscreen && classes.relative)}>
+                    <CaptionProgram
+                      captionScript={this.state.captionScript}
+                      repeat={RP.one}
+                      scale={0.35}
+                      singleTrack={true}
+                      getTags={this.props.getTags.bind(this)}
+                      goBack={this.props.goBack.bind(this)}
+                      playNextScene={() => {}}
+                      timeToNextFrame={null}
+                      currentAudio={null}
+                      currentImage={null}
+                      jumpToHack={this.state.captionProgramJumpToHack}
+                      onError={this.onError.bind(this)}/>
+                  </div>
                 )}
               </div>
               <div className={clsx(classes.fontGrid, this.state.fullscreen && classes.hidden, this.props.tutorial == CST.fonts && classes.backdropTopHighlight)}>
@@ -669,6 +703,7 @@ class CaptionScriptor extends React.Component {
               Choose a script to load:
             </DialogContentText>
             <Select
+              variant="standard"
               fullWidth
               value={this.state.selectScript}
               onChange={this.onChangeSelectScript.bind(this)}>
