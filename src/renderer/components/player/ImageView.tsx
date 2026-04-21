@@ -15,6 +15,7 @@ import CrossFade from "./CrossFade";
 import ZoomMove from "./ZoomMove";
 import Slide from "./Slide";
 import StrobeImage from "./StrobeImage";
+import WebcamManager from "../../data/WebcamManager";
 
 export default class ImageView extends React.Component {
   readonly props: {
@@ -33,6 +34,7 @@ export default class ImageView extends React.Component {
     onLoaded?(): void,
     setSceneCopy?(children: React.ReactNode): void,
     setVideo?(video: HTMLVideoElement): void,
+    systemMessage?(message: string): void,
   };
 
   _parentHeight: number;
@@ -40,12 +42,17 @@ export default class ImageView extends React.Component {
   readonly backgroundRef: React.RefObject<HTMLDivElement> = React.createRef();
   readonly contentRef: React.RefObject<HTMLDivElement> = React.createRef();
   _image: HTMLImageElement | HTMLVideoElement | HTMLIFrameElement = null;
+  _webcamVideo: HTMLVideoElement = null;
   _scale: number = null;
   _timeouts: Array<Timeout>;
 
   componentDidMount() {
     this._timeouts = new Array<Timeout>();
-    this._applyImage();
+    if (!this.props.pictureGrid && this.props.scene.backgroundType == BT.webcam) {
+      this.initWebcam().then(() => this._applyImage());
+    } else {
+      this._applyImage();
+    }
   }
 
   componentDidUpdate(props: any) {
@@ -53,8 +60,17 @@ export default class ImageView extends React.Component {
     if (!this.props.pictureGrid && this.props.scene.backgroundType !== props.scene.backgroundType) {
       if (this.props.scene.backgroundType === BT.blur) {
         forceBG = true;
-      } else if (props.scene.backgroundType === BT.blur && this.backgroundRef.current.firstChild) {
+      } else if (props.scene.backgroundType === BT.blur && this.backgroundRef.current && this.backgroundRef.current.firstChild) {
         this.backgroundRef.current.removeChild(this.backgroundRef.current.firstChild);
+      }
+      if (this.props.scene.backgroundType === BT.webcam) {
+        this.initWebcam().then(() => this._applyImage());
+        return;
+      } else if (props.scene.backgroundType === BT.webcam) {
+        this.releaseWebcam();
+        if (this.backgroundRef.current && this.backgroundRef.current.firstChild) {
+          this.backgroundRef.current.removeChild(this.backgroundRef.current.firstChild);
+        }
       }
     }
     this._applyImage(forceBG);
@@ -68,8 +84,36 @@ export default class ImageView extends React.Component {
   }
 
   componentWillUnmount() {
+    this.releaseWebcam();
     this.clearTimeouts();
     this._timeouts = null;
+  }
+
+  async initWebcam() {
+    try {
+      const stream = await WebcamManager.requestWebcam();
+      this._webcamVideo = document.createElement("video");
+      this._webcamVideo.autoplay = true;
+      this._webcamVideo.muted = true;
+      this._webcamVideo.style.width = '100%';
+      this._webcamVideo.style.height = '100%';
+      this._webcamVideo.style.objectFit = 'cover';
+      this._webcamVideo.style.transform = 'scaleX(-1)';
+      this._webcamVideo.srcObject = stream;
+    } catch (e) {
+      if (this.props.systemMessage) {
+        this.props.systemMessage("Cannot access Webcam. Please check OS permissions.");
+      }
+      console.error(e);
+    }
+  }
+
+  releaseWebcam() {
+    WebcamManager.releaseWebcam();
+    if (this._webcamVideo) {
+      this._webcamVideo.remove();
+      this._webcamVideo = null;
+    }
   }
 
   clearTimeouts() {
@@ -197,10 +241,10 @@ export default class ImageView extends React.Component {
         ((this.props.scene.videoOrientation == OT.forceLandscape && imgWidth < imgHeight) ||
           (this.props.scene.videoOrientation == OT.forcePortrait && imgWidth > imgHeight))) ||
         (type == null &&
-          ((this.props.scene.imageOrientation == OT.forceLandscape && imgWidth < imgHeight) ||
             (this.props.scene.imageOrientation == OT.forcePortrait && imgWidth > imgHeight))));
 
     const blur = !this.props.pictureGrid && this.props.scene.backgroundType == BT.blur && type != ST.nimja;
+    const isWebcamBG = !this.props.pictureGrid && this.props.scene.backgroundType == BT.webcam && this._webcamVideo;
     let bgImg: any;
     if (blur) {
       if (img.src.endsWith(".gif")) {
@@ -522,7 +566,19 @@ export default class ImageView extends React.Component {
         appendOriginal();
       }
     }
-    if (blur) {
+    if (isWebcamBG) {
+      bgImg = document.createElement('canvas');
+      bgImg.width = parentWidth;
+      bgImg.height = parentHeight;
+      bgImg.style.width = '100%';
+      bgImg.style.height = '100%';
+      bgImg.style.objectFit = 'cover';
+      bgImg.style.transform = 'scaleX(-1)';
+      if (this.props.gridCoordinates) {
+        extraBGDrawLoop(this._webcamVideo, parentWidth, parentHeight);
+      }
+    }
+    if (blur || (isWebcamBG && bgImg)) {
       const appendOriginalBG = () => {
         if (this.props.removeChild && bg.hasChildNodes()) {
           bg.removeChild(bg.children.item(0));
@@ -563,6 +619,14 @@ export default class ImageView extends React.Component {
           context.drawImage(img, 0, 0, parentWidth, parentHeight)
         }
       }
+    if (isWebcamBG && !this.props.gridCoordinates) {
+      const appendOriginalBG = () => {
+        if (this.props.removeChild && bg.hasChildNodes()) {
+          bg.removeChild(bg.children.item(0));
+        }
+        bg.appendChild(this._webcamVideo);
+      }
+      appendOriginalBG();
     }
 
 

@@ -418,6 +418,7 @@ export default class Player extends React.Component {
               fitParent
               hasStarted
               removeChild
+              systemMessage={this.props.systemMessage.bind(this)}
             />
           )}
           {!this.state.recentPictureGrid && (this.props.config.displaySettings.audioAlert || this.props.allTags) &&

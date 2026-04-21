@@ -66,6 +66,7 @@ const BT = { // background type
   colorSet: 'bt.colorset',
   colorRand: 'bt.colorrand',
   none: 'bt.none',
+  webcam: 'bt.webcam',
 };
 
 const SC = { // strobe color type

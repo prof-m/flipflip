@@ -514,7 +514,8 @@ export default class SourceScraper extends React.Component {
             playNextScene={this.props.playNextScene}
             gridCoordinates={this.props.gridCoordinates}
             setSceneCopy={this.props.setSceneCopy}
-            setTimeToNextFrame={this.props.setTimeToNextFrame}/>)}
+            setTimeToNextFrame={this.props.setTimeToNextFrame}
+            systemMessage={this.props.systemMessage.bind(this)}/>)}
         {this.state.captcha != null && (
           <Dialog
             open={true}

@@ -44,6 +44,7 @@ export default new Map<string, string>([
   ['bt.colorset', 'Set of Colors'],
   ['bt.colorrand', 'Random Colors'],
   ['bt.none', 'None'],
+  ['bt.webcam', 'Webcam'],
 
   ['sc.color', 'Solid Color'],
   ['sc.colorset', 'Set of Colors'],

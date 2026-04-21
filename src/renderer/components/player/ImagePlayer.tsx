@@ -49,6 +49,7 @@ export default class ImagePlayer extends React.Component {
     setSceneCopy?(children: React.ReactNode): void,
     setTimeToNextFrame?(timeToNextFrame: number): void,
     playNextScene?(): void,
+    systemMessage?(message: string): void,
   };
 
   readonly state = {
@@ -148,7 +149,8 @@ export default class ImagePlayer extends React.Component {
           hasStarted={this.props.hasStarted}
           onLoaded={this.state.historyPaths.length == 1 ? this.props.onLoaded : undefined}
           setSceneCopy={this.props.setSceneCopy}
-          setVideo={this.props.setVideo}/>
+          setVideo={this.props.setVideo}
+          systemMessage={this.props.systemMessage}/>
       </div>
     );
   }
