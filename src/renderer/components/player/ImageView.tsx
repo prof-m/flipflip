@@ -42,9 +42,12 @@ export default class ImageView extends React.Component {
   _image: HTMLImageElement | HTMLVideoElement | HTMLIFrameElement = null;
   _scale: number = null;
   _timeouts: Array<Timeout>;
+  _rafHandles: Array<{id: number}>;
+  _loopToken: number = 0;
 
   componentDidMount() {
     this._timeouts = new Array<Timeout>();
+    this._rafHandles = new Array<{id: number}>();
     this._applyImage();
   }
 
@@ -68,14 +71,49 @@ export default class ImageView extends React.Component {
   }
 
   componentWillUnmount() {
-    this.clearTimeouts();
+    this.clearLoops();
     this._timeouts = null;
+    this._rafHandles = null;
   }
 
   clearTimeouts() {
+    if (!this._timeouts) return;
     for (let timeout of this._timeouts) {
       clearTimeout(timeout);
     }
+    this._timeouts.length = 0;
+  }
+
+  clearAnimationFrames() {
+    if (!this._rafHandles) return;
+    for (let handle of this._rafHandles) {
+      cancelAnimationFrame(handle.id);
+    }
+    this._rafHandles.length = 0;
+  }
+
+  clearLoops() {
+    this._loopToken += 1;
+    this.clearTimeouts();
+    this.clearAnimationFrames();
+  }
+
+  startRafLoop(shouldContinue: () => boolean, step: () => void, intervalMs: number) {
+    if (!this._rafHandles) return;
+    const loopToken = this._loopToken;
+    const handle = {id: 0};
+    let lastTime = 0;
+    const tick = (time: number) => {
+      if (loopToken !== this._loopToken) return;
+      if (!shouldContinue()) return;
+      if (time - lastTime >= intervalMs) {
+        lastTime = time;
+        step();
+      }
+      handle.id = requestAnimationFrame(tick);
+    };
+    handle.id = requestAnimationFrame(tick);
+    this._rafHandles.push(handle);
   }
 
   _applyImage(forceBG = false) {
@@ -88,6 +126,9 @@ export default class ImageView extends React.Component {
     if (!forceBG && firstChild && firstChild.src == img.src &&
       firstChild.getAttribute("start") == img.getAttribute("start") &&
       firstChild.getAttribute("end") == img.getAttribute("end")) return;
+
+    this.clearLoops();
+    const loopToken = this._loopToken;
 
     if (!forceBG && img instanceof HTMLVideoElement && img.hasAttribute("subtitles")) {
       try {
@@ -114,49 +155,71 @@ export default class ImageView extends React.Component {
     }
 
     const videoLoop = (v: any) => {
-      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || v.paused || this._timeouts == null) return;
-      if (v.ended) {
-        v.onended(null);
-        return;
-      }
-      let crossFadeAudio = !this.props.pictureGrid && this.props.scene.crossFadeAudio;
-      if (!this.props.pictureGrid && this.props.hasStarted && this.props.scene.crossFade && crossFadeAudio && v instanceof HTMLVideoElement) {
-        const volume = v.hasAttribute("volume") ? parseInt(v.getAttribute("volume")) : this.props.scene.videoVolume;
-        v.volume = (volume / 100) * parseFloat(el.parentElement.parentElement.getAttribute("volume"));
-      }
-      if (v.hasAttribute("start") && v.hasAttribute("end")) {
-        const start = v.getAttribute("start");
-        const end = v.getAttribute("end");
-        if (v.currentTime > end) {
-          v.onended(null);
-          v.currentTime = start;
-        }
-      }
-      this._timeouts.push(setTimeout(videoLoop, 100, v));
+      let ended = false;
+      this.startRafLoop(
+        () => loopToken === this._loopToken && !!el && !!el.parentElement &&
+          parseFloat(el.parentElement.style.opacity) != 0.99 && !v.paused && !ended,
+        () => {
+          if (v.ended) {
+            ended = true;
+            v.onended(null);
+            return;
+          }
+          let crossFadeAudio = !this.props.pictureGrid && this.props.scene.crossFadeAudio;
+          if (!this.props.pictureGrid && this.props.hasStarted && this.props.scene.crossFade && crossFadeAudio && v instanceof HTMLVideoElement) {
+            const volume = v.hasAttribute("volume") ? parseInt(v.getAttribute("volume")) : this.props.scene.videoVolume;
+            v.volume = (volume / 100) * parseFloat(el.parentElement.parentElement.getAttribute("volume"));
+          }
+          if (v.hasAttribute("start") && v.hasAttribute("end")) {
+            const start = v.getAttribute("start");
+            const end = v.getAttribute("end");
+            if (v.currentTime > end) {
+              v.onended(null);
+              v.currentTime = start;
+            }
+          }
+        },
+        100
+      );
     };
 
     const drawLoop = (v: any, c: CanvasRenderingContext2D, w: number, h: number) => {
-      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || this._timeouts == null) return;
-      c.drawImage(v, 0, 0, w, h);
-      this._timeouts.push(setTimeout(drawLoop, 20, v, c, w, h));
+      this.startRafLoop(
+        () => loopToken === this._loopToken && !!el && !!el.parentElement && parseFloat(el.parentElement.style.opacity) != 0.99,
+        () => {
+          c.drawImage(v, 0, 0, w, h);
+        },
+        20
+      );
     };
 
     const extraDrawLoop = (v: any, w: number, h: number) => {
-      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || v.ended || v.paused || this._timeouts == null) return;
-      for (let canvas of document.getElementsByClassName("canvas-" + this.props.gridCoordinates[0] + "-" + this.props.gridCoordinates[1])) {
-        const context = (canvas as HTMLCanvasElement).getContext('2d');
-        context.drawImage(v, 0, 0, w, h);
-      }
-      this._timeouts.push(setTimeout(extraDrawLoop, 20, v, w, h));
+      const className = "canvas-" + this.props.gridCoordinates[0] + "-" + this.props.gridCoordinates[1];
+      this.startRafLoop(
+        () => loopToken === this._loopToken && !!el && !!el.parentElement &&
+          parseFloat(el.parentElement.style.opacity) != 0.99 && !v.ended && !v.paused,
+        () => {
+          for (let canvas of document.getElementsByClassName(className)) {
+            const context = (canvas as HTMLCanvasElement).getContext('2d');
+            context.drawImage(v, 0, 0, w, h);
+          }
+        },
+        20
+      );
     };
 
     const extraBGDrawLoop = (v: any, w: number, h: number) => {
-      if (!el || !el.parentElement || parseFloat(el.parentElement.style.opacity) == 0.99 || this._timeouts == null) return;
-      for (let canvas of document.getElementsByClassName("canvas-bg-" + this.props.gridCoordinates[0] + "-" + this.props.gridCoordinates[1])) {
-        const context = (canvas as HTMLCanvasElement).getContext('2d');
-        context.drawImage(v, 0, 0, w, h);
-      }
-      this._timeouts.push(setTimeout(extraBGDrawLoop, 20, v, w, h));
+      const className = "canvas-bg-" + this.props.gridCoordinates[0] + "-" + this.props.gridCoordinates[1];
+      this.startRafLoop(
+        () => loopToken === this._loopToken && !!el && !!el.parentElement && parseFloat(el.parentElement.style.opacity) != 0.99,
+        () => {
+          for (let canvas of document.getElementsByClassName(className)) {
+            const context = (canvas as HTMLCanvasElement).getContext('2d');
+            context.drawImage(v, 0, 0, w, h);
+          }
+        },
+        20
+      );
     };
 
     let parentWidth = el.offsetWidth;
@@ -212,9 +275,6 @@ export default class ImageView extends React.Component {
         bgImg.width = parentWidth;
         bgImg.height = parentHeight;
 
-        if (!this.props.scene.crossFade) {
-          this.clearTimeouts();
-        }
         if (type == null) {
           context.drawImage(img, 0, 0, parentWidth, parentHeight);
         } else if (type == ST.video) {
