@@ -46,6 +46,7 @@ import MultiSceneSelect from "./MultiSceneSelect";
 import {areWeightsValid} from "../../data/utils";
 import Audio from "../../data/Audio";
 import SceneGrid from "../../data/SceneGrid";
+import WebcamManager from "../../data/WebcamManager";
 
 const styles = (theme: Theme) => createStyles({
   fullWidth: {
@@ -126,6 +127,46 @@ class SceneOptionCard extends React.Component {
   }
 
   readonly sinInputRef: React.RefObject<HTMLInputElement> = React.createRef();
+  readonly videoRef: React.RefObject<HTMLVideoElement> = React.createRef();
+
+  componentDidMount() {
+    if (this.props.scene.backgroundType === BT.webcam) {
+      this.startWebcam();
+    }
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (this.props.scene.backgroundType === BT.webcam && prevProps.scene.backgroundType !== BT.webcam) {
+      this.startWebcam();
+    } else if (this.props.scene.backgroundType !== BT.webcam && prevProps.scene.backgroundType === BT.webcam) {
+      this.stopWebcam();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.scene.backgroundType === BT.webcam) {
+      this.stopWebcam();
+    }
+  }
+
+  startWebcam = async () => {
+    try {
+      const stream = await WebcamManager.requestWebcam();
+      if (this.videoRef.current) {
+        this.videoRef.current.srcObject = stream;
+        this.videoRef.current.play();
+      }
+    } catch (err) {
+      console.error("Webcam not available", err);
+    }
+  }
+
+  stopWebcam = () => {
+    if (this.videoRef.current) {
+      this.videoRef.current.srcObject = null;
+    }
+    WebcamManager.releaseWebcam();
+  }
 
   render() {
     const classes = this.props.classes;
@@ -477,6 +518,14 @@ class SceneOptionCard extends React.Component {
                     currentColors={this.props.scene.backgroundColorSet}
                     onChangeColors={this.onInput.bind(this, 'backgroundColorSet')}/>
                 )}
+              </Collapse>
+              <Collapse in={this.props.scene.backgroundType == BT.webcam} className={classes.fullWidth}>
+                <video
+                  ref={this.videoRef}
+                  autoPlay
+                  muted
+                  style={{ width: '100%', maxHeight: 150, objectFit: 'contain', backgroundColor: 'black', borderRadius: 4 }}
+                />
               </Collapse>
             </Grid>
           </Grid>

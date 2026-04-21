@@ -100,6 +100,7 @@ export default class ImageView extends React.Component {
       this._webcamVideo.style.objectFit = 'cover';
       this._webcamVideo.style.transform = 'scaleX(-1)';
       this._webcamVideo.srcObject = stream;
+      this._applyImage();
     } catch (e) {
       if (this.props.systemMessage) {
         this.props.systemMessage("Cannot access Webcam. Please check OS permissions.");
@@ -241,7 +242,7 @@ export default class ImageView extends React.Component {
         ((this.props.scene.videoOrientation == OT.forceLandscape && imgWidth < imgHeight) ||
           (this.props.scene.videoOrientation == OT.forcePortrait && imgWidth > imgHeight))) ||
         (type == null &&
-            (this.props.scene.imageOrientation == OT.forcePortrait && imgWidth > imgHeight))));
+            (this.props.scene.imageOrientation == OT.forcePortrait && imgWidth > imgHeight)));
 
     const blur = !this.props.pictureGrid && this.props.scene.backgroundType == BT.blur && type != ST.nimja;
     const isWebcamBG = !this.props.pictureGrid && this.props.scene.backgroundType == BT.webcam && this._webcamVideo;
@@ -619,6 +620,7 @@ export default class ImageView extends React.Component {
           context.drawImage(img, 0, 0, parentWidth, parentHeight)
         }
       }
+    }
     if (isWebcamBG && !this.props.gridCoordinates) {
       const appendOriginalBG = () => {
         if (this.props.removeChild && bg.hasChildNodes()) {
@@ -880,24 +882,25 @@ export default class ImageView extends React.Component {
               element.removeChild(element.children.item(0));
             }
             if (img instanceof HTMLVideoElement) {
+              const vidImg = img as HTMLVideoElement;
               if (this.props.config?.displaySettings.cloneGridVideoElements) {
-                const clone = img.cloneNode() as HTMLVideoElement;
-                clone.volume = img.volume;
-                clone.currentTime = img.currentTime;
-                for (let attr of img.getAttributeNames()) {
-                  clone.setAttribute(attr, img.getAttribute(attr));
+                const clone = vidImg.cloneNode() as HTMLVideoElement;
+                clone.volume = vidImg.volume;
+                clone.currentTime = vidImg.currentTime;
+                for (let attr of vidImg.getAttributeNames()) {
+                  clone.setAttribute(attr, vidImg.getAttribute(attr));
                 }
                 clone.play();
                 element.appendChild(clone);
               } else {
                 const canvas = document.createElement("canvas");
                 canvas.className = "canvas-" + this.props.gridCoordinates[0] + "-" + this.props.gridCoordinates[1];
-                canvas.width = img.videoWidth * scale;
-                canvas.height = img.videoHeight * scale;
-                canvas.style.marginTop = img.style.marginTop;
-                canvas.style.marginLeft = img.style.marginLeft;
-                canvas.style.transform = img.style.transform;
-                canvas.style.transformOrigin = img.style.transformOrigin;
+                canvas.width = vidImg.videoWidth * scale;
+                canvas.height = vidImg.videoHeight * scale;
+                canvas.style.marginTop = vidImg.style.marginTop;
+                canvas.style.marginLeft = vidImg.style.marginLeft;
+                canvas.style.transform = vidImg.style.transform;
+                canvas.style.transformOrigin = vidImg.style.transformOrigin;
                 element.appendChild(canvas);
               }
             } else {
