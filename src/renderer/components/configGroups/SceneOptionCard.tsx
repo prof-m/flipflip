@@ -124,32 +124,41 @@ class SceneOptionCard extends React.Component {
 
   readonly state = {
     randomSceneList: null as Array<number>,
+    webcamError: false,
   }
 
   readonly sinInputRef: React.RefObject<HTMLInputElement> = React.createRef();
   readonly videoRef: React.RefObject<HTMLVideoElement> = React.createRef();
 
+  isWebcamOverlayActive(props = this.props) {
+    if (!props.scene.overlayEnabled) return false;
+    return props.scene.overlays.some((o: any) => o.sceneID === -2);
+  }
+
   componentDidMount() {
-    if (this.props.scene.backgroundType === BT.webcam) {
+    if (this.isWebcamOverlayActive()) {
       this.startWebcam();
     }
   }
 
   componentDidUpdate(prevProps: any) {
-    if (this.props.scene.backgroundType === BT.webcam && prevProps.scene.backgroundType !== BT.webcam) {
+    const wasActive = this.isWebcamOverlayActive(prevProps);
+    const isActive = this.isWebcamOverlayActive();
+    if (isActive && !wasActive) {
       this.startWebcam();
-    } else if (this.props.scene.backgroundType !== BT.webcam && prevProps.scene.backgroundType === BT.webcam) {
+    } else if (!isActive && wasActive) {
       this.stopWebcam();
     }
   }
 
   componentWillUnmount() {
-    if (this.props.scene.backgroundType === BT.webcam) {
+    if (this.isWebcamOverlayActive()) {
       this.stopWebcam();
     }
   }
 
   startWebcam = async () => {
+    this.setState({ webcamError: false });
     try {
       const stream = await WebcamManager.requestWebcam();
       if (this.videoRef.current) {
@@ -158,6 +167,7 @@ class SceneOptionCard extends React.Component {
       }
     } catch (err) {
       console.error("Webcam not available", err);
+      this.setState({ webcamError: true });
     }
   }
 
@@ -519,14 +529,7 @@ class SceneOptionCard extends React.Component {
                     onChangeColors={this.onInput.bind(this, 'backgroundColorSet')}/>
                 )}
               </Collapse>
-              <Collapse in={this.props.scene.backgroundType == BT.webcam} className={classes.fullWidth}>
-                <video
-                  ref={this.videoRef}
-                  autoPlay
-                  muted
-                  style={{ width: '100%', maxHeight: 150, objectFit: 'contain', backgroundColor: 'black', borderRadius: 4 }}
-                />
-              </Collapse>
+
             </Grid>
           </Grid>
         </Grid>
@@ -690,6 +693,7 @@ class SceneOptionCard extends React.Component {
                       <Grid item xs={12} sm={this.props.sidebar ? 12 : 5}>
                         <Typography className={classes.selectText} variant="caption">Overlay{regenerate ? invalid ? " ✗" : " ⟳" : ""}</Typography>
                         <SceneSelect
+                        includeWebcam
                           allScenes={this.props.allScenes}
                           allSceneGrids={this.props.allSceneGrids}
                           value={o.sceneID}
@@ -722,6 +726,22 @@ class SceneOptionCard extends React.Component {
                           </Grid>
                         </Grid>
                       </Grid>
+                    {o.sceneID == -2 && (
+                      <Grid item xs={12} style={{ textAlign: 'center' }}>
+                        {this.state.webcamError ? (
+                          <Typography color="error">
+                            Error: Webcam not available.
+                          </Typography>
+                        ) : (
+                          <video
+                            ref={this.videoRef}
+                            autoPlay
+                            muted
+                            style={{ maxWidth: '100%', maxHeight: 150, borderRadius: 4 }}
+                          />
+                        )}
+                      </Grid>
+                    )}
                     </Grid>
                   </Collapse>
                 </Grid>
@@ -760,6 +780,7 @@ class SceneOptionCard extends React.Component {
   getSceneName(id: string): string {
     if (id === "0") return "None";
     if (id === "-1") return "Random";
+    if (id === "-2") return "Live Webcam";
     if (id.startsWith('999')) {
       return this.props.allSceneGrids.find((s) => s.id.toString() == id.replace('999', ''))?.name;
     }

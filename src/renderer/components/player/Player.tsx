@@ -26,6 +26,7 @@ import PictureGrid from "./PictureGrid";
 import PlayerBars from "./PlayerBars";
 import SourceScraper from './SourceScraper';
 import Strobe from "./Strobe";
+import WebcamOverlay from "./WebcamOverlay";
 
 export default class Player extends React.Component {
   readonly props: {
@@ -554,6 +555,16 @@ export default class Player extends React.Component {
                       setVideo={this.setGridOverlayVideo.bind(this, index)}
                       systemMessage={this.props.systemMessage}
                     />
+                  </div>
+                )
+              } else if (overlay.sceneID === -2) {
+                if (!this.state.areOverlaysLoaded[index]) {
+                  setTimeout(() => this.setOverlayLoaded(index, true), 200);
+                }
+                const overlayOpacity = typeof overlay.opacity === 'number' ? overlay.opacity / 100 : 0;
+                return (
+                  <div key={overlay.id}>
+                    <WebcamOverlay opacity={overlayOpacity} />
                   </div>
                 )
               } else {

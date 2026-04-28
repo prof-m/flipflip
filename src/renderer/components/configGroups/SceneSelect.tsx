@@ -33,6 +33,7 @@ class SceneSelect extends React.Component {
     menuIsOpen?: boolean,
     autoFocus?: boolean,
     includeExtra?: boolean
+    includeWebcam?: boolean
     onlyExtra?: boolean
     getSceneName(sceneID: string): string,
     onChange(sceneID: number): void,
@@ -43,6 +44,9 @@ class SceneSelect extends React.Component {
     let defaults = [this.props.onlyExtra ? "-1" : "0"];
     if (this.props.includeExtra) {
       defaults = ["0", "-1"];
+    }
+    if (this.props.includeWebcam) {
+      defaults.push("-2");
     }
     const scenes = this.props.allScenes.filter((s) => (!this.props.scene || s.id !== this.props.scene.id) && (s.sources.length > 0 || (s.regenerate && areWeightsValid(s)))).map((s) => s.id.toString());
     let idList = defaults.concat(scenes);
